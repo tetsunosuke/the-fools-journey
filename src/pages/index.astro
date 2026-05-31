@@ -1,0 +1,111 @@
+---
+// Astro Component Frontmatter
+import '../styles/style.css';
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT FOOL - プロジェクト・フール</title>
+    <!-- Google Fonts: 神秘的なCinzel、モダンなMontserrat、デバッグ用のShare Tech Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-wrapper">
+        <!-- 背景のグラデーションやパーティクル効果用 -->
+        <div class="bg-glow"></div>
+        <div class="glitch-overlay" id="glitch-overlay"></div>
+
+        <!-- ヘッダー・ステータスバー -->
+        <header id="status-bar">
+            <div class="status-left">
+                <span class="status-label">LOOP:</span>
+                <span id="loop-count" class="status-val">1</span>
+            </div>
+            <div class="status-title">PROJECT FOOL</div>
+            <div class="status-right">
+                <span class="status-label">ARCANA:</span>
+                <span id="current-arcana" class="status-val">0 : THE FOOL</span>
+                <button id="sound-btn" class="icon-btn" title="音声 (準備中)" disabled>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- メインゲームエリア -->
+        <main id="game-container">
+            <!-- 占い師/ビジュアルエリア -->
+            <section id="visual-area">
+                <div class="oracle-avatar-container">
+                    <!-- 占い師のシルエット/幾何学的グラフィック (CSSで描画) -->
+                    <div class="oracle-circle-magic"></div>
+                    <div class="oracle-eye">👁️</div>
+                    <div class="oracle-name">SOPHIA</div>
+                </div>
+                <!-- 警告・メタ演出メッセージ表示領域 -->
+                <div id="system-warning" class="hidden">WARNING: SYSTEM INTEGRITY COMPROMISED</div>
+            </section>
+
+            <!-- テキスト・ダイアログウィンドウ -->
+            <section id="dialogue-container">
+                <div class="dialogue-box">
+                    <div class="speaker-name" id="speaker-name">ソフィア</div>
+                    <div class="text-content" id="dialogue-text">
+                        旅人よ、あなたは何も持たずにこの世界へやってきた「愚者」です。
+                        運命のカードが、あなたの歩むべき道を指し示すでしょう。さあ、カードをめくりなさい。
+                    </div>
+                    <div class="click-prompt" id="click-prompt">▼</div>
+                </div>
+            </section>
+
+            <!-- 選択肢（タロットカード）エリア -->
+            <section id="card-selection-area">
+                <div class="cards-container" id="cards-container">
+                    <!-- 動的にカード要素が追加される -->
+                </div>
+            </section>
+        </main>
+
+        <!-- ゲーム内デバッグコンソール (メタ要素) -->
+        <div id="debug-console" class="console-closed">
+            <div class="console-header">
+                <span class="console-title">FATE_DEBUGGER_v1.09.sh</span>
+                <button id="close-console-btn">×</button>
+            </div>
+            <div class="console-body">
+                <div class="console-logs" id="console-logs">
+                    <div>[SYS] FATE_THREAD MONITOR ACTIVE...</div>
+                    <div>[SYS] TARGET_OBJECT: player.destiny</div>
+                    <div>[WARN] DESTINY IS LOCKED BY SYSTEM TEMPLATE.</div>
+                    <div>[HINT] Enter 'fate = "free"' to unlock the choice.</div>
+                </div>
+                <div class="console-input-line">
+                    <span class="prompt-char">&gt;</span>
+                    <input type="text" id="console-input" autofocus placeholder="command here..." autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- エンディング/オーバーレイ画面 -->
+        <div id="ending-overlay" class="hidden">
+            <div class="ending-content">
+                <h1 id="ending-title">THE END</h1>
+                <p id="ending-desc">あなたは運命に敗北しました。</p>
+                <button id="restart-btn" class="action-btn">再び歩み始める</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- クライアントサイドスクリプトのインポート -->
+    <script>
+        import '../scripts/app.js';
+    </script>
+</body>
+</html>
