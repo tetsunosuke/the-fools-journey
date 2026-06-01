@@ -2,18 +2,18 @@
  * PROJECT FOOL - Core Game Logic & Narrative Engine (Astro Version)
  */
 
-// --- Rider-Waite Tarot Images (Public Domain) ---
+// --- Rider-Waite Tarot Images (Local Assets) ---
 const TAROT_IMAGES = {
-    0: "https://upload.wikimedia.org/wikipedia/commons/9/90/Rider-Waite_1909_The_Fool.jpg",
-    1: "https://upload.wikimedia.org/wikipedia/commons/d/de/Rider-Waite_1909_The_Magician.jpg",
-    5: "https://upload.wikimedia.org/wikipedia/commons/8/8d/Rider-Waite_1909_The_Hierophant.jpg",
-    7: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Rider-Waite_1909_The_Chariot.jpg",
-    9: "https://upload.wikimedia.org/wikipedia/commons/4/4d/Rider-Waite_1909_The_Hermit.jpg",
-    12: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Rider-Waite_1909_The_Hanged_Man.jpg",
-    15: "https://upload.wikimedia.org/wikipedia/commons/5/55/Rider-Waite_1909_The_Devil.jpg",
-    16: "https://upload.wikimedia.org/wikipedia/commons/5/53/Rider-Waite_1909_The_Tower.jpg",
-    17: "https://upload.wikimedia.org/wikipedia/commons/d/db/Rider-Waite_1909_The_Star.jpg",
-    21: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Rider-Waite_1909_The_World.jpg"
+    0: "/images/cards/0.jpg",
+    1: "/images/cards/1.jpg",
+    5: "/images/cards/5.jpg",
+    7: "/images/cards/7.jpg",
+    9: "/images/cards/9.jpg",
+    12: "/images/cards/12.jpg",
+    15: "/images/cards/15.jpg",
+    16: "/images/cards/16.jpg",
+    17: "/images/cards/17.jpg",
+    21: "/images/cards/21.jpg"
 };
 
 // --- Scenario Data ---
