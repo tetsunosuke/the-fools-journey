@@ -4,8 +4,8 @@
 
 :root {
     /* Color Palette */
-    --color-bg-dark: #07050f;
-    --color-bg-panel: rgba(16, 12, 34, 0.65);
+    --color-bg-dark: #030206;
+    --color-bg-panel: rgba(10, 8, 22, 0.85);
     --color-gold: #d4af37;
     --color-gold-glow: rgba(212, 175, 55, 0.4);
     --color-purple: #8b5cf6;
@@ -22,7 +22,7 @@
     --font-mono: 'Share Tech Mono', monospace;
 
     /* Transitions & Blurs */
-    --blur-glass: blur(12px);
+    --blur-glass: blur(18px);
     --border-gold: 1px solid rgba(212, 175, 55, 0.25);
     --border-gold-focus: 1px solid rgba(212, 175, 55, 0.8);
     --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -43,6 +43,22 @@ body {
     overflow: hidden;
     height: 100vh;
     width: 100vw;
+}
+
+/* Global Scene Background (Full Screen) */
+.scene-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -3;
+    opacity: 0.35;
+    transition: background-image 1.5s ease-in-out, opacity 1.5s ease-in-out;
+    filter: brightness(0.6) contrast(1.1);
 }
 
 /* Background Glow Effect */
@@ -161,15 +177,31 @@ body {
     justify-content: center;
 }
 
+.oracle-portrait {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    z-index: 1;
+    border: 2px solid var(--color-gold);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.45);
+    filter: saturate(1.1) brightness(0.9);
+    transition: background-image 1s ease-in-out;
+}
+
 .oracle-circle-magic {
-    width: 140px;
-    height: 140px;
+    width: 145px;
+    height: 145px;
     border: 1px dashed var(--color-gold);
     border-radius: 50%;
     position: absolute;
     animation: rotateMagic 20s linear infinite;
     opacity: 0.6;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+    z-index: 2;
+    pointer-events: none;
 }
 
 .oracle-circle-magic::before {
@@ -193,25 +225,17 @@ body {
 }
 
 .oracle-eye {
-    font-size: 48px;
-    z-index: 2;
-    filter: drop-shadow(0 0 15px var(--color-gold-glow));
-    animation: floatEye 4s ease-in-out infinite alternate;
-}
-
-@keyframes floatEye {
-    0% { transform: translateY(-5px); }
-    100% { transform: translateY(5px); }
+    display: none;
 }
 
 .oracle-name {
-    margin-top: 85px;
+    margin-top: 90px;
     font-family: var(--font-serif);
     font-size: 14px;
     letter-spacing: 5px;
     color: var(--color-text-muted);
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-    z-index: 2;
+    z-index: 3;
 }
 
 #system-warning {

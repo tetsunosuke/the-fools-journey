@@ -104,7 +104,7 @@ const SCENARIO = {
         {
             arcana: "0 : THE FOOL (愚者) - Loop 2",
             speaker: "ソフィア",
-            text: "いらっしゃい、旅人さん. あなたが手にしているのは……あら、不思議な感覚ね。まるで前にもこうしてあなたにカードを渡したような……？ 気のせいかしら。さあ、そのカードをめくってみて。",
+            text: "いらっしゃい、旅人さん。あなたが手にしているのは……あら、不思議な感覚ね。まるで前にもこうしてあなたにカードを渡したような……？ 気のせいかしら。さあ、そのカードをめくってみて。",
             cards: [
                 { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性。ソフィアは静かに言う。「無知は、ルールを盲信すれば救われるという意味でもあるわ。でも、何かがおかしい……本当にこれが初めての旅かしら？」" }
             ]
@@ -150,7 +150,7 @@ const SCENARIO = {
             speaker: "ソフィア",
             text: "「吊られた男」。耐えることの意味を考え直してください。耐えた先に待っているのは崩壊の塔です。ソフィアの声が冷たくなります。「ただ選択肢を選べばいいのです」",
             cards: [
-                { id: 12, title: "XII : 吊られた男 (正)", upright: true, desc: "【正位置】修行。いつまで従順な操り人形でいるつもりですか？" },
+                { id: 12, title: "XII : 吊られた男 (正)", upright: true, desc: "【正位置】修行. いつまで従順な操り人形でいるつもりですか？" },
                 { id: 12, title: "XII : 吊られた男 (逆)", upright: false, desc: "【逆位置】骨折り損。無意味な犠牲のループに気づき始めています。" }
             ]
         },
@@ -200,6 +200,8 @@ let selectedOptionDesc = "";
 let isFateControlled = true; // メタ要素用。
 
 // --- DOM Elements ---
+const sceneBgEl = document.getElementById("scene-bg");
+const oraclePortraitEl = document.getElementById("oracle-portrait");
 const loopCountEl = document.getElementById("loop-count");
 const currentArcanaEl = document.getElementById("current-arcana");
 const speakerNameEl = document.getElementById("speaker-name");
@@ -237,6 +239,15 @@ function initGame() {
     const bin = document.getElementById("discard-zone");
     if (bin) bin.remove();
 
+    // Scene background initialize
+    if (currentLoop < 3) {
+        sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
+        sceneBgEl.style.opacity = 0.35;
+    } else {
+        sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
+        sceneBgEl.style.opacity = 0.55;
+    }
+
     loadStep();
 }
 
@@ -255,6 +266,24 @@ function loadStep() {
     
     currentArcanaEl.textContent = stepData.arcana;
     speakerNameEl.textContent = stepData.speaker;
+
+    // Sophia Portrait visibility control
+    if (stepData.speaker === "ソフィア" || stepData.speaker === "ソフィア (エラー)") {
+        oraclePortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
+        oraclePortraitEl.style.opacity = "1";
+    } else {
+        oraclePortraitEl.style.backgroundImage = "none";
+        oraclePortraitEl.style.opacity = "0";
+    }
+
+    // Dynamic background update
+    if (currentLoop === 3) {
+        sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
+        sceneBgEl.style.opacity = 0.55;
+    } else {
+        sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
+        sceneBgEl.style.opacity = 0.35;
+    }
     
     // Typing effect
     typeDialogueText(stepData.text);
@@ -353,6 +382,10 @@ dialogueTextEl.parentElement.addEventListener("click", () => {
 function triggerBadEnd() {
     glitchOverlay.classList.add("glitch-active");
     systemWarning.classList.remove("hidden");
+
+    // Dynamic bg to matrix glitch on bad end
+    sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
+    sceneBgEl.style.opacity = 0.85;
     
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
@@ -380,6 +413,9 @@ function triggerBadEnd() {
 
 function triggerLoopBackEnd() {
     glitchOverlay.classList.add("glitch-active");
+    sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
+    sceneBgEl.style.opacity = 0.85;
+
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
         endingTitle.textContent = "XV : THE DEVIL (盲信ループ)";
@@ -409,6 +445,13 @@ function loadMetaStarStep() {
     currentArcanaEl.textContent = "XVII : THE STAR (希望の星)";
     speakerNameEl.textContent = "ソフィア (エラー状態)";
     
+    // Sophia glitch visual control
+    oraclePortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
+    oraclePortraitEl.style.opacity = "0.7";
+    
+    sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
+    sceneBgEl.style.opacity = 0.7;
+
     typeDialogueText("警告。ここから先は定められた運命にはありません。しかし、システムはあなたに再び「死神」か「塔」の破滅を引かせようとしています。従ってはならない……！");
 
     cardsContainer.innerHTML = "";
@@ -561,7 +604,6 @@ function openDebugConsole() {
     consoleInput.focus();
 }
 
-// Custom log print helper
 function addConsoleLog(text) {
     const div = document.createElement("div");
     div.textContent = text;
@@ -647,6 +689,9 @@ function triggerTrueEndingUnlock() {
     setTimeout(() => {
         debugConsole.classList.add("console-closed");
     }, 1000);
+
+    // Fade scene-bg on true end
+    sceneBgEl.style.opacity = 0.15;
 
     speakerNameEl.textContent = "ソフィア";
     typeDialogueText("……運命の糸が……切れました。あなたは提示された運命に抗い、自分の意思で選択を放棄し、そして……システムを超越しました。");
