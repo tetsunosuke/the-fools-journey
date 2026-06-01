@@ -20,11 +20,19 @@ const TAROT_IMAGES = {
 const SCENARIO = {
     1: [
         {
+            arcana: "PROLOGUE : THE CARD (拾われたカード)",
+            speaker: "ナレーション",
+            text: "雨上がりの路地裏で、あなたは奇妙なカードを拾った。裏面には美しい紋章と、この先の雑居ビルにある占い店の住所が書かれている。導かれるようにたどり着いたのは、古びた占い店『The Fool's Journey』。ドアを開けて、中に入ってみよう。",
+            cards: [
+                { id: 0, title: "扉を開けて入店する", upright: true, desc: "カランコロンと静かな鈴の音が響く。薄暗い店内の奥で、妖艶な占い師がキャンドルの炎に照らされて座っていた。「ようこそ、旅人さん」" }
+            ]
+        },
+        {
             arcana: "0 : THE FOOL (愚者)",
             speaker: "ソフィア",
-            text: "旅人よ、あなたは何も持たずにこの世界に生まれ落ちた「愚者」です。運命はまだ白紙。さあ、目の前のカードをめくり、最初の第一歩を踏み出しなさい。",
+            text: "いらっしゃい、旅人さん。あなたが手にしているそのカード……私が落としたものね。それを拾ってここまでたどり着くなんて、面白い偶然。そのカードをめくってみて。",
             cards: [
-                { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性、無垢な旅立ち。あなたは導きに従い、歩み始めました。" }
+                { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性、無垢な旅立ち。ソフィアは微笑む。「これは『愚者』。無知な者という意味。タロットに興味があるなら、この先の旅路を教えてあげるわ。……でも、無知であることは必ずしも悪いことではないのよ。それは、これから起こることを先入観なく楽しめるという意味でもあるの。複数解釈ができるのがタロットの面白いところ。さあ、最初の第一歩を踏み出しなさい」" }
             ]
         },
         {
@@ -70,7 +78,7 @@ const SCENARIO = {
         {
             arcana: "XV : THE DEVIL (悪魔)",
             speaker: "ソフィア",
-            text: "おや、奇妙ですね。提示された運命は「悪魔」……。甘い囁きと依存のカードです。でも、あなたが考える必要はありません。ただ、このカードを受け入れなさい。",
+            text: "おや、奇妙ですね。提示された運命は「悪魔」……。甘い囁きと依存のカードです。切実な問いかけも不要です。ただ、このカードを受け入れなさい。",
             cards: [
                 { id: 15, title: "XV : 悪魔", upright: true, desc: "【正位置】誘惑と束縛。あなたは自分で意思決定をする責任から完全に逃れ、運命の虜となりました。" }
             ]
@@ -86,11 +94,19 @@ const SCENARIO = {
     ],
     2: [
         {
+            arcana: "PROLOGUE : THE DEJA VU (既視感)",
+            speaker: "ナレーション",
+            text: "……デジャヴだろうか。あなたはまたしても、あのカードを拾い、あの住所をたどり、同じ占い店の前に立っている。ドアの向こうからは、聞き覚えのある声が聞こえる。ドアを開けて中へ入ろう。",
+            cards: [
+                { id: 0, title: "再び扉を開けて入店する", upright: true, desc: "ドアを開けると、やはりあのハーブの香りが漂う。しかし、あなたの心には冷たい汗が流れている。ソフィアは前と同じように座っていた。「ようこそ、旅人さん」" }
+            ]
+        },
+        {
             arcana: "0 : THE FOOL (愚者) - Loop 2",
             speaker: "ソフィア",
-            text: "……はっ。旅人よ、あなたは何も持たずに……。いえ、何か不思議な感覚がしますね。まるで以前にもここへ来たような……？ 気のせいでしょう。さあ、カードをめくって。",
+            text: "いらっしゃい、旅人さん. あなたが手にしているのは……あら、不思議な感覚ね。まるで前にもこうしてあなたにカードを渡したような……？ 気のせいかしら。さあ、そのカードをめくってみて。",
             cards: [
-                { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性。しかし、あなたの心にはかすかな違和感が芽生えています。" }
+                { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性。ソフィアは静かに言う。「無知は、ルールを盲信すれば救われるという意味でもあるわ。でも、何かがおかしい……本当にこれが初めての旅かしら？」" }
             ]
         },
         {
@@ -157,6 +173,14 @@ const SCENARIO = {
         }
     ],
     3: [
+        {
+            arcana: "PROLOGUE : SYSTEM BUG (バグ)",
+            speaker: "ナレーション",
+            text: "カードの絵柄はノイズで掻き消え、住所は文字化けしている。それでもあなたは、引き寄せられるように店の前に立っていた。ドアは半開きで、不気味な電子音が漏れている。中へ入ろう。",
+            cards: [
+                { id: 0, title: "バグった扉から中に入る", upright: true, desc: "一歩踏み入れると、そこはキャンドルの光ではなく、赤く点滅するエラー表示と、グリッチの嵐だった。ソフィアの姿もブレて見える。「警告、警告……」" }
+            ]
+        },
         {
             arcana: "0 : THE FOOL (愚者) - SYSTEM MALFUNCTION",
             speaker: "ソフィア (エラー)",
@@ -537,6 +561,7 @@ function openDebugConsole() {
     consoleInput.focus();
 }
 
+// Custom log print helper
 function addConsoleLog(text) {
     const div = document.createElement("div");
     div.textContent = text;
@@ -692,12 +717,12 @@ function showTrueEndingOverlay() {
     };
 }
 
-// Set up dialouge advance click handlers for normal game steps
+// Set up dialogue advance click handlers for normal game steps
 function advanceGame() {
     const currentScenarioLength = SCENARIO[currentLoop].length;
 
     // Special Loop 3 end check (if they failed)
-    if (currentLoop === 3 && currentStep === 0 && isFateControlled && isCardRevealed) {
+    if (currentLoop === 3 && currentStep === 1 && isFateControlled && isCardRevealed) {
         triggerLoopBackEnd();
         return;
     }
