@@ -182,6 +182,17 @@ const SCENARIO = {
                 { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性、無垢な旅立ち。ソフィアは驚いたように、しかし嬉しそうに微笑んだ。「あら……！ 届けられたはずの愚者が、また君の手元に戻ってきたわ。まるでカードが自ら、次の旅人として君を指名したみたい。タロットの世界において、無知は罪ではなく、無限の可能性そのもの。さあ、君の日常という旅を始めましょう」" }
             ]
         },
+        // Step 2: 0日目・アプリの紹介 (占い店対面)
+        {
+            view: "talk",
+            arcana: "0 : THE FOOL (旅の案内)",
+            speaker: "ソフィア",
+            text: "「どう？ タロットの描く『愚者の旅』に、少し興味が湧いたかしら？ もし、もっとタロットについて知りたいのなら、当店で扱うおすすめのアプリがあるの。無料体験版だから、ぜひ君のスマートフォンにインストールしてみて。日常の旅をナビゲートしてくれるはずよ」",
+            stressChange: 0, luckChange: 0,
+            cards: [
+                { id: 0, title: "アプリ『The Journey』をインストールする", upright: true, desc: "ソフィアから提示されたQRコードを読み込み、アプリ『The Journey』をインストールした。画面には奇妙な目のアイコンと、『ようこそ、新しい旅人よ』という文字が浮かび上がっている。" }
+            ]
+        },
         // Step 2: 0日目・最初のラッキー (チャットアプリ)
         {
             view: "chat",
@@ -593,7 +604,7 @@ function loadStep() {
         typeDialogueText(stepData.text, talkTextEl, () => {
             talkClickPrompt.classList.remove("hidden");
             // Render card / forms after typing finishes
-            if (currentLoop === 1 && currentStep === 9) {
+            if (currentLoop === 1 && currentStep === 10) {
                 renderSoulCardForm();
             } else if (currentLoop === 2 && currentStep === 2) {
                 loadMetaStarStep();
@@ -607,7 +618,7 @@ function loadStep() {
         
         // Push incoming message into Chat Timeline, render choices after typing completes
         pushChatMessage(stepData.speaker, stepData.text, false, null, () => {
-            if (currentStep === 11 || currentStep === 12) {
+            if (currentStep === 12 || currentStep === 13) {
                 renderMotifSelection(currentStep);
             } else {
                 renderChoiceCards(stepData.cards, chatInteractiveZoneEl, true);
@@ -974,7 +985,7 @@ function advanceGame() {
     const currentScenarioLength = SCENARIO[currentLoop].length;
 
     // Bad End branch at Step 8 (Lovers)
-    if (currentLoop === 1 && currentStep === 8) {
+    if (currentLoop === 1 && currentStep === 9) {
         if (selectedOptionDesc.includes("【分岐バッドエンド】")) {
             stressVal = 100;
             luckVal = 0;
@@ -1024,7 +1035,7 @@ function triggerLoversBadEnd() {
         `;
         restartBtn.textContent = "再び白紙の旅に出る (やり直す)";
         restartBtn.onclick = () => {
-            currentStep = 8;
+            currentStep = 9;
             initGame();
         };
     }, 1200);
