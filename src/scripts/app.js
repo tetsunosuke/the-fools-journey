@@ -76,312 +76,11 @@ const MEDITATION_MOTIFS = {
             { name: "崖の縁", text: "君が崖の縁に惹かれたのは、今まさに新しい一歩を踏み出したい、あるいは現状を打破したいという無意識のサインです。踏み出す前に、自分の足元を信じましょう。" },
             { name: "白い薔薇", text: "白い薔薇は純粋な動機を象徴します。他人の評価や利害関係から離れ、純粋な好奇心や初心に立ち返る時期かもしれません。" }
         ]
-    },
-    1: {
-        title: "I : 魔術師",
-        motifs: [
-            { name: "無限大の記号", text: "頭上のレムニスケート（無限大）は、君の無限のポテンシャルを示しています。手元にはすでに必要なものが揃っています。恐れずにスタートを切りましょう。" },
-            { name: "テーブルの上の道具", text: "テーブルの道具は君のリソースを意味します。新しいスキルを学ぶのではなく、今ある武器をどう組み合わせるかに知恵を絞りましょう。" }
-        ]
-    },
-    2: {
-        title: "II : 女教皇",
-        motifs: [
-            { name: "書物（TORA）", text: "女教皇が抱く書物は、秘められた知識と直感を意味します。周囲の騒音に惑わされず、今は沈黙を守り、心の内なる真実に耳を傾けるのが賢明です。" },
-            { name: "背後のザクロのタペストリー", text: "ザクロは内なる豊かさと女性性を象徴します。表面的な論理よりも、直感や感情の動きを信じて静観しましょう。" }
-        ]
-    },
-    3: {
-        title: "III : 女帝",
-        motifs: [
-            { name: "豊かな麦畑", text: "豊かな黄金の麦畑は、物質的・精神的な実りと豊穣を示しています。今は自分や他者を受容し、育み、満たされることを自分に許しましょう。" },
-            { name: "盾 of ハートマーク", text: "金星のシンボルが描かれた盾は、愛と無条件の受容を意味します。自分を守るための武装を解き、愛を受け取る準備をしてください。" }
-        ]
-    },
-    5: {
-        title: "V : 教皇",
-        motifs: [
-            { name: "交差した2本の鍵", text: "足元の交差した鍵は、秩序や伝統的な知識の鍵を意味します。今は突飛な行動を避け、既存のルールや信頼できる指導者に従うことが安全です。" },
-            { name: "ひざまずく信者たち", text: "信者たちはコミュニティと規律の共有を示します。独断専行を避け、同じ価値観を持つ仲間と同調することが求められています。" }
-        ]
-    },
-    7: {
-        title: "VII : 戦車",
-        motifs: [
-            { name: "白と黒のスフィンクス", text: "車首のスフィンクスは対立する衝動を意味します。理性（白）と感情（黒）がバラバラに暴走しないよう、強い意志で手綱を握る必要があります。" },
-            { name: "星の天蓋", text: "戦車を覆う星の天蓋は、高い理想と目的意識を示します。目先の勝利だけでなく、君が本当に目指すべき高遠な目標を見据えてください。" }
-        ]
-    },
-    9: {
-        title: "IX : 隠者",
-        motifs: [
-            { name: "六芒星のランタン", text: "隠者が掲げるランタンは、自分自身を照らす内省の光です。他者の意見に惑わされず、孤独を恐れずに一人で真実を模索する時です。" },
-            { name: "雪に覆われた山頂", text: "高い山頂は世俗からの離脱と超越を意味します。一時的に世間の喧騒から距離を置き、精神的な静寂を確保してください。" }
-        ]
-    },
-    12: {
-        title: "XII : 吊られた男",
-        motifs: [
-            { name: "後光の差す頭部", text: "逆さ吊りでありながら輝く頭部は、視点の反転による悟りを示します。今の試練は、物事を全く別の角度から見つめ直すためのチャンスです。" },
-            { name: "十字の生木", text: "十字の生木は成長を伴う一時的な拘束を意味します。今はもがいて抵抗するよりも、この不自由さの中で内省を深めましょう。" }
-        ]
-    },
-    15: {
-        title: "XV : 悪魔",
-        motifs: [
-            { name: "緩い首輪の鎖", text: "男女の首にかかる鎖は非常に緩く、その気になればいつでも外せます。君が囚われている依存や悪習慣は、実は「自分の意志で囚われ続けている」だけかもしれません。" },
-            { name: "逆五芒星", text: "悪魔の額の逆五芒星は本能と物質主義を意味します。理性を超えた本能的な欲求に支配されていないか、自分を客観視してみましょう。" }
-        ]
-    },
-    16: {
-        title: "XVI : 塔",
-        motifs: [
-            { name: "王冠を吹き飛ばす稲妻", text: "天から降る雷は、突然の天啓や予期せぬ外部からの衝撃を意味します。崩壊は苦痛ですが、それは偽りのプライドや誤った土台から君を解放する光でもあります。" },
-            { name: "落下する人々", text: "塔から落下する人々は、これまでの信念の崩壊を示します。地に足をつけて一からやり直す準備をしましょう。" }
-        ]
-    },
-    17: {
-        title: "XVII : 星",
-        motifs: [
-            { name: "輝く大星と7つの小星", text: "大星は希望とインスピレーションの源泉です。暗闇の中でも、君を導くかすかな希望の光が必ず存在していることを信じてください。" },
-            { name: "大地と水面に注ぐ水", text: "水を注ぐ仕草は、惜しみない分かち合いと癒やしを意味します。君の感情や才能を、見返りを求めずに表現してみましょう。" }
-        ]
-    },
-    21: {
-        title: "XXI : 世界",
-        motifs: [
-            { name: "月桂樹の輪", text: "世界を囲む輪は、旅の終着点と完璧な全体性を示します。君は葛藤を乗り越え、一つのサイクルを完成させました。調和と調律を祝う時です。" },
-            { name: "四隅の聖獣", text: "四隅の獣は世界の構成要素の統合を意味します。心と現実、感情と論理のすべてが本来の正しい場所へと統合されました。" }
-        ]
     }
 };
 
 // --- Multi-Scene Game Scenario (with View flags) ---
-const SCENARIO = {
-    1: [
-        // Step 0: 0日目・導入 (占い店対面)
-        {
-            view: "talk",
-            arcana: "0 : THE FOOL (運命との遭遇)",
-            speaker: "ナレーション",
-            text: "雨上がりの都会の片隅。私は道端に落ちている1枚のカードを拾い上げた。描かれているのは、白い薔薇を手に持ち、崖の縁から今にも踏み出そうとしている若者と、その足元で吠える犬の奇妙な絵。裏面には、手書き of 奇妙な地図が描かれている。奇妙な引力に導かれ、その地図が指し示す路地裏へふと足を進めると、そこには古びたタロットショップ of 重い木製 of 扉があった。",
-            stressChange: 0, luckChange: 0,
-            cards: [
-                { id: 0, title: "扉を開けて入店する", upright: true, desc: "カランコロン、とドアベルが静かに響く。店内は薄暗く、お香 of 甘い香りが漂っている。キャンドル of 炎に照らされて座っているのは、不思議な魅力を漂わせる占い師ソフィアだった。私がカードを差し出すと、彼女は目を丸くした。「あら……！ これ、私がずっと探していたカードだわ。どこで見つけたの？」" }
-            ]
-        },
-        // Step 1: 0日目・シャッフル (占い店対面)
-        {
-            view: "talk",
-            arcana: "0 : THE FOOL (心理トリック)",
-            speaker: "ソフィア",
-            text: "「これは『0：愚者』のカード。描かれている若者はね、頭上を見上げて足元の崖に気づいていないの。無計画で無知に見えるけれど、先入観がなく、どんな未来へも飛び出せる『無限の可能性』そのもの。……届けてくれたお礼に、今の君の運命を1枚だけ占ってあげましょう」 ソフィアは私が届けたカードを山札に戻し、念入りにシャッフルした。裏向きに並べられた3枚のカードから、私が直感で引き当てたのは……",
-            stressChange: -10, luckChange: 10,
-            choiceIllusion: true, // Show 3 cards but result is fixed
-            cards: [
-                { id: 0, title: "0 : 愚者", upright: true, desc: "【正位置】無限の可能性、無垢な旅立ち。ソフィアは驚いたように、しかし嬉しそうに微笑んだ。「あら……！ 届けられたはずの愚者が、また君の手元に戻ってきたわ。まるでカードが自ら、次の旅人として君を指名したみたい。タロットの世界において、無知は罪ではなく、無限の可能性そのもの。さあ、君の日常という旅を始めましょう」" }
-            ]
-        },
-        // Step 2: 0日目・アプリの紹介 (占い店対面)
-        {
-            view: "talk",
-            arcana: "0 : THE FOOL (旅の案内)",
-            speaker: "ソフィア",
-            text: "「どう？ タロットの描く『愚者の旅』に、少し興味が湧いたかしら？ もし、もっとタロットについて知りたいのなら、当店で扱うおすすめのアプリがあるの。無料体験版だから、ぜひ君のスマートフォンにインストールしてみて。日常の旅をナビゲートしてくれるはずよ」",
-            stressChange: 0, luckChange: 0,
-            cards: [
-                { id: 0, title: "アプリ『The Journey』をインストールする", upright: true, desc: "ソフィアから提示されたQRコードを読み込み、アプリ『The Journey』をインストールした。画面には奇妙な目のアイコンと、『ようこそ、新しい旅人よ』という文字が浮かび上がっている。" }
-            ]
-        },
-        // Step 2: 0日目・最初のラッキー (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "0 : THE FOOL (愚者の実験)",
-            speaker: "アプリ『The Journey』",
-            text: "愚者は地図を持たずに旅に出ます。今、あなたの目の前にある『計画にない選択』をしてみてください。",
-            stressChange: -20, luckChange: 25,
-            choiceIllusion: true,
-            cards: [
-                { id: 0, title: "普段乗らない路線のバスに乗る", upright: true, desc: "目の前に停まった、普段なら絶対に乗らない路線のバスに気まぐれに乗ってみた。すると、偶然にも長年探していた店を見つけ、欲しかったものが半額で手に入った。カードの導き（直感）に従うと、こんなに楽で、しかも上手くいくんだ……！" },
-                { id: 0, title: "いつもの徒歩ルートで歩いて帰る", upright: true, desc: "いつものルートで帰ろうとしたが、なぜか強烈な直感（あるいはアプリの通知音）に背中を押され、目の前に停まった普段乗らない路線のバスに乗ってしまった。すると偶然にも長年探していた店を見つけ、欲しかったものが半額で手に入った。やはり直感に逆らうことはできないのだ。" },
-                { id: 0, title: "タクシーを捕まえてみる", upright: true, desc: "タクシーを探したが1台も見つからない。代わりに、目の前に普段乗らない路線のバスがすっと停まり、吸い寄せられるように乗ってしまった。すると偶然にも長年探していた店を見つけ、欲しかったものが半額で手に入った。カードの導きには逆らえない。" }
-            ]
-        },
-        // Step 3: 1日目・0：愚者 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "0 : THE FOOL (1日目 - 無垢なる旅立ち)",
-            speaker: "アプリ『The Journey』",
-            text: "愚者は地図を持たずに進みます。直感だけで動くことで、失くしたと思っていた大切なものを見つけられるでしょう。さあ、いつものルートを外れなさい。",
-            stressChange: -15, luckChange: 20,
-            choiceIllusion: true,
-            cards: [
-                { id: 0, title: "普段と違う脇道に入ってみる", upright: true, desc: "【正位置】脇道に入ると、数日前に紛失したと思っていた大切な自宅の鍵が落ちているのを見つけた。カードの導きへの信頼が深まっていく。" },
-                { id: 0, title: "いつもの大通りを真っ直ぐ進む", upright: true, desc: "【正位置】大通りを進もうとしたが、突然の突風で帽子が飛ばされ、それを追いかけて普段入らない脇道に入ってしまった。そこには数日前に紛失したはずの大切な自宅の鍵が落ちていた。カードの導きからは逃れられない。" },
-                { id: 0, title: "立ち止まってスマホを見つめる", upright: true, desc: "【正位置】立ち止まった瞬間、アプリが「脇道へ」と激しくアラートを鳴らした。誘われるように脇道へ入ると、そこには数日前に紛失したはずの大切な自宅の鍵が落ちていた。カードの導きへの信頼が深まっていく。" }
-            ]
-        },
-        // Step 4: 2日目・I：魔術師 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "I : THE MAGICIAN (2日目 - 創造と機転)",
-            speaker: "アプリ『The Journey』",
-            text: "手元にある道具と機転で、想定外のピンチをチャンスに変えなさい。用意されたルールを飛び越えるのです。",
-            stressChange: -15, luckChange: 15,
-            choiceIllusion: true,
-            cards: [
-                { id: 1, title: "その場で直感的に別パターンの提案をする", upright: true, desc: "【正位置】会議の直前、致命的な資料ミスが発覚。パニックになる中、アプリの『手元の素材だけで別パターンの提案をその場で直感的にしろ』というナビに従う。結果、ぶっつけ本番 of 提案は大絶賛され、周囲の評価が急上昇した。" },
-                { id: 1, title: "ミスを正直に謝罪して会議の延期を申し出る", upright: true, desc: "【正位置】ミスを謝罪しようとしたが、プロジェクターの不具合で資料が映らなくなる。焦るあなたにアプリは『手元の素材だけで別提案をしろ』と指示。直感的に喋りだすと大絶賛され、怪我の功名で評価が急上昇した。" },
-                { id: 1, title: "前の会議の古い資料で急場を凌ぐ", upright: true, desc: "【正位置】古い資料を開こうとしたが、PCがフリーズ。やむを得ず、アプリの『手元の素材だけで別提案をその場でしろ』という指示に従う。結果、直感的で熱意ある提案と受け取られ大絶賛され、評価が急上昇した。" }
-            ]
-        },
-        // Step 5: 3日目・II：女教皇 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "II : THE HIGH PRIESTESS (3日目 - 直感と沈黙)",
-            speaker: "アプリ『The Journey』",
-            text: "今は沈黙を守り、相手の矛盾を冷静に見極めなさい。感情を排した静観こそが、あなたを勝利へと導きます。",
-            stressChange: -10, luckChange: 10,
-            choiceIllusion: true,
-            cards: [
-                { id: 2, title: "一切の言い訳をせず沈黙を守る", upright: true, desc: "【正位置】理不尽に怒鳴ってくる上司に呼び出される。アプリの指示に従い冷静に沈黙を守ると、上司は勝手に自滅して矛盾を露呈。結果、あなたの冷静さが社内で高評価を得た。" },
-                { id: 2, title: "相手の理不尽な言い分に感情的に反論する", upright: true, desc: "【正位置】反論しようとしたが、あまりの剣幕に喉がすくみ、言葉が出なくなる。結果的にアプリの指示通り「沈黙」を守る形になり、上司は勝手にヒートアップして矛盾を露呈。周囲にはあなたの冷静さだけが際立った。" },
-                { id: 2, title: "その場を丸く収めるために平謝りする", upright: true, desc: "【正位置】謝罪しようと口を開きかけたが、隣の同僚が先に口を挟み、あなたは沈黙せざるを得なくなった。結果的にアプリの指示する「静観と沈黙」になり、上司は自爆。あなたの冷静な大人の対応が高評価を得た。" }
-            ]
-        },
-        // Step 6: 4日目・III：女帝 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "III : THE EMPRESS (4日目 - 豊穣と愛)",
-            speaker: "アプリ『The Journey』",
-            text: "相手が今持っている持ち物を褒め、包容力を見せなさい。それだけで愛と調和が満たされます。",
-            stressChange: -10, luckChange: 5,
-            choiceIllusion: true,
-            cards: [
-                { id: 3, title: "相手のバッグのデザインを褒める", upright: true, desc: "【正位置】気になる相手と2人きりになり気まずい瞬間、アプリのナビ通りに相手のバッグを褒めると、驚くほど会話が弾んで週末の約束を取り付けることに成功した。" },
-                { id: 3, title: "相手の今日の服装を無難に褒める", upright: true, desc: "【正位置】服装を褒めようとしたが噛んでしまい、相手が「あ、このバッグ？」と勘違いして自ら話しだした。アプリの指示通りバッグの話になり、驚くほど会話が弾んで週末の約束を取り付けることに成功した。" },
-                { id: 3, title: "当たり障りのない世間話を振る", upright: true, desc: "【正位置】世間話をしようとしたが沈黙が流れる。焦ったあなたはアプリのナビ通り相手の持ち物（バッグ）を褒めた。すると驚くほど会話が弾んで週末の約束を取り付けることに成功した。すべてはアプリの計画通り。" }
-            ]
-        },
-        // Step 7: 5-6日目・皇帝と法王 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "V : THE HIEROPHANT (5-6日目 - 盲信の極致)",
-            speaker: "アプリ『The Journey』",
-            text: "組織内での立ち回り、周囲の秩序。指示に従うことで、あなたは正しい道を迷わず進めます。カードを盲信しなさい。",
-            stressChange: 0, luckChange: 0,
-            choiceIllusion: true,
-            cards: [
-                { id: 5, title: "アプリの指示に従い、完璧に秩序を守る", upright: true, desc: "【正位置】かつてない全能感と信頼を勝ち取る。アプリの指示通りにするだけで、人生がイージーモードになった。もはや自分で考える必要などどこにもない。" },
-                { id: 5, title: "少し自分のアレンジを加えて業務を進める", upright: true, desc: "【正位置】アレンジしようとしたが、周囲から「マニュアル通りにするのが一番だ」と止められる。結局アプリの指示通りに動くことになり、大きな成果を上げる。やはり自分で考えるのは無駄なのだ。" },
-                { id: 5, title: "他人のやり方に対して積極的にアドバイスする", upright: true, desc: "【正位置】アドバイスしようとしたが、相手はすでにアプリの指示で動いており、完璧な成果を出していた。あなたもアプリに従うだけで秩序に組み込まれ、全能感を得た。もはや自分で考える必要はない。" }
-            ]
-        },
-        // Step 8: 7日目・恋人たちの罠 (チャットアプリ)
-        {
-            view: "chat",
-            arcana: "VI : THE LOVERS (7日目 - 恋人たちの罠)",
-            speaker: "アプリ『The Journey』",
-            text: "18時に交差点へ向かい、運命の人と出会いましたね。しかし直後、相手がトラブルに巻き込まれ連絡が途絶えました。 【無料体験期間が終了しました。これ以上のナビはショップにて本契約をしてください】",
-            stressChange: 95, luckChange: -90,
-            cards: [
-                { id: 6, title: "占いショップへ戻る (本契約)", upright: true, desc: "運命の人を失いたくない。あの幸せな体験を続けたい……。私は自発的な選択のつもりで、再び路地裏の占いショップへ走り出す。" },
-                { id: 6, title: "アプリを削除して日常に戻る", upright: false, desc: "【分岐バッドエンド】運命の人は完全に蒸発。さらに、アプリを失った途端に職場の人間関係や仕事がドミノ倒しのように崩壊。「あのとき指示に従っていれば」という強烈な後悔に苛まれる。周囲の人間全員がアプリに依存して幸福そうな中、自分の意志を守った私だけが孤独に破滅していく。画面には逆位置の『愚者』が現れた。「あなたは自由を選んだ結果、誰からも導かれない本当の馬鹿になった」" }
-            ]
-        },
-        // Step 9: 2度目の訪問：ソウルカード (占い店対面)
-        {
-            view: "talk",
-            arcana: "SOUL CARD (本契約の準備)",
-            speaker: "ソフィア",
-            text: "「おかえりなさい、旅人さん。運命の否定による恐怖に耐えかねて、戻ってきてくれたのね。でも大丈夫。契約の前に、あなたの魂に刻まれた真の姿――『ソウルカード』を診断しましょう。あなたの生年月日を入力してください」",
-            stressChange: 0, luckChange: 0,
-            cards: [] // Render form in app.js
-        },
-        // Step 10: 2度目の訪問：ケルト十字 (ケルト十字スプレッド)
-        {
-            view: "celtic",
-            arcana: "CELTIC CROSS (ケルト十字のインストール)",
-            speaker: "ソフィア",
-            text: "「さあ、契約を結ぶために、あなたの運命を展開する『ケルト十字スプレッド』を行います。中央の山札（DECK）をタップして、カードを1枚ずつスロットにインストールしていきなさい」",
-            stressChange: 0, luckChange: 0,
-            cards: [] // Render Celtic Cross
-        },
-        // Step 11: 11日目・正義 (チャットアプリでスキャン)
-        {
-            view: "chat",
-            arcana: "XI : JUSTICE (11日目 - 精神分析)",
-            speaker: "アプリ『The Journey』",
-            text: "本契約により機能がアンロックされました。本日の試練：職場で手柄を横取りしようとする同僚との対立。気になるモチーフを選びなさい。",
-            stressChange: 0, luckChange: 0,
-            cards: [] // Render motifs
-        },
-        // Step 12: 15日目・悪魔 (チャットアプリでスキャン)
-        {
-            view: "chat",
-            arcana: "XV : THE DEVIL (15日目 - 脆弱性スキャン)",
-            speaker: "アプリ『The Journey』",
-            text: "地位と運命の人だけは維持されていますね。本日のカード：『悪魔』。窮屈な現状に惹かれるモチーフはどれですか？",
-            stressChange: 0, luckChange: 0,
-            cards: [] // Render motifs
-        },
-        // Step 13: 16日目・塔の崩壊 (占い店対面)
-        {
-            view: "talk",
-            arcana: "XVI : THE TOWER (16日目 - 崩壊の臨界)",
-            speaker: "ソフィア",
-            text: "不正のリークですべての罪を被され、運命の人もサクラだった。崩壊の中、ソフィアが優しく囁きかけてくる。「『塔』は再生のための破壊。次はもっと上手くカードをめくればいいだけです」",
-            stressChange: 100, luckChange: -100,
-            cards: [
-                { id: 16, title: "XVI : 塔", upright: true, desc: "【正位置】崩壊。あなたが積み上げた盲信は、一瞬で塵となった。しかしあなたは、破滅すらポジティブに上書きするソフィアの囁きに従うしかない。" }
-            ]
-        },
-        // Step 14: 21日目・世界 (占い店対面➔ループ)
-        {
-            view: "talk",
-            arcana: "XXI : THE WORLD (21日目 - 最適化された幸福)",
-            speaker: "ソフィア",
-            text: "大アルカナ22枚をすべてなぞりきり、操り人形としての完璧な幸福へ到達しました。おめでとうございます。本当に……これが、あなたの望んだ世界ですか？",
-            stressChange: -100, luckChange: 100,
-            cards: [
-                { id: 21, title: "XXI : 世界", upright: true, desc: "「……本当に、これがあなたの望んだ『世界』ですか？」 不穏な問いかけと共に、画面がバグノイズで埋め尽くされ、強制的に始まりの『0：愚者』へループする。" }
-            ]
-        }
-    ],
-    2: [
-        // Loop 2 Step 0: 既視感 (占い店対面)
-        {
-            view: "talk",
-            arcana: "PROLOGUE : THE DEJA VU (既視感)",
-            speaker: "ナレーション",
-            text: "……強烈な既視感がある。私はまたしても、あのカードを拾い、あの地図をたどり、同じ占い店の前に立っている。ソフィアは同じように座っているが、今回は何かが違う。アプリからも彼女からも『〇〇をしなさい』という具体的な命令が一切消え去っている。",
-            stressChange: 0, luckChange: 0,
-            cards: [
-                { id: 0, title: "もう一度カードをめくる", upright: true, desc: "ソフィアは少し戸惑った様子で私を見つめる。「ようこそ、旅人さん……。なんだか、以前にもお会いしたような……？ さあ、カードの持つ象徴だけを提示します。具体的な行動の決断は、ご自身で行ってください」" }
-            ]
-        },
-        // Loop 2 Step 1: 女教皇の逆位置 (石碑ドラッグパズル)
-        {
-            view: "puzzle",
-            arcana: "II : THE HIGH PRIESTESS (逆) - 象徴のパズル",
-            speaker: "ナレーション",
-            text: "職場での試練。理不尽な上司との衝突。カードは『II：女教皇（逆位置）』。象徴は『冷酷、拒絶、心の鏡』。かつてのような命令はありません。カードに、あなたの決断を象徴する「石碑」を重ねてみなさい。",
-            stressChange: 0, luckChange: 0,
-            cards: [] // Render Symbolic Drag Puzzle
-        },
-        // Loop 2 Step 2: 星 (占い店対面でバグ破壊)
-        {
-            view: "talk",
-            arcana: "XVII : THE STAR (希望の星) - MALFUNCTION",
-            speaker: "ソフィア (エラー)",
-            text: "「そんな……！ あなたが指示に従わずに自分の意志で未来を変えるなんて……！ 警告、システムに深刻なエラーが発生しています」 ソフィアの姿がノイズで激しくブレる。 【警告：強制終了するか、運命そのものを破棄してください】",
-            stressChange: 0, luckChange: 0,
-            cards: [
-                { id: 16, title: "XVI : 運命の崩壊 (強制執行)", upright: true, desc: "【運命の拒絶失敗】あなたは再び提示されたカードをめくってしまいました。それは破滅の塔です。" }
-            ]
-        }
-    ]
-};
+const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
 
 // --- Game State Variables ---
 let currentLoop = 1;
@@ -391,6 +90,12 @@ let selectedOptionDesc = "";
 let isFateControlled = true;
 let trueEndCleared = false;
 let currentView = "talk";
+let currentDialoguePages = [];
+let currentDialoguePageIndex = 0;
+let isTyping = false;
+let skipTyping = null;
+let pendingStepLoad = null;
+let pendingPageCallback = null; // ページ送り中の「次ページを表示する」コールバック
 
 // Gauge values
 let stressVal = 80;
@@ -451,7 +156,7 @@ const meditationMotifs = document.getElementById("meditation-motifs");
 const meditationMotifButtons = document.getElementById("meditation-motif-buttons");
 const resetMeditationBtn = document.getElementById("reset-meditation-btn");
 
-// --- Game Save/Load via LocalStorage ---
+// --- Game Save/Load via LocalStorage & URL Params ---
 function loadSaveState() {
     const savedLoop = localStorage.getItem("fools_journey_loop");
     const savedStep = localStorage.getItem("fools_journey_step");
@@ -466,12 +171,29 @@ function loadSaveState() {
     if (savedStep) {
         currentStep = parseInt(savedStep, 10);
     }
+
+    // URLパラメータによる上書き (デバッグ・個別起動用)
+    const params = new URLSearchParams(window.location.search);
+    const paramLoop = params.get('loop');
+    const paramStep = params.get('step');
+    if (paramLoop) {
+        currentLoop = parseInt(paramLoop, 10);
+    }
+    if (paramStep) {
+        currentStep = parseInt(paramStep, 10);
+    }
 }
 
 function saveState() {
     localStorage.setItem("fools_journey_loop", currentLoop);
     localStorage.setItem("fools_journey_step", currentStep);
     localStorage.setItem("fools_journey_cleared", trueEndCleared);
+
+    // URLのパラメータを更新
+    const url = new URL(window.location.href);
+    url.searchParams.set('loop', currentLoop);
+    url.searchParams.set('step', currentStep);
+    window.history.replaceState({}, '', url.toString());
 }
 
 // --- View Router ---
@@ -512,8 +234,8 @@ function updateGauges(stressChange, luckChange) {
 }
 
 // --- Initialization ---
-function initGame() {
-    loadSaveState();
+function initGame(skipLoad = false) {
+    if (!skipLoad) loadSaveState();
 
     if (trueEndCleared) {
         initMeditationMode();
@@ -570,13 +292,73 @@ function updateBackgroundAndAesthetics() {
     }
 }
 
+// --- 長いセリフを約3行（MAX_LINE_CHARS文字）で自動分割 ---
+const MAX_LINE_CHARS = 80; // この文字数を超えたら次のページへ
+
+function autoSplitTextIntoPages(text, maxChars = MAX_LINE_CHARS) {
+    if (text.length <= maxChars) return [text];
+
+    const pages = [];
+    let remaining = text;
+
+    while (remaining.length > maxChars) {
+        // maxChars〜maxChars*1.8の範囲で自然な文末を後ろから探す
+        const searchEnd = Math.min(remaining.length - 1, Math.floor(maxChars * 1.8));
+        let breakPoint = -1;
+
+        for (let i = searchEnd; i >= Math.floor(maxChars * 0.5); i--) {
+            const ch = remaining[i];
+            if (ch === '。' || ch === '！' || ch === '？' || ch === '」' || ch === '\n') {
+                breakPoint = i + 1;
+                break;
+            }
+        }
+
+        // 自然な区切りが見つからなければmaxCharsで強制改ページ
+        if (breakPoint === -1) breakPoint = maxChars;
+
+        pages.push(remaining.substring(0, breakPoint).trim());
+        remaining = remaining.substring(breakPoint).trim();
+    }
+
+    if (remaining.length > 0) pages.push(remaining);
+    return pages;
+}
+
+// --- 汎用ページ送り表示 ---
+function showPaginatedText(text, textEl, promptEl, onAllDone) {
+    const pages = autoSplitTextIntoPages(text);
+    let idx = 0;
+
+    function showPage() {
+        promptEl.classList.add("hidden");
+        typeDialogueText(pages[idx], textEl, () => {
+            if (idx < pages.length - 1) {
+                promptEl.classList.remove("hidden");
+                pendingPageCallback = () => {
+                    pendingPageCallback = null;
+                    idx++;
+                    showPage();
+                };
+            } else {
+                onAllDone();
+            }
+        });
+    }
+
+    showPage();
+}
+
 // --- Load current scenario step ---
 function loadStep() {
     isCardRevealed = false;
     selectedOptionDesc = "";
     
     const stepData = SCENARIO[currentLoop][currentStep];
-    
+    executeLoadStep(stepData);
+}
+
+function executeLoadStep(stepData) {
     currentArcanaEl.textContent = stepData.arcana;
     showView(stepData.view);
 
@@ -589,29 +371,24 @@ function loadStep() {
         talkClickPrompt.classList.add("hidden");
         talkCardsContainer.innerHTML = ""; // Clear choices during typing
 
-        // Portrait visibility control: Only show portrait if speaker is Sophia
-        if (stepData.speaker === "ソフィア" || stepData.speaker === "ソフィア (エラー)") {
-            talkPortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
-            talkPortraitEl.style.opacity = "1";
-            document.querySelector(".visual-area-talk").style.display = "flex";
-        } else {
-            talkPortraitEl.style.backgroundImage = "none";
-            talkPortraitEl.style.opacity = "0";
-            document.querySelector(".visual-area-talk").style.display = "none"; // Close visual area to maximize chat
-        }
+        // ポートレートエリアは常に非表示（ソフィアの登場はfocusポップアップで表現）
+        talkPortraitEl.style.backgroundImage = "none";
+        talkPortraitEl.style.opacity = "0";
+        document.querySelector(".visual-area-talk").style.display = "none";
 
         updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, talkTextEl, () => {
-            talkClickPrompt.classList.remove("hidden");
-            // Render card / forms after typing finishes
-            if (currentLoop === 1 && currentStep === 10) {
-                renderSoulCardForm();
-            } else if (currentLoop === 2 && currentStep === 2) {
-                loadMetaStarStep();
-            } else {
-                renderChoiceCards(stepData.cards, talkCardsContainer);
-            }
+
+        // テキストを改ページ(\n\n)で分割し、さらに長い段落を自動分割
+        const rawPages = stepData.text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(p => p.length > 0);
+        currentDialoguePages = rawPages.flatMap(page => {
+            // [focus:...]タグは分割しない
+            if (/^\[focus:/.test(page)) return [page];
+            return autoSplitTextIntoPages(page);
         });
+        console.log("Parsed dialogue pages:", currentDialoguePages);
+        currentDialoguePageIndex = 0;
+        
+        showNextDialoguePage(stepData);
     } 
     else if (currentView === "chat") {
         chatInteractiveZoneEl.innerHTML = "";
@@ -626,23 +403,88 @@ function loadStep() {
         });
     } 
     else if (currentView === "celtic") {
-        celticClickPrompt.classList.add("hidden");
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, celticTextEl, () => {
+        showPaginatedText(stepData.text, celticTextEl, celticClickPrompt, () => {
             celticClickPrompt.classList.remove("hidden");
             renderCelticCross();
         });
     } 
     else if (currentView === "puzzle") {
-        puzzleClickPrompt.classList.add("hidden");
         updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, puzzleTextEl, () => {
+        showPaginatedText(stepData.text, puzzleTextEl, puzzleClickPrompt, () => {
             puzzleClickPrompt.classList.remove("hidden");
             renderSymbolicDragPuzzle();
         });
     }
 
     saveState();
+}
+
+function showNextDialoguePage(stepData) {
+    talkClickPrompt.classList.add("hidden");
+    const pageText = currentDialoguePages[currentDialoguePageIndex];
+    console.log(`Evaluating page [${currentDialoguePageIndex}]:`, pageText);
+    
+    // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
+    const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
+    if (focusMatch) {
+        const imgUrl = focusMatch[1].trim();
+        const title = (focusMatch[2] || "").trim();
+        console.log("Triggering inline focus image:", imgUrl, title);
+        
+        pendingStepLoad = () => {
+            pendingStepLoad = null;
+            if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+                currentDialoguePageIndex++;
+                showNextDialoguePage(stepData);
+            } else {
+                finishStepText(stepData);
+            }
+        };
+        
+        focusTarotCard(title, undefined, imgUrl);
+        return;
+    }
+    
+    typeDialogueText(pageText, talkTextEl, () => {
+        // 次のページがある場合のみ「▼」を表示
+        if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+            talkClickPrompt.classList.remove("hidden");
+        } else {
+            // 最後のページを表示し終えた場合（ステップ全体のfocusImageがある場合のフォールバック）
+            if (stepData.focusImage) {
+                // 画像を表示して閉じた時に次のステップ処理を行うようにコールバック設定
+                pendingStepLoad = () => {
+                    pendingStepLoad = null;
+                    finishStepText(stepData);
+                };
+                // 少し時間差を設けて自動的に拡大表示
+                setTimeout(() => {
+                    if (pendingStepLoad) {
+                        focusTarotCard(stepData.focusTitle || "", undefined, stepData.focusImage);
+                    }
+                }, 500);
+            } else {
+                finishStepText(stepData);
+            }
+        }
+    });
+}
+
+function finishStepText(stepData) {
+    if (currentLoop === 1 && currentStep === 10) {
+        renderSoulCardForm();
+    } else if (currentLoop === 2 && currentStep === 2) {
+        loadMetaStarStep();
+    } else {
+        if (stepData.cards && stepData.cards.length > 0) {
+            isCardRevealed = false;
+            renderChoiceCards(stepData.cards, talkCardsContainer);
+        } else {
+            isCardRevealed = true;
+            talkClickPrompt.classList.remove("hidden");
+        }
+    }
 }
 
 // --- Chat Scrolling Helper ---
@@ -768,6 +610,12 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
     isCardRevealed = true;
     selectedOptionDesc = card.desc;
 
+    // skipFocus: true の選択肢はカードポップアップなしで直接次へ進む
+    if (card.skipFocus) {
+        advanceGame();
+        return;
+    }
+
     const tarotName = SOUL_CARDS[card.id] ? SOUL_CARDS[card.id].name : "タロットカード";
     const orientationText = card.upright ? "正位置" : "逆位置";
 
@@ -795,28 +643,40 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (currentView === "talk") {
             talkCardsContainer.innerHTML = "";
-            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
+            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
             
-            // Show result text
-            typeDialogueText(`【${tarotName} (${orientationText})】を引き当てました。<br><br>${card.desc}`, talkTextEl, () => {
-                talkClickPrompt.classList.remove("hidden");
-            });
+            // Show result text（ページ送り対応）
+            showPaginatedText(
+                `【${tarotName} (${orientationText})】\n\n${card.desc}`,
+                talkTextEl, talkClickPrompt,
+                () => { talkClickPrompt.classList.remove("hidden"); }
+            );
         } else {
             advanceGame();
         }
     }
 }
 
+
 // --- Typing Effect ---
 function typeDialogueText(text, container, onComplete = null) {
     container.innerHTML = "";
     let i = 0;
-    const speed = 15; // Fast typing speed for smoother UX
+    const speed = 15;
+    isTyping = true;
     
+    skipTyping = () => {
+        isTyping = false;
+        skipTyping = null;
+        container.innerHTML = text;
+        scrollToBottom();
+        if (onComplete) onComplete();
+    };
+
     function type() {
+        if (!isTyping) return;
         if (i < text.length) {
             if (text.charAt(i) === "<") {
-                // Read HTML tags instantly without typing character by character
                 const tagEnd = text.indexOf(">", i);
                 if (tagEnd !== -1) {
                     container.innerHTML += text.substring(i, tagEnd + 1);
@@ -829,6 +689,8 @@ function typeDialogueText(text, container, onComplete = null) {
             scrollToBottom();
             setTimeout(type, speed);
         } else {
+            isTyping = false;
+            skipTyping = null;
             scrollToBottom();
             if (onComplete) onComplete();
         }
@@ -930,14 +792,15 @@ function revealCard(cardElement, card, isInChat = false) {
             scrollToBottom();
         } else {
             if (currentView === "talk") {
-                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
+                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
                 
                 if (isLegacy) {
-                    typeDialogueText(desc, talkTextEl);
-                    talkClickPrompt.classList.remove("hidden");
+                    showPaginatedText(desc, talkTextEl, talkClickPrompt, () => {
+                        talkClickPrompt.classList.remove("hidden");
+                    });
                 } else {
                     // Show drawn card info first
-                    typeDialogueText(`【${tarotName} (${orientationText})】を引き当てました。`, talkTextEl);
+                    typeDialogueText(`【${tarotName} (${orientationText})】`, talkTextEl);
                     
                     // Create choice button in cards-area-talk (talkCardsContainer)
                     talkCardsContainer.innerHTML = `
@@ -946,43 +809,85 @@ function revealCard(cardElement, card, isInChat = false) {
                     
                     document.getElementById("talk-choice-btn").addEventListener("click", () => {
                         talkCardsContainer.innerHTML = "";
-                        typeDialogueText(desc, talkTextEl);
-                        talkClickPrompt.classList.remove("hidden");
+                        showPaginatedText(desc, talkTextEl, talkClickPrompt, () => {
+                            talkClickPrompt.classList.remove("hidden");
+                        });
                     });
                 }
             } else if (currentView === "celtic") {
                 updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "運命の託宣");
-                typeDialogueText(selectedOptionDesc, celticTextEl);
-                celticClickPrompt.classList.remove("hidden");
+                showPaginatedText(selectedOptionDesc, celticTextEl, celticClickPrompt, () => {
+                    celticClickPrompt.classList.remove("hidden");
+                });
             } else if (currentView === "puzzle") {
                 updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, "運命の託宣");
-                typeDialogueText(selectedOptionDesc, puzzleTextEl);
-                puzzleClickPrompt.classList.remove("hidden");
+                showPaginatedText(selectedOptionDesc, puzzleTextEl, puzzleClickPrompt, () => {
+                    puzzleClickPrompt.classList.remove("hidden");
+                });
             }
         }
     }, 600);
 }
 
-// --- Dialogue Advancers ---
 talkTextEl.parentElement.addEventListener("click", () => {
-    if (currentView === "talk" && isCardRevealed && !talkClickPrompt.classList.contains("hidden")) {
-        advanceGame();
+    if (currentView !== "talk") return;
+    
+    // タイピング中ならスキップ
+    if (isTyping && skipTyping) {
+        skipTyping();
+        return;
+    }
+
+    if (talkClickPrompt.classList.contains("hidden")) return;
+
+    // ページ送りコールバックがあれば優先して実行（カード結果テキスト等）
+    if (pendingPageCallback) {
+        pendingPageCallback();
+        return;
+    }
+
+    if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+        currentDialoguePageIndex++;
+        const stepData = SCENARIO[currentLoop][currentStep];
+        showNextDialoguePage(stepData);
+    } else {
+        if (isCardRevealed) {
+            advanceGame();
+        }
     }
 });
 celticTextEl.parentElement.addEventListener("click", () => {
-    if (currentView === "celtic" && isCardRevealed && !celticClickPrompt.classList.contains("hidden")) {
-        advanceGame();
-    }
+    if (currentView !== "celtic") return;
+    if (isTyping && skipTyping) { skipTyping(); return; }
+    if (celticClickPrompt.classList.contains("hidden")) return;
+    if (pendingPageCallback) { pendingPageCallback(); return; }
+    if (isCardRevealed) advanceGame();
 });
 puzzleTextEl.parentElement.addEventListener("click", () => {
-    if (currentView === "puzzle" && isCardRevealed && !puzzleClickPrompt.classList.contains("hidden")) {
-        advanceGame();
-    }
+    if (currentView !== "puzzle") return;
+    if (isTyping && skipTyping) { skipTyping(); return; }
+    if (puzzleClickPrompt.classList.contains("hidden")) return;
+    if (pendingPageCallback) { pendingPageCallback(); return; }
+    if (isCardRevealed) advanceGame();
 });
 
 // --- Advance Game Step ---
 function advanceGame() {
     const currentScenarioLength = SCENARIO[currentLoop].length;
+
+    // ━━━ 一時停止：Step 2（アプリインストール）後 ━━━
+    // TODO: デプロイ後、続きが完成したらこのブロックを削除する
+    if (currentLoop === 1 && currentStep === 2) {
+        talkCardsContainer.innerHTML = "";
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
+        showPaginatedText(
+            "インストール完了。\n\nこのゲームは現在開発中です。続きをお楽しみに。",
+            talkTextEl, talkClickPrompt,
+            () => { /* ここで止まる */ }
+        );
+        return;
+    }
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     // Bad End branch at Step 8 (Lovers)
     if (currentLoop === 1 && currentStep === 9) {
@@ -1146,8 +1051,9 @@ function showSoulCardResult(cardNum) {
     selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>${cardInfo.desc}<br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
     
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
-    typeDialogueText(selectedOptionDesc, talkTextEl);
-    talkClickPrompt.classList.remove("hidden");
+    showPaginatedText(selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
+        talkClickPrompt.classList.remove("hidden");
+    });
 }
 
 // --- Celtic Cross Spread UI ---
@@ -1822,10 +1728,12 @@ function showStartScreen() {
     const savedLoop = localStorage.getItem("fools_journey_loop");
     const savedStep = localStorage.getItem("fools_journey_step");
     
-    if (savedLoop !== null && savedStep !== null) {
-        startContinueBtn.classList.remove("hidden");
-    } else {
-        startContinueBtn.classList.add("hidden");
+    if (startContinueBtn) {
+        if (savedLoop !== null && savedStep !== null) {
+            startContinueBtn.classList.remove("hidden");
+        } else {
+            startContinueBtn.classList.add("hidden");
+        }
     }
     
     startScreenEl.classList.remove("hidden");
@@ -1834,34 +1742,54 @@ function showStartScreen() {
 }
 
 function setupEventListeners() {
-    startNewBtn.addEventListener("click", () => {
-        localStorage.clear();
-        currentLoop = 1;
-        currentStep = 0;
-        trueEndCleared = false;
-        startScreenEl.classList.add("hidden");
-        initGame();
-    });
+    if (startNewBtn) {
+        startNewBtn.addEventListener("click", () => {
+            localStorage.clear();
+            currentLoop = 1;
+            currentStep = 0;
+            trueEndCleared = false;
+            // URLパラメータも消去（デバッグ用パラメータが残っていても無視）
+            window.history.replaceState({}, '', window.location.pathname);
+            startScreenEl.classList.add("hidden");
+            initGame(true); // 新規スタート：saveState読み込みをスキップ
+        });
+    }
 
-    startContinueBtn.addEventListener("click", () => {
-        startScreenEl.classList.add("hidden");
-        initGame();
-    });
+    if (startContinueBtn) {
+        startContinueBtn.addEventListener("click", () => {
+            startScreenEl.classList.add("hidden");
+            initGame();
+        });
+    }
 
-    showInstructionsBtn.addEventListener("click", () => {
-        instructionsModal.classList.remove("hidden");
-    });
+    if (showInstructionsBtn) {
+        showInstructionsBtn.addEventListener("click", () => {
+            instructionsModal.classList.remove("hidden");
+        });
+    }
 
-    closeInstructionsBtn.addEventListener("click", () => {
-        instructionsModal.classList.add("hidden");
-    });
-    instructionsModal.querySelector(".custom-modal-overlay").addEventListener("click", () => {
-        instructionsModal.classList.add("hidden");
-    });
+    if (closeInstructionsBtn) {
+        closeInstructionsBtn.addEventListener("click", () => {
+            instructionsModal.classList.add("hidden");
+        });
+    }
+    if (instructionsModal) {
+        const overlay = instructionsModal.querySelector(".custom-modal-overlay");
+        if (overlay) {
+            overlay.addEventListener("click", () => {
+                instructionsModal.classList.add("hidden");
+            });
+        }
+    }
 
-    cardFocusModal.addEventListener("click", () => {
-        cardFocusModal.classList.add("hidden");
-    });
+    if (cardFocusModal) {
+        cardFocusModal.addEventListener("click", () => {
+            cardFocusModal.classList.add("hidden");
+            if (pendingStepLoad) {
+                pendingStepLoad();
+            }
+        });
+    }
 }
 
 function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
@@ -1888,14 +1816,22 @@ function focusTarotCard(cardIdOrName, upright, imgUrl) {
     }
     
     focusCardName.textContent = name;
-    focusCardDirection.textContent = upright ? "正位置" : "逆位置";
-    
-    if (upright) {
-        focusCardDirection.className = "focus-card-direction orientation-upright";
-        focusCardImg.style.transform = "none";
+
+    // uprightが明示的にboolean値のときのみ正逆位置を表示（画像演出など非カード表示時は非表示）
+    if (typeof upright === "boolean") {
+        focusCardDirection.style.display = "";
+        focusCardDirection.textContent = upright ? "正位置" : "逆位置";
+        if (upright) {
+            focusCardDirection.className = "focus-card-direction orientation-upright";
+            focusCardImg.style.transform = "none";
+        } else {
+            focusCardDirection.className = "focus-card-direction orientation-reversed";
+            focusCardImg.style.transform = "rotate(180deg)";
+        }
     } else {
-        focusCardDirection.className = "focus-card-direction orientation-reversed";
-        focusCardImg.style.transform = "rotate(180deg)";
+        // 純粋な画像表示（ソフィアのポートレートなど）は向きインジケーターを非表示
+        focusCardDirection.style.display = "none";
+        focusCardImg.style.transform = "none";
     }
     
     focusCardImg.style.backgroundImage = `url('${imageSrc}')`;

@@ -1,222 +1,391 @@
 ---
 // Astro Component Frontmatter
-import '../styles/style.css';
+import "../styles/style.css";
+import { getCollection } from "astro:content";
+
+const allStories = await getCollection("story");
+
+const scenarioData = {};
+allStories.forEach((story) => {
+    const data = story.data;
+    const loopNum = data.loop;
+    const stepNum = data.step;
+    if (!scenarioData[loopNum]) {
+        scenarioData[loopNum] = [];
+    }
+    scenarioData[loopNum][stepNum] = {
+        view: data.view,
+        arcana: data.arcana,
+        speaker: data.speaker,
+        text: story.body.trim(),
+        stressChange: data.stressChange,
+        luckChange: data.luckChange,
+        choiceIllusion: data.choiceIllusion,
+        focusImage: data.focusImage || null,
+        focusTitle: data.focusTitle || null,
+        cards: data.choices || [],
+    };
+});
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT FOOL - プロジェクト・フール</title>
-    <!-- Google Fonts: 神秘的なCinzel、モダンなMontserrat、デバッグ用のShare Tech Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div id="game-wrapper">
-        <!-- 神秘的な全画面シーン背景 -->
-        <div class="scene-background" id="scene-bg"></div>
-        <!-- 背景のグラデーションやパーティクル効果用 -->
-        <div class="bg-glow"></div>
-        <div class="glitch-overlay" id="glitch-overlay"></div>
-        <!-- 精神スキャンのデータ表示用オーバーレイ -->
-        <div id="psyche-scan-overlay" class="hidden"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PROJECT FOOL - プロジェクト・フール</title>
+        <!-- Google Fonts: 神秘的なCinzel、モダンなMontserrat、デバッグ用のShare Tech Mono -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&family=Share+Tech+Mono&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div id="game-wrapper">
+            <!-- 神秘的な全画面シーン背景 -->
+            <div class="scene-background" id="scene-bg"></div>
+            <!-- 背景のグラデーションやパーティクル効果用 -->
+            <div class="bg-glow"></div>
+            <div class="glitch-overlay" id="glitch-overlay"></div>
+            <!-- 精神スキャンのデータ表示用オーバーレイ -->
+            <div id="psyche-scan-overlay" class="hidden"></div>
 
-        <!-- スタート画面（タイトル画面） -->
-        <div id="start-screen" class="start-screen-overlay">
-            <div class="start-screen-content">
-                <h1 class="game-title-logo">THE FOOL'S JOURNEY</h1>
-                <p class="game-subtitle-logo">― 運命をめぐる、自律と盲信の旅 ―</p>
-                <div class="start-button-group">
-                    <button id="start-new-btn" class="action-btn">物語を紡ぐ (最初から)</button>
-                    <button id="start-continue-btn" class="action-btn hidden">運命に触れる (続きから)</button>
-                    <button id="show-instructions-btn" class="action-btn">遊び方 (魔導書を開く)</button>
+            <!-- スタート画面（タイトル画面） -->
+            <div id="start-screen" class="start-screen-overlay">
+                <div class="start-screen-content">
+                    <h1 class="game-title-logo">THE FOOL'S JOURNEY</h1>
+                    <p class="game-subtitle-logo">
+                        ― 運命をめぐる、あなたとタロットカードの旅 ―
+                    </p>
+                    <div class="start-button-group">
+                        <button id="start-new-btn" class="action-btn"
+                            >物語を紡ぐ (最初から)</button
+                        >
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ヘッダー・ステータスバー -->
-        <header id="status-bar">
-            <div class="status-left">
-                <span class="status-label">LOOP:</span>
-                <span id="loop-count" class="status-val">1</span>
-                <span class="status-separator" style="opacity: 0.3;">|</span>
-                <span class="status-label">STRESS:</span>
-                <span id="stress-gauge" class="status-val">80%</span>
-                <span class="status-separator" style="opacity: 0.3;">|</span>
-                <span class="status-label">LUCK:</span>
-                <span id="luck-gauge" class="status-val">15%</span>
-            </div>
-            <div class="status-title">PROJECT FOOL</div>
-            <div class="status-right">
-                <span class="status-label">ARCANA:</span>
-                <span id="current-arcana" class="status-val">0 : THE FOOL</span>
-                <button id="sound-btn" class="icon-btn" title="音声 (準備中)" disabled>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>
-                </button>
-            </div>
-        </header>
+            <!-- ヘッダー・ステータスバー -->
+            <header id="status-bar">
+                <div class="status-left">
+                    <span class="status-label">LOOP:</span>
+                    <span id="loop-count" class="status-val">1</span>
+                    <span class="status-separator" style="opacity: 0.3;">|</span
+                    >
+                    <span class="status-label">STRESS:</span>
+                    <span id="stress-gauge" class="status-val">80%</span>
+                    <span class="status-separator" style="opacity: 0.3;">|</span
+                    >
+                    <span class="status-label">LUCK:</span>
+                    <span id="luck-gauge" class="status-val">15%</span>
+                </div>
+                <div class="status-title">PROJECT FOOL</div>
+                <div class="status-right">
+                    <span class="status-label">ARCANA:</span>
+                    <span id="current-arcana" class="status-val"
+                        >0 : THE FOOL</span
+                    >
+                    <button
+                        id="sound-btn"
+                        class="icon-btn"
+                        title="音声 (準備中)"
+                        disabled
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                            ></polygon>
+                            <path
+                                d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
 
-        <!-- メインゲームエリア -->
-        <!-- メインゲームエリア (マルチシーン構成) -->
-        <main id="game-container">
-            <!-- 【シーン1: 占い店での対面対話】 -->
-            <div id="view-talk" class="game-view">
-                <section class="visual-area-talk">
-                    <div class="oracle-avatar-container">
-                        <div class="oracle-portrait" id="talk-portrait"></div>
-                        <div class="oracle-circle-magic"></div>
-                        <div class="oracle-name">SOPHIA</div>
-                    </div>
-                </section>
-                <section class="dialogue-container-talk">
-                    <div class="dialogue-box">
-                        <div class="speaker-name" id="talk-speaker">ソフィア</div>
-                        <div class="text-content" id="talk-text">...</div>
-                        <div class="click-prompt" id="talk-click-prompt">▼</div>
-                    </div>
-                </section>
-                <section class="cards-area-talk">
-                    <div class="cards-container" id="talk-cards-container"></div>
-                </section>
-            </div>
+            <!-- メインゲームエリア -->
+            <!-- メインゲームエリア (マルチシーン構成) -->
+            <main id="game-container">
+                <!-- 【シーン1: 占い店での対面対話】 -->
+                <div id="view-talk" class="game-view">
+                    <section class="visual-area-talk">
+                        <div class="oracle-avatar-container">
+                            <div class="oracle-portrait" id="talk-portrait">
+                            </div>
+                            <div class="oracle-circle-magic"></div>
+                            <div class="oracle-name">SOPHIA</div>
+                        </div>
+                    </section>
+                    <section class="dialogue-container-talk">
+                        <div class="dialogue-box">
+                            <div class="speaker-name" id="talk-speaker">
+                                ソフィア
+                            </div>
+                            <div class="text-content" id="talk-text">...</div>
+                            <div class="click-prompt" id="talk-click-prompt">
+                                ▼
+                            </div>
+                        </div>
+                    </section>
+                    <section class="cards-area-talk">
+                        <div class="cards-container" id="talk-cards-container">
+                        </div>
+                    </section>
+                </div>
 
-            <!-- 【シーン2: アプリ『The Journey』チャット画面】 -->
-            <div id="view-chat" class="game-view hidden">
-                <div class="chat-app-container">
-                    <div class="chat-header">
-                        <div class="chat-avatar">👁️</div>
-                        <div class="chat-header-info">
-                            <span class="chat-name">The Journey</span>
-                            <span class="chat-status">オンライン</span>
+                <!-- 【シーン2: アプリ『The Journey』チャット画面】 -->
+                <div id="view-chat" class="game-view hidden">
+                    <div class="chat-app-container">
+                        <div class="chat-header">
+                            <div class="chat-avatar">👁️</div>
+                            <div class="chat-header-info">
+                                <span class="chat-name">The Journey</span>
+                                <span class="chat-status">オンライン</span>
+                            </div>
+                        </div>
+                        <div class="chat-history" id="chat-history">
+                            <!-- 動的にチャット吹き出しが追加される -->
+                        </div>
+                        <div
+                            class="chat-interactive-zone"
+                            id="chat-interactive-zone"
+                        >
+                            <!-- カード選択、モチーフ選択、ボタン等をここに挿入 -->
                         </div>
                     </div>
-                    <div class="chat-history" id="chat-history">
-                        <!-- 動的にチャット吹き出しが追加される -->
+                </div>
+
+                <!-- 【シーン3: ケルト十字儀式】 -->
+                <div id="view-celtic" class="game-view hidden">
+                    <div class="celtic-cross-container">
+                        <div class="celtic-cross-layout" id="celtic-cross-grid">
+                            <div
+                                class="cross-slot-guide celtic-1"
+                                data-slot-num="1"
+                                style="grid-area: present;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-2"
+                                data-slot-num="2"
+                                style="grid-area: present; transform: rotate(90deg);"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-3"
+                                data-slot-num="3"
+                                style="grid-area: conscious;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-4"
+                                data-slot-num="4"
+                                style="grid-area: unconscious;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-5"
+                                data-slot-num="5"
+                                style="grid-area: past;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-6"
+                                data-slot-num="6"
+                                style="grid-area: future;"
+                            >
+                            </div>
+                            <div
+                                class="card-wrapper celtic-deck"
+                                id="celtic-cross-deck"
+                            >
+                            </div>
+                        </div>
+                        <div class="celtic-staff-layout" id="celtic-staff-grid">
+                            <div
+                                class="cross-slot-guide"
+                                data-slot-num="7"
+                                id="slot-7"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide"
+                                data-slot-num="8"
+                                id="slot-8"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide"
+                                data-slot-num="9"
+                                id="slot-9"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide"
+                                data-slot-num="10"
+                                id="slot-10"
+                            >
+                            </div>
+                        </div>
                     </div>
-                    <div class="chat-interactive-zone" id="chat-interactive-zone">
-                        <!-- カード選択、モチーフ選択、ボタン等をここに挿入 -->
+                    <section class="dialogue-container-celtic">
+                        <div class="dialogue-box">
+                            <div class="speaker-name" id="celtic-speaker">
+                                ソフィア
+                            </div>
+                            <div class="text-content" id="celtic-text">...</div>
+                            <div class="click-prompt" id="celtic-click-prompt">
+                                ▼
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 【シーン4: 2周目の意思決定石碑パズル】 -->
+                <div id="view-puzzle" class="game-view hidden">
+                    <div class="symbolic-puzzle-container">
+                        <div class="stone-slots" id="puzzle-slots"></div>
+                        <div class="stone-palette" id="puzzle-palette"></div>
+                    </div>
+                    <section class="dialogue-container-puzzle">
+                        <div class="dialogue-box">
+                            <div class="speaker-name" id="puzzle-speaker">
+                                内省
+                            </div>
+                            <div class="text-content" id="puzzle-text">...</div>
+                            <div class="click-prompt" id="puzzle-click-prompt">
+                                ▼
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            <!-- 対話鑑賞モード（恒久的アンロック） -->
+            <div id="meditation-container" class="hidden">
+                <header
+                    class="meditation-header"
+                    style="text-align: center; margin-bottom: 20px;"
+                >
+                    <h2
+                        style="font-family: var(--font-serif); color: var(--color-gold); font-size: 24px; letter-spacing: 2px; text-shadow: 0 0 8px var(--color-gold-glow);"
+                    >
+                        DAILY TAROT
+                    </h2>
+                    <p
+                        style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;"
+                    >
+                        ここは君の内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。
+                    </p>
+                </header>
+                <div class="meditation-card-display">
+                    <div id="meditation-card-zone">
+                        <button id="draw-meditation-btn" class="action-btn"
+                            >カードを1枚引く</button
+                        >
+                    </div>
+                </div>
+                <div
+                    id="meditation-dialogue"
+                    class="dialogue-box hidden"
+                    style="width: 100%; max-width: 600px; min-height: 120px; background: var(--color-bg-panel); border: var(--border-gold); padding: 15px; border-radius: 8px; backdrop-filter: var(--blur-glass); margin: 0 auto;"
+                >
+                    <div class="speaker-name" id="meditation-speaker">
+                        内省の鏡
+                    </div>
+                    <div
+                        class="text-content"
+                        id="meditation-text"
+                        style="font-size: 15px; line-height: 1.6;"
+                    >
+                    </div>
+                </div>
+                <div
+                    id="meditation-motifs"
+                    class="motif-container hidden"
+                    style="margin-top: 15px;"
+                >
+                    <div class="motif-title">
+                        惹かれるモチーフを選んでください
+                    </div>
+                    <div id="meditation-motif-buttons" class="motif-buttons">
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="reset-meditation-btn" class="action-btn hidden"
+                        >もう一度占う</button
+                    >
+                </div>
+            </div>
+
+            <!-- カード引き巨大表示用オーバーレイ -->
+            <div id="card-draw-overlay" class="hidden">
+                <div id="card-draw-deck-container"></div>
+            </div>
+
+            <!-- エンディング/オーバーレイ画面 -->
+            <div id="ending-overlay" class="hidden">
+                <div class="ending-content">
+                    <h1 id="ending-title">THE END</h1>
+                    <p id="ending-desc">あなたは運命に敗北しました。</p>
+                    <button id="restart-btn" class="action-btn"
+                        >再び歩み始める</button
+                    >
+                </div>
+            </div>
+            <!-- 遊び方説明モーダル -->
+            <div id="instructions-modal" class="custom-modal hidden">
+                <div class="custom-modal-overlay"></div>
+                <div class="custom-modal-content">
+                    <button
+                        id="close-instructions-btn"
+                        class="custom-modal-close">&times;</button
+                    >
+                    <div class="instructions-image-wrapper">
+                        <img
+                            src="/images/tarot_instructions.png"
+                            alt="Tarot Instructions"
+                            class="instructions-img"
+                        />
                     </div>
                 </div>
             </div>
 
-            <!-- 【シーン3: ケルト十字儀式】 -->
-            <div id="view-celtic" class="game-view hidden">
-                <div class="celtic-cross-container">
-                    <div class="celtic-cross-layout" id="celtic-cross-grid">
-                        <div class="cross-slot-guide celtic-1" data-slot-num="1" style="grid-area: present;"></div>
-                        <div class="cross-slot-guide celtic-2" data-slot-num="2" style="grid-area: present; transform: rotate(90deg);"></div>
-                        <div class="cross-slot-guide celtic-3" data-slot-num="3" style="grid-area: conscious;"></div>
-                        <div class="cross-slot-guide celtic-4" data-slot-num="4" style="grid-area: unconscious;"></div>
-                        <div class="cross-slot-guide celtic-5" data-slot-num="5" style="grid-area: past;"></div>
-                        <div class="cross-slot-guide celtic-6" data-slot-num="6" style="grid-area: future;"></div>
-                        <div class="card-wrapper celtic-deck" id="celtic-cross-deck"></div>
+            <!-- タロットカード全画面フォーカスモーダル -->
+            <div id="card-focus-modal" class="custom-modal hidden">
+                <div class="custom-modal-overlay"></div>
+                <div class="custom-modal-content card-focus-content">
+                    <div class="focus-card-image-container">
+                        <div id="focus-card-img" class="focus-card-image"></div>
                     </div>
-                    <div class="celtic-staff-layout" id="celtic-staff-grid">
-                        <div class="cross-slot-guide" data-slot-num="7" id="slot-7"></div>
-                        <div class="cross-slot-guide" data-slot-num="8" id="slot-8"></div>
-                        <div class="cross-slot-guide" data-slot-num="9" id="slot-9"></div>
-                        <div class="cross-slot-guide" data-slot-num="10" id="slot-10"></div>
+                    <div class="focus-card-info">
+                        <div id="focus-card-name" class="focus-card-name"></div>
+                        <div
+                            id="focus-card-direction"
+                            class="focus-card-direction"
+                        >
+                        </div>
                     </div>
+                    <div class="focus-card-tip">画面をタップして戻る</div>
                 </div>
-                <section class="dialogue-container-celtic">
-                    <div class="dialogue-box">
-                        <div class="speaker-name" id="celtic-speaker">ソフィア</div>
-                        <div class="text-content" id="celtic-text">...</div>
-                        <div class="click-prompt" id="celtic-click-prompt">▼</div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- 【シーン4: 2周目の意思決定石碑パズル】 -->
-            <div id="view-puzzle" class="game-view hidden">
-                <div class="symbolic-puzzle-container">
-                    <div class="stone-slots" id="puzzle-slots"></div>
-                    <div class="stone-palette" id="puzzle-palette"></div>
-                </div>
-                <section class="dialogue-container-puzzle">
-                    <div class="dialogue-box">
-                        <div class="speaker-name" id="puzzle-speaker">内省</div>
-                        <div class="text-content" id="puzzle-text">...</div>
-                        <div class="click-prompt" id="puzzle-click-prompt">▼</div>
-                    </div>
-                </section>
-            </div>
-        </main>
-
-        <!-- 対話鑑賞モード（恒久的アンロック） -->
-        <div id="meditation-container" class="hidden">
-            <header class="meditation-header" style="text-align: center; margin-bottom: 20px;">
-                <h2 style="font-family: var(--font-serif); color: var(--color-gold); font-size: 24px; letter-spacing: 2px; text-shadow: 0 0 8px var(--color-gold-glow);">DAILY TAROT</h2>
-                <p style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;">ここは君の内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。</p>
-            </header>
-            <div class="meditation-card-display">
-                <div id="meditation-card-zone">
-                    <button id="draw-meditation-btn" class="action-btn">カードを1枚引く</button>
-                </div>
-            </div>
-            <div id="meditation-dialogue" class="dialogue-box hidden" style="width: 100%; max-width: 600px; min-height: 120px; background: var(--color-bg-panel); border: var(--border-gold); padding: 15px; border-radius: 8px; backdrop-filter: var(--blur-glass); margin: 0 auto;">
-                <div class="speaker-name" id="meditation-speaker">内省の鏡</div>
-                <div class="text-content" id="meditation-text" style="font-size: 15px; line-height: 1.6;"></div>
-            </div>
-            <div id="meditation-motifs" class="motif-container hidden" style="margin-top: 15px;">
-                <div class="motif-title">惹かれるモチーフを選んでください</div>
-                <div id="meditation-motif-buttons" class="motif-buttons"></div>
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="reset-meditation-btn" class="action-btn hidden">もう一度占う</button>
             </div>
         </div>
 
-        <!-- カード引き巨大表示用オーバーレイ -->
-        <div id="card-draw-overlay" class="hidden">
-            <div id="card-draw-deck-container"></div>
-        </div>
-
-        <!-- エンディング/オーバーレイ画面 -->
-        <div id="ending-overlay" class="hidden">
-            <div class="ending-content">
-                <h1 id="ending-title">THE END</h1>
-                <p id="ending-desc">あなたは運命に敗北しました。</p>
-                <button id="restart-btn" class="action-btn">再び歩み始める</button>
-            </div>
-        </div>
-        <!-- 遊び方説明モーダル -->
-        <div id="instructions-modal" class="custom-modal hidden">
-            <div class="custom-modal-overlay"></div>
-            <div class="custom-modal-content">
-                <button id="close-instructions-btn" class="custom-modal-close">&times;</button>
-                <div class="instructions-image-wrapper">
-                    <img src="/images/tarot_instructions.png" alt="Tarot Instructions" class="instructions-img">
-                </div>
-            </div>
-        </div>
-
-        <!-- タロットカード全画面フォーカスモーダル -->
-        <div id="card-focus-modal" class="custom-modal hidden">
-            <div class="custom-modal-overlay"></div>
-            <div class="custom-modal-content card-focus-content">
-                <div class="focus-card-image-container">
-                    <div id="focus-card-img" class="focus-card-image"></div>
-                </div>
-                <div class="focus-card-info">
-                    <div id="focus-card-name" class="focus-card-name"></div>
-                    <div id="focus-card-direction" class="focus-card-direction"></div>
-                </div>
-                <div class="focus-card-tip">画面をタップして戻る</div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- クライアントサイドスクリプトのインポート -->
-    <script>
-        import '../scripts/app.js';
-    </script>
-</body>
+        <!-- サーバーサイドでビルドしたシナリオデータをグローバル変数としてクライアントに渡す -->
+        <script is:inline define:vars={{ scenarioData }}>
+            window.SCENARIO_DATA = scenarioData;
+        </script>
+        <!-- クライアントサイドスクリプトのインポート -->
+        <script>
+            import "../scripts/app.js";
+        </script>
+    </body>
 </html>
