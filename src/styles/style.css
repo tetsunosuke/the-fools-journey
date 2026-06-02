@@ -149,10 +149,11 @@ body {
 /* Main Container */
 #game-container {
     flex: 1;
-    display: grid;
-    grid-template-rows: 1.5fr 1fr 1.5fr;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
-    height: calc(100% - 65px);
+    height: calc(100% - 95px); /* Subtracted status bar (65px) and wrapper padding (30px) */
+    overflow: hidden;
 }
 
 /* Visual Area */
@@ -460,98 +461,7 @@ body {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
 }
 
-/* Game In-Game Debugger Console (Meta overlay) */
-#debug-console {
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    width: 400px;
-    height: 250px;
-    background: var(--color-console-bg);
-    border: 1px solid rgba(57, 255, 20, 0.3);
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-    font-family: var(--font-mono);
-    transition: var(--transition-smooth);
-}
 
-#debug-console.console-closed {
-    transform: translateY(300px);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.console-header {
-    background: rgba(57, 255, 20, 0.08);
-    padding: 6px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(57, 255, 20, 0.2);
-}
-
-.console-title {
-    color: var(--color-console-text);
-    font-size: 12px;
-}
-
-#close-console-btn {
-    background: none;
-    border: none;
-    color: var(--color-console-text);
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    opacity: 0.7;
-}
-
-#close-console-btn:hover {
-    opacity: 1;
-}
-
-.console-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    font-size: 12px;
-    color: var(--color-console-text);
-}
-
-.console-logs {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-
-.console-logs div {
-    word-break: break-all;
-}
-
-.console-input-line {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid rgba(57, 255, 20, 0.1);
-    padding-top: 6px;
-}
-
-.prompt-char {
-    margin-right: 6px;
-}
-
-#console-input {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--color-console-text);
-    outline: none;
-    font-family: var(--font-mono);
-    font-size: 12px;
-}
 
 /* Glitch Overlay */
 .glitch-overlay {
@@ -651,9 +561,6 @@ body {
 
 /* Responsive styles */
 @media (max-width: 768px) {
-    #game-container {
-        grid-template-rows: 1.2fr 1.2fr 1.4fr;
-    }
     .cards-container {
         gap: 20px;
     }
@@ -664,10 +571,822 @@ body {
     .card-image-slot {
         height: 80px;
     }
-    #debug-console {
-        width: 90%;
-        right: 5%;
-        left: 5%;
-        bottom: 20px;
+
+}
+
+/* --- Rebuilt Game Styles (idea.md) --- */
+
+/* Soul Card Form Styles */
+.soul-card-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background: rgba(16, 12, 34, 0.9);
+    border: var(--border-gold);
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: var(--blur-glass);
+}
+.soul-card-form label {
+    font-family: var(--font-serif);
+    color: var(--color-gold);
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: var(--color-text-muted);
+}
+.input-row input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    padding: 8px;
+    width: 70px;
+    text-align: center;
+    font-family: var(--font-mono);
+}
+.input-row input#birth-year {
+    width: 90px;
+}
+.input-row input:focus {
+    border-color: var(--color-gold);
+    outline: none;
+}
+
+/* Celtic Cross Layout Styles */
+.celtic-cross-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
+    padding: 10px;
+    overflow-y: auto;
+}
+.celtic-cross-layout {
+    display: grid;
+    grid-template-areas:
+        ". conscious ."
+        "past present future"
+        ". unconscious .";
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 380px;
+}
+.celtic-cross-layout .card-wrapper {
+    width: 75px;
+    height: 125px;
+    transition: transform 0.4s ease;
+}
+.celtic-cross-layout .card-wrapper .card-image-slot {
+    height: 70px;
+}
+.celtic-cross-layout .card-wrapper .card-title {
+    font-size: 8px;
+    margin-top: 2px;
+}
+.celtic-cross-layout .card-wrapper .card-orientation {
+    font-size: 7px;
+}
+.celtic-cross-layout .card-wrapper:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+.celtic-cross-layout .celtic-1 { grid-area: present; z-index: 2; }
+.celtic-cross-layout .celtic-2 {
+    grid-area: present;
+    transform: rotate(90deg);
+    z-index: 3;
+}
+.celtic-cross-layout .celtic-2:hover {
+    transform: rotate(90deg) scale(1.1);
+}
+.celtic-cross-layout .celtic-3 { grid-area: conscious; }
+.celtic-cross-layout .celtic-4 { grid-area: unconscious; }
+.celtic-cross-layout .celtic-5 { grid-area: past; }
+.celtic-cross-layout .celtic-6 { grid-area: future; }
+
+.celtic-staff-layout {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+.celtic-staff-layout .card-wrapper {
+    width: 75px;
+    height: 125px;
+}
+
+/* Motif Selection UI */
+.motif-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+    width: 100%;
+}
+.motif-title {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    font-family: var(--font-serif);
+    letter-spacing: 1px;
+}
+.motif-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+}
+.motif-btn {
+    background: rgba(16, 12, 34, 0.6);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--color-gold);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: var(--transition-smooth);
+}
+.motif-btn:hover {
+    background: var(--color-gold);
+    color: var(--color-bg-dark);
+    box-shadow: 0 0 10px var(--color-gold-glow);
+}
+
+/* Meditation Mode Styles (Daily Tarot) */
+#meditation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+.meditation-card-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    min-height: 240px;
+}
+.meditation-card-display .card-wrapper {
+    width: 140px;
+    height: 230px;
+}
+.meditation-card-display .card-wrapper .card-image-slot {
+    height: 140px;
+}
+
+/* Glitch Degrees */
+.card-glitch-1 .card-image-slot {
+    filter: hue-rotate(45deg) saturate(1.3) contrast(1.1);
+    animation: jitter 2s infinite alternate;
+}
+.card-glitch-2 .card-image-slot {
+    filter: invert(0.9) hue-rotate(180deg) brightness(0.8);
+    animation: severeJitter 0.5s infinite;
+}
+.card-corrupted .card-image-slot {
+    background: repeating-linear-gradient(45deg, #000, #000 10px, #333 10px, #333 20px) !important;
+    opacity: 0.8;
+}
+
+@keyframes jitter {
+    0% { transform: translate(0px, 0px) rotate(0deg); }
+    50% { transform: translate(1px, -1px) rotate(0.5deg); }
+    100% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+}
+@keyframes severeJitter {
+    0% { transform: translate(-2px, 1px) skew(1deg); filter: grayscale(0.5); }
+    20% { transform: translate(1px, -2px) skew(-2deg); filter: invert(0.5); }
+    40% { transform: translate(-1px, 2px) skew(3deg); }
+    60% { transform: translate(2px, -1px) skew(-1deg); }
+    80% { transform: translate(-2px, -2px) skew(2deg); }
+    100% { transform: translate(1px, 1px) skew(0deg); }
+}
+
+/* Responsive adjust for Celtic cross */
+@media (max-width: 768px) {
+    .celtic-cross-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        overflow-y: auto;
+        max-height: 80vh;
+    }
+    .celtic-staff-layout {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .celtic-cross-layout .card-wrapper, .celtic-staff-layout .card-wrapper {
+        width: 60px;
+        height: 100px;
+    }
+    .celtic-cross-layout .card-wrapper .card-image-slot, .celtic-staff-layout .card-wrapper .card-image-slot {
+        height: 50px;
     }
 }
+
+/* --- New UX Redesign Styles --- */
+
+.status-separator {
+    margin: 0 5px;
+    color: var(--color-gold-glow);
+}
+
+/* Gauge styling */
+.status-val {
+    transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+.gauge-changing {
+    animation: gaugeGlow 0.8s ease-in-out;
+}
+@keyframes gaugeGlow {
+    0% { color: #fff; text-shadow: 0 0 15px #fff; }
+    100% { color: var(--color-text-light); text-shadow: 0 0 8px rgba(243, 244, 246, 0.5); }
+}
+
+/* Psyche Scan Overlay */
+#psyche-scan-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 100;
+    pointer-events: none;
+    background: rgba(139, 92, 246, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-mono);
+    animation: scanOverlayFade 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes scanOverlayFade {
+    0% { opacity: 0; background: rgba(239, 68, 68, 0); }
+    50% { background: rgba(239, 68, 68, 0.15); }
+    100% { opacity: 1; }
+}
+
+/* Psyche Scan Scanner Line */
+#psyche-scan-overlay::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: var(--color-accent-red);
+    box-shadow: 0 0 15px var(--color-accent-red);
+    top: 0;
+    left: 0;
+    animation: scanLineMove 1.8s ease-in-out infinite;
+}
+
+@keyframes scanLineMove {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+}
+
+.psyche-scan-box {
+    background: rgba(10, 8, 22, 0.95);
+    border: 1px solid var(--color-accent-red);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 320px;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    animation: popupScan 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popupScan {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.psyche-scan-title {
+    color: var(--color-accent-red);
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-align: center;
+    border-bottom: 1px dashed var(--color-accent-red);
+    padding-bottom: 6px;
+    animation: flashWarning 1s infinite alternate;
+}
+
+.psyche-data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.psyche-data-item {
+    font-size: 11px;
+    color: var(--color-text-light);
+    display: flex;
+    justify-content: space-between;
+}
+
+.psyche-data-item span:last-child {
+    color: var(--color-accent-red);
+    font-weight: bold;
+}
+
+/* Celtic cross Slot deck and slot guides */
+.celtic-deck {
+    border: 1px dashed var(--color-gold);
+    background: rgba(212, 175, 55, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-area: present;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--color-gold-glow);
+}
+.celtic-deck::after {
+    content: 'DECK';
+    font-family: var(--font-mono);
+    color: var(--color-gold);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.cross-slot-guide {
+    position: absolute;
+    width: 75px;
+    height: 125px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+.cross-slot-guide.active-slot {
+    border-color: var(--color-gold);
+    background: rgba(212, 175, 55, 0.03);
+    box-shadow: inset 0 0 10px var(--color-gold-glow);
+}
+.cross-slot-guide::after {
+    content: attr(data-slot-num);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.15);
+}
+.cross-slot-guide.active-slot::after {
+    color: var(--color-gold);
+    animation: flashWarning 1s infinite alternate;
+}
+
+/* Symbolic Drag Puzzle for Loop 2 */
+.symbolic-puzzle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 25px;
+    margin-top: 15px;
+}
+.stone-slots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 120px;
+    height: 200px;
+}
+.stone-slots .card-wrapper {
+    position: absolute;
+    z-index: 1;
+}
+
+/* Stones for drag */
+.stone-palette {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+.symbolic-stone {
+    background: linear-gradient(135deg, #1e1b29 0%, #0f0c1b 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 8px;
+    color: var(--color-text-light);
+    padding: 12px 20px;
+    font-family: var(--font-serif);
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    touch-action: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    user-select: none;
+}
+.symbolic-stone:hover {
+    border-color: var(--color-gold);
+    box-shadow: 0 4px 15px var(--color-gold-glow);
+}
+.symbolic-stone.dragging {
+    opacity: 0.8;
+    transform: scale(0.95);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    z-index: 1000;
+}
+
+/* --- Scene division and Chat View UI styles --- */
+
+.game-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 15px;
+}
+
+/* Scene 1: Talk view styling */
+.visual-area-talk {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 160px;
+    background: rgba(10, 8, 20, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    position: relative;
+}
+.visual-area-talk .oracle-avatar-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.dialogue-container-talk {
+    background: var(--color-bg-panel);
+    backdrop-filter: var(--blur-glass);
+    border: var(--border-gold);
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;
+    min-height: 140px;
+    position: relative;
+}
+.cards-area-talk {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+}
+
+/* Scene 2: Chat View styling */
+.chat-app-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    background: rgba(12, 10, 24, 0.85);
+    border: var(--border-gold);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: var(--blur-glass);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(139, 92, 246, 0.15);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-purple-dark);
+    border: 1px solid var(--color-gold);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 0 10px var(--color-gold-glow);
+}
+
+.chat-header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-name {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    color: var(--color-gold);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.chat-status {
+    font-size: 10px;
+    color: #10b981; /* Green online dot */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.chat-status::before {
+    content: '●';
+    font-size: 8px;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Chat bubble stylings */
+.chat-bubble {
+    display: flex;
+    gap: 10px;
+    max-width: 80%;
+    animation: bubbleFadeUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes bubbleFadeUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.bubble-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--color-gold);
+    flex-shrink: 0;
+}
+
+.bubble-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text-light);
+    word-break: break-all;
+}
+
+/* Self message bubble */
+.chat-bubble.msg-self {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.chat-bubble.msg-self .bubble-content {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: #fff;
+    text-shadow: 0 0 5px var(--color-gold-glow);
+}
+
+.chat-interactive-zone {
+    padding: 15px 20px;
+    background: rgba(5, 4, 10, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+/* Scene 3: Celtic Dialogue and Scene 4 Dialogue */
+.dialogue-container-celtic, .dialogue-container-puzzle {
+    background: var(--color-bg-panel);
+    backdrop-filter: var(--blur-glass);
+    border: var(--border-gold);
+    border-radius: 8px;
+    padding: 15px 20px;
+    min-height: 100px;
+    position: relative;
+}
+
+/* Responsive adjust for new view system */
+@media (max-width: 768px) {
+    .visual-area-talk {
+        height: 120px;
+    }
+    .cards-area-talk {
+        min-height: 170px;
+    }
+    .chat-bubble {
+        max-width: 90%;
+    }
+}
+
+/* --- Card Draw Overlay for dramatic reveal --- */
+#card-draw-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 3, 10, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
+
+#card-draw-overlay.hidden {
+    display: none !important;
+}
+
+#card-draw-deck-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+/* Large Card sizing (for Overlay) */
+.large-card {
+    width: 180px;
+    height: 300px;
+    perspective: 1000px;
+}
+
+.large-card .card-face {
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.large-card .card-image-slot {
+    height: 170px;
+    width: 100%;
+    border-radius: 6px;
+}
+
+.large-card .card-title {
+    font-size: 15px;
+    margin-top: 8px;
+    font-family: var(--font-serif);
+}
+
+.large-card .card-orientation {
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+/* Glowing aura for revealed tarot cards */
+.large-card.revealed {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.6);
+    animation: goldPulse 2s infinite alternate;
+}
+
+@keyframes goldPulse {
+    0% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); }
+    100% { box-shadow: 0 0 45px rgba(212, 175, 55, 0.7); }
+}
+
+/* Responsive Large Cards */
+@media (max-width: 768px) {
+    #card-draw-deck-container {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .large-card {
+        width: 120px;
+        height: 200px;
+    }
+    .large-card .card-image-slot {
+        height: 105px;
+    }
+    .large-card .card-title {
+        font-size: 12px;
+    }
+    .large-card .card-orientation {
+        font-size: 9px;
+    }
+}
+
+/* --- Quiz Style Choice Buttons (Quizzes App Interface) --- */
+.quiz-choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.quiz-choice-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: rgba(25, 20, 45, 0.7);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 8px;
+    padding: 12px 18px;
+    color: var(--color-text-light);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.quiz-choice-btn:hover {
+    background: rgba(212, 175, 55, 0.18);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 15px var(--color-gold-glow);
+    transform: translateY(-2px);
+}
+
+.quiz-choice-badge {
+    background: var(--color-purple-dark);
+    color: var(--color-gold);
+    border: 1px solid var(--color-gold);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    margin-right: 15px;
+    font-size: 13px;
+    flex-shrink: 0;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+}
+
+.quiz-choice-text {
+    flex: 1;
+    word-break: break-word;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* --- Large Card Display inside Dialogue Area --- */
+.dialogue-card-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+    animation: cardFadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes cardFadeIn {
+    0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.dialogue-card-image {
+    width: 160px;
+    height: 267px; /* 3:5 Ratio */
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--color-gold);
+    border-radius: 8px;
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: var(--transition-smooth);
+}
+
+.dialogue-card-image:hover {
+    box-shadow: 0 0 35px rgba(212, 175, 55, 0.8), 0 15px 40px rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
+}
+
+/* For mobile screen sizes */
+@media (max-width: 768px) {
+    .dialogue-card-image {
+        width: 120px;
+        height: 200px;
+    }
+}
+
+
+
