@@ -576,7 +576,7 @@ function loadStep() {
 
     if (currentView === "talk") {
         talkClickPrompt.classList.add("hidden");
-        talkCardsContainer.innerHTML = "";
+        talkCardsContainer.innerHTML = ""; // Clear choices during typing
 
         // Portrait visibility control: Only show portrait if speaker is Sophia
         if (stepData.speaker === "ソフィア" || stepData.speaker === "ソフィア (エラー)") {
@@ -590,42 +590,45 @@ function loadStep() {
         }
 
         updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, talkTextEl);
-
-        // Render card / forms
-        if (currentLoop === 1 && currentStep === 9) {
-            renderSoulCardForm();
-        } else if (currentLoop === 2 && currentStep === 2) {
-            loadMetaStarStep();
-        } else {
-            // Render Cards (with choice illusion if flagged)
-            renderChoiceCards(stepData.cards, talkCardsContainer);
-        }
+        typeDialogueText(stepData.text, talkTextEl, () => {
+            talkClickPrompt.classList.remove("hidden");
+            // Render card / forms after typing finishes
+            if (currentLoop === 1 && currentStep === 9) {
+                renderSoulCardForm();
+            } else if (currentLoop === 2 && currentStep === 2) {
+                loadMetaStarStep();
+            } else {
+                renderChoiceCards(stepData.cards, talkCardsContainer);
+            }
+        });
     } 
     else if (currentView === "chat") {
         chatInteractiveZoneEl.innerHTML = "";
         
-        // Push incoming message into Chat Timeline
-        pushChatMessage(stepData.speaker, stepData.text);
-
-        // Render Cards inside chat zone (with choice illusion if flagged)
-        if (currentStep === 11 || currentStep === 12) {
-            renderMotifSelection(currentStep);
-        } else {
-            renderChoiceCards(stepData.cards, chatInteractiveZoneEl, true);
-        }
+        // Push incoming message into Chat Timeline, render choices after typing completes
+        pushChatMessage(stepData.speaker, stepData.text, false, null, () => {
+            if (currentStep === 11 || currentStep === 12) {
+                renderMotifSelection(currentStep);
+            } else {
+                renderChoiceCards(stepData.cards, chatInteractiveZoneEl, true);
+            }
+        });
     } 
     else if (currentView === "celtic") {
         celticClickPrompt.classList.add("hidden");
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, celticTextEl);
-        renderCelticCross();
+        typeDialogueText(stepData.text, celticTextEl, () => {
+            celticClickPrompt.classList.remove("hidden");
+            renderCelticCross();
+        });
     } 
     else if (currentView === "puzzle") {
         puzzleClickPrompt.classList.add("hidden");
         updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, stepData.speaker);
-        typeDialogueText(stepData.text, puzzleTextEl);
-        renderSymbolicDragPuzzle();
+        typeDialogueText(stepData.text, puzzleTextEl, () => {
+            puzzleClickPrompt.classList.remove("hidden");
+            renderSymbolicDragPuzzle();
+        });
     }
 
     saveState();
@@ -643,7 +646,7 @@ function scrollToBottom() {
 }
 
 // --- Push message to Chat Timeline ---
-function pushChatMessage(speaker, text, isSelf = false, cardData = null) {
+function pushChatMessage(speaker, text, isSelf = false, cardData = null, onComplete = null) {
     if (chatHistoryEl) {
         chatHistoryEl.innerHTML = ""; // Clear old messages to make it behave like a dialogue window
     }
@@ -688,8 +691,8 @@ function pushChatMessage(speaker, text, isSelf = false, cardData = null) {
     }
     scrollToBottom();
 
-    // Type text inside the textNode
-    typeDialogueText(text, textNode);
+    // Type text inside the textNode, fire callback when done
+    typeDialogueText(text, textNode, onComplete);
 }
 
 // --- Render Cards with choice/no-choice Illusion ---
@@ -709,23 +712,16 @@ function renderChoiceCards(cardsList, container, isInChat = false) {
     choicesContainer.className = "quiz-choices-container";
 
     if (isIllusion && cardsList.length === 1) {
-        // Show A, B, C for choices illusion (like Step 1 card draw)
         const cardObj = cardsList[0];
-        const labels = ["A", "B", "C"];
         
         for (let i = 0; i < 3; i++) {
             const btn = document.createElement("button");
             btn.className = "quiz-choice-btn";
             
-            const badge = document.createElement("span");
-            badge.className = "quiz-choice-badge";
-            badge.textContent = labels[i];
-            
             const textSpan = document.createElement("span");
             textSpan.className = "quiz-choice-text";
             textSpan.textContent = `カードを引く (カード #${i + 1} を選択)`;
             
-            btn.appendChild(badge);
             btn.appendChild(textSpan);
             choicesContainer.appendChild(btn);
 
@@ -734,21 +730,15 @@ function renderChoiceCards(cardsList, container, isInChat = false) {
             });
         }
     } else {
-        // Standard actual branches
-        const labels = ["A", "B", "C", "D"];
+        // Standard actual branches (Remove alphabet badges/labels)
         cardsList.forEach((card, index) => {
             const btn = document.createElement("button");
             btn.className = "quiz-choice-btn";
-            
-            const badge = document.createElement("span");
-            badge.className = "quiz-choice-badge";
-            badge.textContent = labels[index] || String.fromCharCode(65 + index);
             
             const textSpan = document.createElement("span");
             textSpan.className = "quiz-choice-text";
             textSpan.textContent = card.title;
             
-            btn.appendChild(badge);
             btn.appendChild(textSpan);
             choicesContainer.appendChild(btn);
 
@@ -778,18 +768,18 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         chatInteractiveZoneEl.innerHTML = "";
         
         // Show player choice in dialogue box
-        pushChatMessage("Player", `選択: ${choiceText}`, true);
-
-        setTimeout(() => {
-            // Show result text with tarot card preview image embedded in bubble
-            const narrativeText = `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
-            pushChatMessage("The Journey", narrativeText, false, card);
-            
-            // Generate Next Button
-            chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
-            document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
-            scrollToBottom();
-        }, 1000);
+        pushChatMessage("Player", `選択: ${choiceText}`, true, null, () => {
+            setTimeout(() => {
+                // Show result text with tarot card preview image embedded in bubble
+                const narrativeText = `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
+                pushChatMessage("The Journey", narrativeText, false, card, () => {
+                    // Generate Next Button after typing finishes
+                    chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
+                    document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
+                    scrollToBottom();
+                });
+            }, 1000);
+        });
     } else {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (currentView === "talk") {
@@ -797,8 +787,9 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
             
             // Show result text
-            typeDialogueText(`【${tarotName} (${orientationText})】を引き当てました。<br><br>${card.desc}`, talkTextEl);
-            talkClickPrompt.classList.remove("hidden");
+            typeDialogueText(`【${tarotName} (${orientationText})】を引き当てました。<br><br>${card.desc}`, talkTextEl, () => {
+                talkClickPrompt.classList.remove("hidden");
+            });
         } else {
             advanceGame();
         }
@@ -806,7 +797,7 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
 }
 
 // --- Typing Effect ---
-function typeDialogueText(text, container) {
+function typeDialogueText(text, container, onComplete = null) {
     container.innerHTML = "";
     let i = 0;
     const speed = 15; // Fast typing speed for smoother UX
@@ -828,6 +819,7 @@ function typeDialogueText(text, container) {
             setTimeout(type, speed);
         } else {
             scrollToBottom();
+            if (onComplete) onComplete();
         }
     }
     type();
