@@ -24,6 +24,19 @@ import '../styles/style.css';
         <!-- 精神スキャンのデータ表示用オーバーレイ -->
         <div id="psyche-scan-overlay" class="hidden"></div>
 
+        <!-- スタート画面（タイトル画面） -->
+        <div id="start-screen" class="start-screen-overlay">
+            <div class="start-screen-content">
+                <h1 class="game-title-logo">THE FOOL'S JOURNEY</h1>
+                <p class="game-subtitle-logo">― 運命をめぐる、自律と盲信の旅 ―</p>
+                <div class="start-button-group">
+                    <button id="start-new-btn" class="action-btn">物語を紡ぐ (最初から)</button>
+                    <button id="start-continue-btn" class="action-btn hidden">運命に触れる (続きから)</button>
+                    <button id="show-instructions-btn" class="action-btn">遊び方 (魔導書を開く)</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ヘッダー・ステータスバー -->
         <header id="status-bar">
             <div class="status-left">
@@ -140,7 +153,7 @@ import '../styles/style.css';
         <div id="meditation-container" class="hidden">
             <header class="meditation-header" style="text-align: center; margin-bottom: 20px;">
                 <h2 style="font-family: var(--font-serif); color: var(--color-gold); font-size: 24px; letter-spacing: 2px; text-shadow: 0 0 8px var(--color-gold-glow);">DAILY TAROT</h2>
-                <p style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;">ここはあなたの内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。</p>
+                <p style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;">ここは君の内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。</p>
             </header>
             <div class="meditation-card-display">
                 <div id="meditation-card-zone">
@@ -173,6 +186,32 @@ import '../styles/style.css';
                 <button id="restart-btn" class="action-btn">再び歩み始める</button>
             </div>
         </div>
+        <!-- 遊び方説明モーダル -->
+        <div id="instructions-modal" class="custom-modal hidden">
+            <div class="custom-modal-overlay"></div>
+            <div class="custom-modal-content">
+                <button id="close-instructions-btn" class="custom-modal-close">&times;</button>
+                <div class="instructions-image-wrapper">
+                    <img src="/images/tarot_instructions.png" alt="Tarot Instructions" class="instructions-img">
+                </div>
+            </div>
+        </div>
+
+        <!-- タロットカード全画面フォーカスモーダル -->
+        <div id="card-focus-modal" class="custom-modal hidden">
+            <div class="custom-modal-overlay"></div>
+            <div class="custom-modal-content card-focus-content">
+                <div class="focus-card-image-container">
+                    <div id="focus-card-img" class="focus-card-image"></div>
+                </div>
+                <div class="focus-card-info">
+                    <div id="focus-card-name" class="focus-card-name"></div>
+                    <div id="focus-card-direction" class="focus-card-direction"></div>
+                </div>
+                <div class="focus-card-tip">画面をタップして戻る</div>
+            </div>
+        </div>
+
     </div>
 
     <!-- クライアントサイドスクリプトのインポート -->

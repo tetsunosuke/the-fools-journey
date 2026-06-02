@@ -589,7 +589,7 @@ function loadStep() {
             document.querySelector(".visual-area-talk").style.display = "none"; // Close visual area to maximize chat
         }
 
-        talkSpeakerEl.textContent = stepData.speaker;
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepData.speaker);
         typeDialogueText(stepData.text, talkTextEl);
 
         // Render card / forms
@@ -617,13 +617,13 @@ function loadStep() {
     } 
     else if (currentView === "celtic") {
         celticClickPrompt.classList.add("hidden");
-        celticSpeakerEl.textContent = stepData.speaker;
+        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, stepData.speaker);
         typeDialogueText(stepData.text, celticTextEl);
         renderCelticCross();
     } 
     else if (currentView === "puzzle") {
         puzzleClickPrompt.classList.add("hidden");
-        puzzleSpeakerEl.textContent = stepData.speaker;
+        updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, stepData.speaker);
         typeDialogueText(stepData.text, puzzleTextEl);
         renderSymbolicDragPuzzle();
     }
@@ -770,6 +770,9 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
     const tarotName = SOUL_CARDS[card.id] ? SOUL_CARDS[card.id].name : "タロットカード";
     const orientationText = card.upright ? "正位置" : "逆位置";
 
+    // カードを全画面表示する
+    focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id]);
+
     if (isInChat) {
         // Clear interactive zone instantly
         chatInteractiveZoneEl.innerHTML = "";
@@ -791,7 +794,7 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (currentView === "talk") {
             talkCardsContainer.innerHTML = "";
-            talkSpeakerEl.textContent = "運命の託宣";
+            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
             
             // Show result text
             typeDialogueText(`【${tarotName} (${orientationText})】を引き当てました。<br><br>${card.desc}`, talkTextEl);
@@ -891,6 +894,9 @@ function revealCard(cardElement, card, isInChat = false) {
     const tarotName = SOUL_CARDS[cardId] ? SOUL_CARDS[cardId].name : (isLegacy ? "" : card.title);
     const orientationText = isLegacy ? "" : (card.upright ? "正位置" : "逆位置");
 
+    // カードを全画面表示する
+    focusTarotCard(cardId, isLegacy ? true : card.upright, TAROT_IMAGES[cardId]);
+
     setTimeout(() => {
         if (isInChat) {
             // 1. Show the drawn card name first in the dialog
@@ -921,7 +927,7 @@ function revealCard(cardElement, card, isInChat = false) {
             scrollToBottom();
         } else {
             if (currentView === "talk") {
-                talkSpeakerEl.textContent = "運命の託宣";
+                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
                 
                 if (isLegacy) {
                     typeDialogueText(desc, talkTextEl);
@@ -942,11 +948,11 @@ function revealCard(cardElement, card, isInChat = false) {
                     });
                 }
             } else if (currentView === "celtic") {
-                celticSpeakerEl.textContent = "運命の託宣";
+                updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "運命の託宣");
                 typeDialogueText(selectedOptionDesc, celticTextEl);
                 celticClickPrompt.classList.remove("hidden");
             } else if (currentView === "puzzle") {
-                puzzleSpeakerEl.textContent = "運命の託宣";
+                updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, "運命の託宣");
                 typeDialogueText(selectedOptionDesc, puzzleTextEl);
                 puzzleClickPrompt.classList.remove("hidden");
             }
@@ -1020,9 +1026,9 @@ function triggerLoversBadEnd() {
         endingTitle.textContent = "0 : THE FOOL (逆位置)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            あなたは自由を選んだつもりでした。<br>
-            しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独があなたを包みます。<br><br>
-            <span style="color: var(--color-accent-red);">「あなたは導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
+            君は自由を選んだつもりでした。<br>
+            しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独が君を包みます。<br><br>
+            <span style="color: var(--color-accent-red);">「君は導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
         `;
         restartBtn.textContent = "再び白紙の旅に出る (やり直す)";
         restartBtn.onclick = () => {
@@ -1041,9 +1047,9 @@ function triggerTowerBadEnd() {
         endingTitle.textContent = "XVI : THE TOWER (崩壊)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            完璧だったはずのシステムは、あなたを贄として崩壊しました。<br>
+            完璧だったはずのシステムは、君を贄として崩壊しました。<br>
             自分で考えることを放棄し、誰かが用意した「運命」を盲信した結末です。<br><br>
-            <span style="color: var(--color-gold);">「本当にこれが、あなたの望んだ世界ですか？」</span>
+            <span style="color: var(--color-gold);">「本当にこれが、君の望んだ世界ですか？」</span>
         `;
         restartBtn.textContent = "2周目を開始する (違和感の獲得)";
         restartBtn.onclick = () => {
@@ -1065,7 +1071,7 @@ function triggerDevilLoopEnd() {
         endingTitle.textContent = "XV : THE DEVIL (盲信ループ)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            あなたは再び、提示された運命をめくってしまいました。<br>
+            君は再び、提示された運命をめくってしまいました。<br>
             用意された選択肢から選ぶという行為自体が、すでに依存と囚われの檻です。<br><br>
             <span style="color: var(--color-gold);">システムに抗うのです。カードそのものをドラッグして「破棄」し、<br>
             運命の糸を物理的に切り離しなさい。</span>
@@ -1131,9 +1137,12 @@ function showSoulCardResult(cardNum) {
     cardWrapper.classList.add("revealed");
     talkCardsContainer.appendChild(cardWrapper);
 
-    selectedOptionDesc = `あなたのソウルカードは【${cardInfo.name}】です。<br><br>${cardInfo.desc}<br>ソフィアは妖しく微笑む。「だからこそ、あなたには今の試練が与えられたの。このコミュニティとアプリが、あなたの傷ついた魂を救う唯一のシェルターなのよ」`;
+    // カードを全画面表示
+    focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum]);
+
+    selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>${cardInfo.desc}<br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
     
-    talkSpeakerEl.textContent = "運命の託宣";
+    updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     typeDialogueText(selectedOptionDesc, talkTextEl);
     talkClickPrompt.classList.remove("hidden");
 }
@@ -1231,13 +1240,17 @@ function renderCelticCross() {
             targetSlotGuide.style.opacity = 0;
         }, 50);
 
+        // めくられた瞬間に全画面表示
+        focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
+
         cardWrapper.addEventListener("click", (e) => {
             e.stopPropagation();
-            celticSpeakerEl.textContent = cardData.pos;
+            updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
             typeDialogueText(cardData.desc, celticTextEl);
+            focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
         });
 
-        celticSpeakerEl.textContent = cardData.pos;
+        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
         typeDialogueText(cardData.desc, celticTextEl);
 
         currentCardIndex++;
@@ -1265,8 +1278,8 @@ function showCelticCrossContract() {
 
     document.getElementById("contract-btn").addEventListener("click", () => {
         isCardRevealed = true;
-        selectedOptionDesc = "契約は完了しました。おめでとうございます。これであなたの運命は、コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
-        celticSpeakerEl.textContent = "ソフィア";
+        selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は, コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
+        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
         typeDialogueText(selectedOptionDesc, celticTextEl);
         celticClickPrompt.classList.remove("hidden");
     });
@@ -1402,6 +1415,9 @@ function renderSymbolicDragPuzzle() {
     cardWrapper.classList.add("revealed");
     slotsArea.appendChild(cardWrapper);
 
+    // カードを全画面表示
+    focusTarotCard(2, false, TAROT_IMAGES[2]);
+
     setupStoneDrag(selfStone, cardWrapper, "self");
     setupStoneDrag(controlStone, cardWrapper, "control");
 }
@@ -1463,14 +1479,14 @@ function handlePuzzleChoice(type, stoneEl) {
     isCardRevealed = true;
 
     if (type === "self") {
-        selectedOptionDesc = "【自律ルート】あなたは気づいた。冷酷になっているのは相手ではなく、対話を拒絶している自分自身の心の影（投影）ではないか。あなたは上司と誠実に対話することを選択した。運命の歯車が初めて本来の軌道から外れた！";
+        selectedOptionDesc = "【自律ルート】君は気づいた。冷酷になっているのは相手ではなく、対話を拒絶している自分自身の心の影（投影）ではないか。君は上司と誠実に対話することを選択した。運命の歯車が初めて本来の軌道から外れた！";
     } else {
-        selectedOptionDesc = "【盲従ルート】あなたはカードの言葉を『相手の冷酷さ』と解釈し、冷たい沈黙で相手を拒絶した。しかしそれはあなたの「相手を拒絶する心」を映した鏡だった。関係はさらに悪化し、再び『悪魔』の依存と『塔』の崩壊バッドエンドへ向かう。";
+        selectedOptionDesc = "【盲従ルート】君はカードの言葉を『相手の冷酷さ』と解釈し、冷たい沈黙で相手を拒絶した。しかしそれは君の「相手を拒絶する心」を映した鏡だった。関係はさらに悪化し、再び『悪魔』の依存と『塔』の崩壊バッドエンドへ向かう。";
     }
 
     setTimeout(() => {
         stoneEl.remove();
-        puzzleSpeakerEl.textContent = "運命の託宣";
+        updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, "運命の託宣");
         typeDialogueText(selectedOptionDesc, puzzleTextEl);
         puzzleClickPrompt.classList.remove("hidden");
     }, 500);
@@ -1616,12 +1632,12 @@ function triggerTrueEndingUnlock() {
     sceneBgEl.style.opacity = 0.15;
     
     showView("talk"); // Bring player back to shop for ending dialog
-    talkSpeakerEl.textContent = "ソフィア";
     talkPortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
     talkPortraitEl.style.opacity = "1";
     document.querySelector(".visual-area-talk").style.display = "flex";
     
-    typeDialogueText("……運命の糸が……完全に千切れました。あなたは提示されたすべての檻を拒絶し、システムを超越しました。これがあなたの真の意志ですね……。", talkTextEl);
+    updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "ソフィア");
+    typeDialogueText("……運命の糸が……完全に千切れました。君は提示されたすべての檻を拒絶し、システムを超越しました。これが君の真の意志ですね……。", talkTextEl);
 
     setTimeout(() => {
         currentArcanaEl.textContent = "XXI : THE WORLD (自己実現)";
@@ -1658,7 +1674,7 @@ function triggerTrueEndingUnlock() {
 
         worldCard.addEventListener("click", () => {
             if (isCardRevealed) return;
-            revealCard(worldCard, "【トゥルーエンド】運命の超越。あなたはシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
+            revealCard(worldCard, "【トゥルーエンド】運命の超越。君はシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
             
             setTimeout(() => {
                 talkClickPrompt.classList.remove("hidden");
@@ -1674,10 +1690,10 @@ function showTrueEndingOverlay() {
     endingTitle.textContent = "XXI : THE WORLD (自己実現)";
     endingTitle.style.color = "var(--color-gold)";
     endingDesc.innerHTML = `
-        おめでとうございます。あなたは「運命のアプリ」という盲信のシステムを完全に脱却しました。<br>
+        おめでとう。君は「運命のアプリ」という盲信のシステムを完全に脱却しました。<br>
         大アルカナの旅路は、与えられた指示に生きることではありません。<br>
         無垢な「愚者」が葛藤を経て、自律意思に基づいて自己（Self）を生きる力こそが、真の「世界」です。<br><br>
-        <span style="color: var(--color-gold); font-size: 18px; font-weight: bold;">「これより先、あなたの道を決めるのはあなた自身です」</span>
+        <span style="color: var(--color-gold); font-size: 18px; font-weight: bold;">「これより先、君の道を決めるのは君自身です」</span>
     `;
     restartBtn.textContent = "対話鑑賞モードをアンロックする";
     restartBtn.onclick = () => {
@@ -1722,6 +1738,9 @@ function drawMeditationCard() {
     setTimeout(() => {
         cardWrapper.classList.add("revealed");
         
+        // カードを全画面表示
+        focusTarotCard(randKey, true, TAROT_IMAGES[randKey]);
+
         meditationMotifButtons.innerHTML = "";
         metadata.motifs.forEach((motif) => {
             const btn = document.createElement("button");
@@ -1735,7 +1754,7 @@ function drawMeditationCard() {
         meditationMotifs.classList.remove("hidden");
         resetMeditationBtn.classList.remove("hidden");
         
-        typeDialogueText(`今日のあなたのカードは『${metadata.title}』です。カードの絵柄から、今あなたの心が最も惹かれるモチーフを選んでください。`, meditationText);
+        typeDialogueText(`今日の君のカードは『${metadata.title}』です。カードの絵柄から、今君の心が最も惹かれるモチーフを選んでください。`, meditationText);
     }, 500);
 }
 
@@ -1746,7 +1765,143 @@ function selectMeditationMotif(motif) {
 
 resetMeditationBtn.addEventListener("click", initMeditationMode);
 
+// --- Added DOM Elements ---
+const startScreenEl = document.getElementById("start-screen");
+const startNewBtn = document.getElementById("start-new-btn");
+const startContinueBtn = document.getElementById("start-continue-btn");
+const showInstructionsBtn = document.getElementById("show-instructions-btn");
+
+const instructionsModal = document.getElementById("instructions-modal");
+const closeInstructionsBtn = document.getElementById("close-instructions-btn");
+
+const cardFocusModal = document.getElementById("card-focus-modal");
+const focusCardImg = document.getElementById("focus-card-img");
+const focusCardName = document.getElementById("focus-card-name");
+const focusCardDirection = document.getElementById("focus-card-direction");
+
+// --- Added Helper & Adjustment Functions ---
+function applyDynamicAdjustments() {
+    // SCENARIO text replacement: "あなた" -> "君", "ナレーション" -> ""
+    for (let loopKey in SCENARIO) {
+        SCENARIO[loopKey].forEach(step => {
+            if (step.speaker === "ナレーション") {
+                step.speaker = "";
+            }
+            if (step.text) {
+                step.text = step.text.replace(/あなた/g, "君");
+            }
+            if (step.cards) {
+                step.cards.forEach(card => {
+                    if (card.desc) {
+                        card.desc = card.desc.replace(/あなた/g, "君");
+                    }
+                });
+            }
+        });
+    }
+    
+    // SOUL_CARDS replacement: "あなた" -> "君"
+    for (let cardId in SOUL_CARDS) {
+        if (SOUL_CARDS[cardId].desc) {
+            SOUL_CARDS[cardId].desc = SOUL_CARDS[cardId].desc.replace(/あなた/g, "君");
+        }
+    }
+
+    // CELTIC_CARDS_DATA replacement: "あなた" -> "君"
+    CELTIC_CARDS_DATA.forEach(card => {
+        if (card.desc) {
+            card.desc = card.desc.replace(/あなた/g, "君");
+        }
+    });
+}
+
+function showStartScreen() {
+    const savedLoop = localStorage.getItem("fools_journey_loop");
+    const savedStep = localStorage.getItem("fools_journey_step");
+    
+    if (savedLoop !== null && savedStep !== null) {
+        startContinueBtn.classList.remove("hidden");
+    } else {
+        startContinueBtn.classList.add("hidden");
+    }
+    
+    startScreenEl.classList.remove("hidden");
+    gameContainer.classList.add("hidden");
+    meditationContainer.classList.add("hidden");
+}
+
+function setupEventListeners() {
+    startNewBtn.addEventListener("click", () => {
+        localStorage.clear();
+        currentLoop = 1;
+        currentStep = 0;
+        trueEndCleared = false;
+        startScreenEl.classList.add("hidden");
+        initGame();
+    });
+
+    startContinueBtn.addEventListener("click", () => {
+        startScreenEl.classList.add("hidden");
+        initGame();
+    });
+
+    showInstructionsBtn.addEventListener("click", () => {
+        instructionsModal.classList.remove("hidden");
+    });
+
+    closeInstructionsBtn.addEventListener("click", () => {
+        instructionsModal.classList.add("hidden");
+    });
+    instructionsModal.querySelector(".custom-modal-overlay").addEventListener("click", () => {
+        instructionsModal.classList.add("hidden");
+    });
+
+    cardFocusModal.addEventListener("click", () => {
+        cardFocusModal.classList.add("hidden");
+    });
+}
+
+function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
+    speakerEl.textContent = speakerName;
+    if (!speakerName || speakerName === "ナレーション") {
+        speakerEl.classList.add("hidden");
+        textEl.classList.add("narration-style");
+    } else {
+        speakerEl.classList.remove("hidden");
+        textEl.classList.remove("narration-style");
+    }
+}
+
+function focusTarotCard(cardIdOrName, upright, imgUrl) {
+    let name = "";
+    let imageSrc = "";
+    
+    if (typeof cardIdOrName === "number") {
+        name = SOUL_CARDS[cardIdOrName] ? SOUL_CARDS[cardIdOrName].name : `カード #${cardIdOrName}`;
+        imageSrc = imgUrl || TAROT_IMAGES[cardIdOrName] || "";
+    } else {
+        name = cardIdOrName || "";
+        imageSrc = imgUrl || "";
+    }
+    
+    focusCardName.textContent = name;
+    focusCardDirection.textContent = upright ? "正位置" : "逆位置";
+    
+    if (upright) {
+        focusCardDirection.className = "focus-card-direction orientation-upright";
+        focusCardImg.style.transform = "none";
+    } else {
+        focusCardDirection.className = "focus-card-direction orientation-reversed";
+        focusCardImg.style.transform = "rotate(180deg)";
+    }
+    
+    focusCardImg.style.backgroundImage = `url('${imageSrc}')`;
+    cardFocusModal.classList.remove("hidden");
+}
+
 // --- Window load initialize ---
 window.addEventListener("load", () => {
-    initGame();
+    applyDynamicAdjustments();
+    setupEventListeners();
+    showStartScreen();
 });
