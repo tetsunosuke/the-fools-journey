@@ -410,8 +410,8 @@ function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "
         }
 
         const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
-        const numberedText = `<span class="dbg">[${pageId}]</span> ${pageText}`;
-        typeDialogueText(numberedText, textEl, () => {
+        console.log(`[Dialogue ID] ${pageId}`);
+        typeDialogueText(pageText, textEl, () => {
             if (idx < pages.length - 1) {
                 promptEl.classList.remove("hidden");
                 pendingPageCallback = () => {
@@ -742,6 +742,12 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (currentView === "talk") {
             talkCardsContainer.innerHTML = "";
+            
+            // もし desc が空ならば、会話ページを生成せず自動的に次のステップへ遷移する
+            if (!card.desc) {
+                advanceGame();
+                return;
+            }
             // 現在のステップのスピーカーを維持（narration-styleを回避）
             const stepSpeaker = SCENARIO[currentLoop][currentStep]?.speaker || "";
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
