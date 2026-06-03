@@ -346,6 +346,64 @@ function changeBackground(bgName) {
     }
 }
 
+// --- ページタグ処理ユーティリティ ---
+// 各種タグを処理し、テキスト表示に必要な情報を返す
+// @param pageText      処理対象のページテキスト
+// @param currentSpeaker 現在の話者名（更新して返す）
+// @param onFocusDone   フォーカス画像を閉じた後に呼ぶコールバック
+// @returns { text, speaker, skip, handled }
+//   text:    タグ除去後のテキスト（表示用）
+//   speaker: 更新後の話者名
+//   skip:    true → このページをスキップして次へ
+//   handled: true → フォーカス等でページ処理済み（テキスト表示不要）
+function processPageTags(pageText, currentSpeaker, onFocusDone) {
+    // [bg:画像名] → 背景変更して除去
+    const bgMatch = pageText.match(/\[bg:([^\]]+)\]/);
+    if (bgMatch) {
+        changeBackground(bgMatch[1].trim());
+        pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
+    }
+
+    // [view:X] → talk ビュー内では無視してスキップ
+    if (/^\[view:[^\]]+\]$/.test(pageText)) {
+        return { text: pageText, speaker: currentSpeaker, skip: true, handled: false };
+    }
+
+    // [card_btn:N] → カード画像をフォーカス表示
+    const cardBtnMatch = pageText.match(/^\[card_btn:(\d+)\]$/);
+    if (cardBtnMatch) {
+        const cardNum = cardBtnMatch[1];
+        pendingStepLoad = () => { pendingStepLoad = null; onFocusDone(); };
+        focusTarotCard(`カード #${cardNum}`, undefined, `/images/cards/${cardNum}.jpg`);
+        return { text: "", speaker: currentSpeaker, skip: false, handled: true };
+    }
+
+    // [focus:画像パス:タイトル] → 画像をフォーカス表示
+    const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
+    if (focusMatch) {
+        pendingStepLoad = () => { pendingStepLoad = null; onFocusDone(); };
+        focusTarotCard(focusMatch[2].trim() || "", undefined, focusMatch[1].trim());
+        return { text: "", speaker: currentSpeaker, skip: false, handled: true };
+    }
+
+    // [speaker:名前] → 話者更新（本文が続く場合はそのまま表示）
+    const speakerMatch = pageText.match(/^\[speaker:([^\]]+)\]\r?\n?([\s\S]*)$/);
+    if (speakerMatch) {
+        currentSpeaker = speakerMatch[1].trim();
+        pageText = speakerMatch[2].trim();
+    }
+
+    // 残留タグをすべて除去（安全フォールバック）
+    pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
+
+    // 空ページ → スキップ
+    if (pageText.length === 0) {
+        return { text: "", speaker: currentSpeaker, skip: true, handled: false };
+    }
+
+    return { text: pageText, speaker: currentSpeaker, skip: false, handled: false };
+}
+
 // --- 長いセリフを約3行（MAX_LINE_CHARS文字）で自動分割 ---
 const MAX_LINE_CHARS = 80; // この文字数を超えたら次のページへ
 
@@ -391,95 +449,33 @@ function autoSplitTextIntoPages(text, maxChars = MAX_LINE_CHARS) {
 function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "") {
     const pages = autoSplitTextIntoPages(text);
     let idx = 0;
-    
     const isTalkView = textEl === talkTextEl;
     let currentSpeakerState = defaultSpeaker;
 
+    function goNext() {
+        if (idx < pages.length - 1) { idx++; showPage(); }
+        else { onAllDone(); }
+    }
+
     function showPage() {
         promptEl.classList.add("hidden");
-        let pageText = pages[idx];
-        
-        // [bg:画像名] タグの検知と背景変更
-        const bgMatch = pageText.match(/\[bg:([^\]]+)\]/);
-        if (bgMatch) {
-            const bgName = bgMatch[1].trim();
-            changeBackground(bgName);
-            pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
-            pages[idx] = pageText;
-        }
-        
-        // [view:chat] などビュー切り替えタグは talk ビュー内では無視してスキップ
-        if (/^\[view:[^\]]+\]$/.test(pageText)) {
-            if (idx < pages.length - 1) { idx++; showPage(); }
-            else { onAllDone(); }
-            return;
-        }
-        
-        // [card_btn:N] タグ: カードN番の画像をフォーカス表示
-        const cardBtnMatch = pageText.match(/^\[card_btn:(\d+)\]$/);
-        if (cardBtnMatch) {
-            const cardNum = cardBtnMatch[1];
-            const imgUrl = `/images/cards/${cardNum}.jpg`;
-            pendingStepLoad = () => {
-                pendingStepLoad = null;
-                if (idx < pages.length - 1) { idx++; showPage(); }
-                else { onAllDone(); }
-            };
-            focusTarotCard(`カード #${cardNum}`, undefined, imgUrl);
-            return;
-        }
-        
-        // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
-        const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
-        if (focusMatch) {
-            const imgUrl = focusMatch[1].trim();
-            const title = (focusMatch[2] || "").trim();
-            
-            pendingStepLoad = () => {
-                pendingStepLoad = null;
-                if (idx < pages.length - 1) {
-                    idx++;
-                    showPage();
-                } else {
-                    onAllDone();
-                }
-            };
-            
-            focusTarotCard(title, undefined, imgUrl);
-            return;
-        }
 
-        // 動的話者切り替えタグの検知: [speaker:名前]
-        const speakerMatch = pageText.match(/^\[speaker:([^\]]+)\]\r?\n?([\s\S]*)$/);
-        if (speakerMatch) {
-            currentSpeakerState = speakerMatch[1].trim();
-            pageText = speakerMatch[2].trim();
-        }
-        
+        const result = processPageTags(pages[idx], currentSpeakerState, goNext);
+        currentSpeakerState = result.speaker;
+
+        if (result.handled) return; // フォーカス等で処理済み
+        if (result.skip) { goNext(); return; } // スキップ対象
+
         if (isTalkView) {
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, currentSpeakerState);
         }
 
-        // 残留する未処理タグをすべて除去（安全フォールバック）
-        pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
-        
-        // ページが空になった場合はスキップ
-        if (pageText.length === 0) {
-            if (idx < pages.length - 1) { idx++; showPage(); }
-            else { onAllDone(); }
-            return;
-        }
-
         const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
-        console.log(`[Dialogue ID] ${pageId} | Length: ${pageText.length} | Content: ${pageText}`);
-        typeDialogueText(pageText, textEl, () => {
+        console.log(`[Dialogue ID] ${pageId} | Length: ${result.text.length} | Content: ${result.text}`);
+        typeDialogueText(result.text, textEl, () => {
             if (idx < pages.length - 1) {
                 promptEl.classList.remove("hidden");
-                pendingPageCallback = () => {
-                    pendingPageCallback = null;
-                    idx++;
-                    showPage();
-                };
+                pendingPageCallback = () => { pendingPageCallback = null; idx++; showPage(); };
             } else {
                 onAllDone();
             }
@@ -668,110 +664,38 @@ function executeLoadStep(stepData) {
 
 function showNextDialoguePage(stepData) {
     talkClickPrompt.classList.add("hidden");
-    let pageText = currentDialoguePages[currentDialoguePageIndex];
-    console.log(`Evaluating page [${currentDialoguePageIndex}]:`, pageText);
-    
-    // [bg:画像名] タグの検知と背景変更
-    const bgMatch = pageText.match(/\[bg:([^\]]+)\]/);
-    if (bgMatch) {
-        const bgName = bgMatch[1].trim();
-        changeBackground(bgName);
-        pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
-        currentDialoguePages[currentDialoguePageIndex] = pageText;
-    }
-    
-    // [view:chat] などビュー切り替えタグは talk ビュー内では無視してスキップ
-    if (/^\[view:[^\]]+\]$/.test(pageText)) {
+
+    function goNext() {
         if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
             currentDialoguePageIndex++;
             showNextDialoguePage(stepData);
         } else {
             finishStepText(stepData);
         }
-        return;
-    }
-    
-    // [card_btn:N] タグ: カードN番の画像をフォーカス表示
-    const cardBtnMatch = pageText.match(/^\[card_btn:(\d+)\]$/);
-    if (cardBtnMatch) {
-        const cardNum = cardBtnMatch[1];
-        const imgUrl = `/images/cards/${cardNum}.jpg`;
-        pendingStepLoad = () => {
-            pendingStepLoad = null;
-            if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
-                currentDialoguePageIndex++;
-                showNextDialoguePage(stepData);
-            } else {
-                finishStepText(stepData);
-            }
-        };
-        focusTarotCard(`カード #${cardNum}`, undefined, imgUrl);
-        return;
-    }
-    
-    // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
-    const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
-    if (focusMatch) {
-        const imgUrl = focusMatch[1].trim();
-        const title = (focusMatch[2] || "").trim();
-        console.log("Triggering inline focus image:", imgUrl, title);
-        
-        pendingStepLoad = () => {
-            pendingStepLoad = null;
-            if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
-                currentDialoguePageIndex++;
-                showNextDialoguePage(stepData);
-            } else {
-                finishStepText(stepData);
-            }
-        };
-        
-        focusTarotCard(title, undefined, imgUrl);
-        return;
     }
 
-    // 動的話者切り替えタグの検知: [speaker:名前]
-    const speakerMatch = pageText.match(/^\[speaker:([^\]]+)\]\r?\n?([\s\S]*)$/);
-    if (speakerMatch) {
-        activeDialogueSpeaker = speakerMatch[1].trim();
-        pageText = speakerMatch[2].trim();
-    }
+    const result = processPageTags(
+        currentDialoguePages[currentDialoguePageIndex],
+        activeDialogueSpeaker,
+        goNext
+    );
+    activeDialogueSpeaker = result.speaker;
+
+    if (result.handled) return; // フォーカス等で処理済み
+    if (result.skip) { goNext(); return; } // スキップ対象
+
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, activeDialogueSpeaker);
-    
-    // 残留する未処理タグをすべて除去（安全フォールバック）
-    pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
-    
-    // ページが空になった場合はスキップ
-    if (pageText.length === 0) {
-        if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
-            currentDialoguePageIndex++;
-            showNextDialoguePage(stepData);
-        } else {
-            finishStepText(stepData);
-        }
-        return;
-    }
-    
+
     const pageId = `L${currentLoop}-S${currentStep}-P${currentDialoguePageIndex + 1}`;
-    console.log(`[Dialogue ID] ${pageId} | Length: ${pageText.length} | Content: ${pageText}`);
-    typeDialogueText(pageText, talkTextEl, () => {
-        // 次のページがある場合のみ「▼」を表示
+    console.log(`[Dialogue ID] ${pageId} | Length: ${result.text.length} | Content: ${result.text}`);
+    typeDialogueText(result.text, talkTextEl, () => {
         if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
             talkClickPrompt.classList.remove("hidden");
         } else {
-            // 最後のページを表示し終えた場合（ステップ全体のfocusImageがある場合のフォールバック）
+            // 最後のページ: stepData.focusImage があれば表示
             if (stepData.focusImage) {
-                // 画像を表示して閉じた時に次のステップ処理を行うようにコールバック設定
-                pendingStepLoad = () => {
-                    pendingStepLoad = null;
-                    finishStepText(stepData);
-                };
-                // 少し時間差を設けて自動的に拡大表示
-                setTimeout(() => {
-                    if (pendingStepLoad) {
-                        focusTarotCard(stepData.focusTitle || "", undefined, stepData.focusImage);
-                    }
-                }, 500);
+                pendingStepLoad = () => { pendingStepLoad = null; finishStepText(stepData); };
+                setTimeout(() => { if (pendingStepLoad) focusTarotCard(stepData.focusTitle || "", undefined, stepData.focusImage); }, 500);
             } else {
                 finishStepText(stepData);
             }
