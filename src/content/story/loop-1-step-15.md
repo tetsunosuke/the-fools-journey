@@ -2,7 +2,7 @@
 loop: 1
 step: 15
 view: talk
-arcana: "XXI : THE WORLD (21日目 - 最適化された幸福)"
+arcana: "XXI : THE WORLD (20日目 - 最適化された幸福)"
 speaker: ソフィア
 stressChange: -100
 luckChange: 100

@@ -2,7 +2,7 @@
 loop: 1
 step: 14
 view: talk
-arcana: "XVI : THE TOWER (16日目 - 崩壊の臨界)"
+arcana: "XVI : THE TOWER (15日目 - 崩壊の臨界)"
 speaker: ソフィア
 stressChange: 100
 luckChange: -100

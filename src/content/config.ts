@@ -18,7 +18,8 @@ const storyCollection = defineCollection({
       title: z.string(),
       upright: z.boolean(),
       desc: z.string(),
-      skipFocus: z.boolean().optional()
+      skipFocus: z.boolean().optional(),
+      correct: z.boolean().optional()
     })).optional()
   }),
 });

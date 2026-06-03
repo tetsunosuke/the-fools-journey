@@ -1,9 +1,9 @@
 ---
 loop: 1
 step: 8
-view: chat
-arcana: "V : THE HIEROPHANT (5-6日目 - 盲信の極致)"
-speaker: "アプリ『The Journey』"
+view: talk
+arcana: "V : THE HIEROPHANT (5日目 - 盲信の極致)"
+speaker: "ナレーション"
 stressChange: 0
 luckChange: 0
 choiceIllusion: true
@@ -21,4 +21,15 @@ choices:
     upright: true
     desc: "【正位置】アドバイスしようとしたが、相手はすでにアプリの指示で動いており、完璧な成果を出していた。あなたもアプリに従うだけで秩序に組み込まれ、全能感を得た。もはや自分で考える必要はない。"
 ---
-組織内での立ち回り、周囲の秩序。指示に従うことで、あなたは正しい道を迷わず進めます。カードを盲信しなさい。
+[bg:home_morning]
+（5日目・朝。アプリ『The Journey』を開くと、今日のカードは「V : 法王」だった。テーマは「規律と秩序」だそうだ）
+
+[card_btn:5]
+
+[bg:modern_office]
+（数日が経ち、仕事もプライベートもアプリの指示通りに動き続けることで、周囲との関係が驚くほど円滑になっていることを実感する。今日も業務を進める上で迷いが生じるが、アプリを開くといつの間にか通知が届いていた）
+
+[view:chat]
+
+[speaker:アプリ『The Journey』]
+「組織内での立ち回り、周囲の秩序。指示に従うことで、あなたは正しい道を迷わず進めます。カードを盲信しなさい。」

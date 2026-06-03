@@ -92,6 +92,8 @@ let trueEndCleared = false;
 let currentView = "talk";
 let currentDialoguePages = [];
 let currentDialoguePageIndex = 0;
+let currentCelticIndex = 0;
+let isCelticAnimating = false;
 let activeDialogueSpeaker = "";
 let isTyping = false;
 let skipTyping = null;
@@ -113,6 +115,7 @@ const sceneBgEl = document.getElementById("scene-bg");
 const loopCountEl = document.getElementById("loop-count");
 const currentArcanaEl = document.getElementById("current-arcana");
 const glitchOverlay = document.getElementById("glitch-overlay");
+const goldFlashOverlay = document.getElementById("gold-flash-overlay");
 const endingOverlay = document.getElementById("ending-overlay");
 const endingTitle = document.getElementById("ending-title");
 const endingDesc = document.getElementById("ending-desc");
@@ -988,8 +991,13 @@ function revealCard(cardElement, card, isInChat = false) {
 const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay";
 
 document.addEventListener("click", (e) => {
-    // インタラクティブ要素のクリックは無視
-    if (e.target.closest(SKIP_SELECTORS)) return;
+    // ケルト十字ビューの場合は、手動カード確認（クリック）以外の「画面全体タップによる進行」を透過させます。
+    if (currentView === "celtic" && !isCelticAnimating) {
+        // カードをクリックした場合はstopPropagationされるためここには来ず、
+        // 盤面上のその他やデッキの上のタップでも進行を発生させます。
+    } else {
+        if (e.target.closest(SKIP_SELECTORS)) return;
+    }
 
     if (currentView === "talk") {
         if (isTyping && skipTyping) { skipTyping(); return; }
@@ -1003,10 +1011,20 @@ document.addEventListener("click", (e) => {
         }
 
     } else if (currentView === "celtic") {
+        if (isCelticAnimating) return;
         if (isTyping && skipTyping) { skipTyping(); return; }
         if (celticClickPrompt.classList.contains("hidden")) return;
         if (pendingPageCallback) { pendingPageCallback(); return; }
-        if (isCardRevealed) advanceGame();
+        
+        if (isCardRevealed) {
+            advanceGame();
+        } else if (currentCelticIndex === 0) {
+            startAutomaticCelticSpread();
+        } else if (currentCelticIndex === 10) {
+            currentCelticIndex = 11;
+            celticClickPrompt.classList.add("hidden");
+            showCelticCrossContract();
+        }
 
     } else if (currentView === "puzzle") {
         if (isTyping && skipTyping) { skipTyping(); return; }
@@ -1023,7 +1041,7 @@ function advanceGame() {
 
     // Bad End branch at Step 8 (Lovers)
     if (currentLoop === 1 && currentStep === 9) {
-        if (selectedOptionDesc.includes("【分岐バッドエンド】")) {
+        if (selectedOptionDesc.includes("逆位置の『愚者』")) {
             stressVal = 100;
             luckVal = 0;
             stressGaugeEl.textContent = "999% [OVERFLOW]";
@@ -1070,9 +1088,10 @@ function triggerLoversBadEnd() {
             しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独が君を包みます。<br><br>
             <span style="color: var(--color-accent-red);">「君は導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
         `;
-        restartBtn.textContent = "再び白紙の旅に出る (やり直す)";
+        restartBtn.textContent = "6日目をやり直す";
         restartBtn.onclick = () => {
             currentStep = 9;
+            saveState();
             initGame();
         };
     }, 1200);
@@ -1089,12 +1108,13 @@ function triggerTowerBadEnd() {
         endingDesc.innerHTML = `
             完璧だったはずのシステムは、君を贄として崩壊しました。<br>
             自分で考えることを放棄し、誰かが用意した「運命」を盲信した結末です。<br><br>
-            <span style="color: var(--color-gold);">「本当にこれが、君の望んだ世界ですか？」</span>
+            <span style="color: var(--color-gold);">「本当にこれが, 君の望んだ世界ですか？」</span>
         `;
         restartBtn.textContent = "2周目を開始する (違和感の獲得)";
         restartBtn.onclick = () => {
             currentLoop = 2;
             currentStep = 0;
+            saveState();
             initGame();
         };
     }, 1500);
@@ -1120,6 +1140,7 @@ function triggerDevilLoopEnd() {
         restartBtn.onclick = () => {
             currentLoop = 2;
             currentStep = 2;
+            saveState();
             initGame();
         };
     }, 1200);
@@ -1150,21 +1171,236 @@ function renderSoulCardForm() {
             return;
         }
 
+        // 計算プロセスの構築
         const dateStr = `${year}${month}${day}`;
-        let sum = 0;
-        for (let char of dateStr) {
-            sum += parseInt(char, 10);
+        const numbers = dateStr.split("").map(n => parseInt(n, 10));
+        
+        let step1Sum = numbers.reduce((a, b) => a + b, 0);
+        
+        let step2Sum = step1Sum;
+        let step2Formula = "";
+        if (step1Sum >= 22) {
+            let digits = step1Sum.toString().split("").map(n => parseInt(n, 10));
+            step2Sum = digits.reduce((a, b) => a + b, 0);
+            step2Formula = digits.join(" + ") + ` = ${step2Sum}`;
         }
+        
+        const finalSum = step2Sum;
 
-        while (sum >= 22) {
-            let tempSum = 0;
-            for (let char of sum.toString()) {
-                tempSum += parseInt(char, 10);
+        // 計算アニメーション用UIの展開
+        talkCardsContainer.innerHTML = `
+            <div class="soul-calculation-box">
+                <div class="calc-magic-circle" id="calc-magic-circle-element"></div>
+                <div class="calc-status" id="calc-status-text">CALCULATING SOUL NUMEROLOGY...</div>
+                <div class="calc-digits" id="calc-digits-container"></div>
+                <div class="calc-process" id="calc-process-container"></div>
+                <div class="calc-result" id="calc-result-container"></div>
+            </div>
+        `;
+
+        const magicCircle = document.getElementById("calc-magic-circle-element");
+        const statusText = document.getElementById("calc-status-text");
+        const digitsContainer = document.getElementById("calc-digits-container");
+        const processContainer = document.getElementById("calc-process-container");
+        const resultContainer = document.getElementById("calc-result-container");
+
+        let currentDigitIdx = 0;
+        const displayDigits = [];
+        
+        // 最初はすべて ? スロットを作成し、ブラーをかける
+        numbers.forEach(() => {
+            const digitEl = document.createElement("span");
+            digitEl.className = "calc-digit-slot blur-active";
+            digitEl.textContent = "?";
+            digitsContainer.appendChild(digitEl);
+            displayDigits.push(digitEl);
+        });
+
+        // デジタルスロットのようにランダムに数値を回転させる
+        const slotInterval = setInterval(() => {
+            for (let i = currentDigitIdx; i < numbers.length; i++) {
+                displayDigits[i].textContent = Math.floor(Math.random() * 10);
             }
-            sum = tempSum;
+        }, 50);
+
+        // 1文字ずつ確定させる
+        const settleDigits = () => {
+            if (currentDigitIdx < numbers.length) {
+                displayDigits[currentDigitIdx].textContent = numbers[currentDigitIdx];
+                displayDigits[currentDigitIdx].classList.remove("blur-active");
+                displayDigits[currentDigitIdx].classList.add("settled-flash");
+                currentDigitIdx++;
+                setTimeout(settleDigits, 150);
+            } else {
+                clearInterval(slotInterval);
+                digitsContainer.classList.add("glow-active");
+                setTimeout(startFlightProcess, 600);
+            }
+        };
+
+        setTimeout(settleDigits, 300);
+
+        // スロットから数字が飛ぶアニメーション
+        function startFlightProcess() {
+            statusText.textContent = "INJECTING ALCANUM ENERGY...";
+            let currentFlyIdx = 0;
+            let accumulatedValue = 0;
+            
+            // 途中経過HUDをプロセスエリアの直上に作成
+            const hudEl = document.createElement("div");
+            hudEl.className = "calc-accumulated-hud";
+            hudEl.textContent = "ACCUMULATED VALUE: 0";
+            processContainer.appendChild(hudEl);
+            
+            // 加算式用のテキストコンテナ
+            const formulaTextEl = document.createElement("div");
+            formulaTextEl.className = "calc-step-text fade-in-up";
+            formulaTextEl.style.marginTop = "6px";
+            processContainer.appendChild(formulaTextEl);
+
+            function flyNext() {
+                if (currentFlyIdx < numbers.length) {
+                    const numberVal = numbers[currentFlyIdx];
+                    const slotEl = displayDigits[currentFlyIdx];
+                    
+                    // 式に追加するテキスト（＋記号含む）
+                    const addStr = currentFlyIdx === 0 ? `${numberVal}` : ` + ${numberVal}`;
+                    const targetSpan = document.createElement("span");
+                    targetSpan.textContent = addStr;
+                    targetSpan.style.opacity = 0;
+                    formulaTextEl.appendChild(targetSpan);
+
+                    // 射出位置と目標位置の取得
+                    const slotRect = slotEl.getBoundingClientRect();
+                    const containerRect = talkCardsContainer.getBoundingClientRect();
+                    const targetRect = targetSpan.getBoundingClientRect();
+
+                    // クローンの射出用数字
+                    const particle = document.createElement("div");
+                    particle.className = "calc-fly-particle";
+                    particle.textContent = numberVal;
+                    particle.style.left = `${slotRect.left - containerRect.left}px`;
+                    particle.style.top = `${slotRect.top - containerRect.top}px`;
+                    talkCardsContainer.appendChild(particle);
+
+                    // 射出開始
+                    requestAnimationFrame(() => {
+                        particle.style.left = `${targetRect.left - containerRect.left}px`;
+                        particle.style.top = `${targetRect.top - containerRect.top}px`;
+                        particle.style.transform = "scale(1.3)";
+                    });
+
+                    // 着弾処理
+                    setTimeout(() => {
+                        particle.remove();
+                        targetSpan.style.opacity = 1;
+                        
+                        // 着弾スパーク波紋
+                        const spark = document.createElement("div");
+                        spark.className = "calc-spark-ring";
+                        spark.style.left = `${targetRect.left - containerRect.left + (targetRect.width/2)}px`;
+                        spark.style.top = `${targetRect.top - containerRect.top + (targetRect.height/2)}px`;
+                        talkCardsContainer.appendChild(spark);
+                        setTimeout(() => spark.remove(), 600);
+
+                        // 累積値の加算と更新
+                        accumulatedValue += numberVal;
+                        hudEl.textContent = `ACCUMULATED VALUE: ${accumulatedValue}`;
+                        
+                        currentFlyIdx++;
+                        setTimeout(flyNext, 250);
+                    }, 450);
+                } else {
+                    // 全射出完了、一次式の合計値を表示
+                    setTimeout(() => {
+                        formulaTextEl.innerHTML += ` = <span style="color:var(--color-gold);font-weight:bold;">${step1Sum}</span>`;
+                        hudEl.remove(); // 累積HUDは用済みなので削除
+                        
+                        if (step1Sum >= 22) {
+                            setTimeout(showReductionStep, 800);
+                        } else {
+                            setTimeout(finalizeCalculation, 800);
+                        }
+                    }, 300);
+                }
+            }
+
+            flyNext();
         }
 
-        showSoulCardResult(sum);
+        // 22以上の縮退（警告＆スライド衝突）
+        function showReductionStep() {
+            statusText.textContent = "ALCANUM OVERFLOW (>=22). REDUCING...";
+            
+            // 警告バナーを表示
+            const warningEl = document.createElement("div");
+            warningEl.className = "calc-warning-banner fade-in-up";
+            warningEl.textContent = `WARNING: SOUL LIMIT EXCEEDED (${step1Sum} >= 22)`;
+            processContainer.insertBefore(warningEl, processContainer.firstChild);
+
+            setTimeout(() => {
+                // 衝突スライド用コンテナ
+                const digits = step1Sum.toString().split("");
+                processContainer.innerHTML = `
+                    <div class="calc-warning-banner">${step1Sum} LIMIT EXCEEDED. REDUCING...</div>
+                    <div class="calc-collide-container">
+                        <span class="digit-left">${digits[0]}</span>
+                        <span style="opacity:0; transition:opacity 0.3s;" id="collide-plus-sign"> + </span>
+                        <span class="digit-right">${digits[1]}</span>
+                    </div>
+                `;
+
+                const plusSign = document.getElementById("collide-plus-sign");
+
+                // スライドと衝突完了後の合体
+                setTimeout(() => {
+                    plusSign.style.opacity = 1;
+                    
+                    // 衝突時の大スパーク
+                    const containerRect = talkCardsContainer.getBoundingClientRect();
+                    const collideEl = document.querySelector(".calc-collide-container");
+                    const collideRect = collideEl.getBoundingClientRect();
+
+                    const spark = document.createElement("div");
+                    spark.className = "calc-spark-ring";
+                    spark.style.width = "40px";
+                    spark.style.height = "40px";
+                    spark.style.left = `${collideRect.left - containerRect.left + (collideRect.width/2)}px`;
+                    spark.style.top = `${collideRect.top - containerRect.top + (collideRect.height/2)}px`;
+                    talkCardsContainer.appendChild(spark);
+                    setTimeout(() => spark.remove(), 600);
+
+                    // 式の結果を追加表示
+                    const formulaResult = document.createElement("div");
+                    formulaResult.className = "calc-step-text fade-in-up";
+                    formulaResult.style.marginTop = "8px";
+                    formulaResult.innerHTML = `${digits[0]} + ${digits[1]} = <span style="color:var(--color-gold); font-weight:bold;">${finalSum}</span>`;
+                    processContainer.appendChild(formulaResult);
+
+                    setTimeout(finalizeCalculation, 1000);
+                }, 600);
+            }, 1000);
+        }
+
+        function finalizeCalculation() {
+            statusText.textContent = "SOUL ALCANUM AWAKENED";
+            magicCircle.classList.add("fast-rotate"); // 魔法陣超高速回転
+
+            resultContainer.innerHTML = `
+                <div class="calc-final-num gold-pulse">SOUL NUMBER: ${finalSum}</div>
+            `;
+            
+            setTimeout(() => {
+                // ゴールドフラッシュ開始
+                goldFlashOverlay.classList.add("flash-active");
+                
+                setTimeout(() => {
+                    // フラッシュの最高潮でカードオープンに遷移し、フラッシュを戻す
+                    goldFlashOverlay.classList.remove("flash-active");
+                    showSoulCardResult(finalSum);
+                }, 400);
+            }, 1200);
+        }
     });
 }
 
@@ -1188,9 +1424,28 @@ function showSoulCardResult(cardNum) {
     });
 }
 
+// --- Highlight Active Slot Guide ---
+function highlightSlotGuide(slotNum) {
+    document.querySelectorAll(".cross-slot-guide").forEach(el => {
+        el.classList.remove("active-slot");
+    });
+    let targetSlotGuide;
+    if (slotNum <= 6) {
+        targetSlotGuide = document.querySelector(`.celtic-cross-layout [data-slot-num="${slotNum}"]`);
+    } else {
+        targetSlotGuide = document.getElementById(`slot-${slotNum}`);
+    }
+    if (targetSlotGuide) {
+        targetSlotGuide.classList.add("active-slot");
+    }
+}
+
+// --- Celtic Cross Spread UI ---
 // --- Celtic Cross Spread UI ---
 function renderCelticCross() {
     isCardRevealed = false;
+    currentCelticIndex = 0;
+    isCelticAnimating = false;
     
     const crossGrid = document.getElementById("celtic-cross-grid");
     const staffGrid = document.getElementById("celtic-staff-grid");
@@ -1212,96 +1467,115 @@ function renderCelticCross() {
         <div class="cross-slot-guide" data-slot-num="10" id="slot-10"></div>
     `;
 
-    const deck = document.getElementById("celtic-cross-deck");
-    let currentCardIndex = 0;
-
     highlightSlotGuide(1);
+}
 
-    deck.addEventListener("click", () => {
-        if (currentCardIndex >= 10) return;
+function startAutomaticCelticSpread() {
+    isCelticAnimating = true;
+    celticClickPrompt.classList.add("hidden");
+    
+    // ソフィアのセリフを配り中表示に
+    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
+    typeDialogueText("「運命のカードたちよ、彼の旅路を照らしだしなさい……」", celticTextEl);
 
-        const cardData = CELTIC_CARDS_DATA[currentCardIndex];
-        const cardNum = currentCardIndex + 1;
-
-        const cardWrapper = document.createElement("div");
-        cardWrapper.className = `card-wrapper revealed`;
-        
-        const back = document.createElement("div");
-        back.className = "card-face card-back";
-        const front = document.createElement("div");
-        front.className = "card-face card-front";
-
-        const imgSlot = document.createElement("div");
-        imgSlot.className = "card-image-slot";
-        imgSlot.style.backgroundImage = `url('${cardData.img}')`;
-
-        const title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = cardData.name;
-
-        const orient = document.createElement("div");
-        orient.className = "card-orientation orientation-upright";
-        orient.textContent = cardData.pos;
-
-        front.appendChild(imgSlot);
-        front.appendChild(title);
-        front.appendChild(orient);
-        cardWrapper.appendChild(back);
-        cardWrapper.appendChild(front);
-
-        cardWrapper.style.position = "absolute";
-        cardWrapper.style.left = "50%";
-        cardWrapper.style.top = "50%";
-        cardWrapper.style.transform = "translate(-50%, -50%) scale(0.5)";
-        cardWrapper.style.zIndex = "50";
-        cardWrapper.style.transition = "all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)";
-        
-        // Append to relative container
-        document.querySelector(".celtic-cross-container").appendChild(cardWrapper);
-
-        setTimeout(() => {
-            let targetSlotGuide;
-            if (cardNum <= 6) {
-                targetSlotGuide = document.querySelector(`.celtic-cross-layout [data-slot-num="${cardNum}"]`);
-            } else {
-                targetSlotGuide = document.getElementById(`slot-${cardNum}`);
-            }
-
-            const targetRect = targetSlotGuide.getBoundingClientRect();
-            const containerRect = document.querySelector(".celtic-cross-container").getBoundingClientRect();
-
-            const targetX = targetRect.left - containerRect.left + (targetRect.width / 2);
-            const targetY = targetRect.top - containerRect.top + (targetRect.height / 2);
-
-            cardWrapper.style.left = `${targetX}px`;
-            cardWrapper.style.top = `${targetY}px`;
-            cardWrapper.style.transform = `translate(-50%, -50%) scale(1) ${cardData.rotate ? 'rotate(90deg)' : ''}`;
-            
-            targetSlotGuide.classList.remove("active-slot");
-            targetSlotGuide.style.opacity = 0;
-        }, 50);
-
-        // めくられた瞬間に全画面表示
-        focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
-
-        cardWrapper.addEventListener("click", (e) => {
-            e.stopPropagation();
-            updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
-            typeDialogueText(cardData.desc, celticTextEl);
-            focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
-        });
-
-        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
-        typeDialogueText(cardData.desc, celticTextEl);
-
-        currentCardIndex++;
-
-        if (currentCardIndex < 10) {
-            highlightSlotGuide(currentCardIndex + 1);
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i < 10) {
+            drawNextCelticCardInline(i);
+            i++;
         } else {
-            deck.remove();
-            setTimeout(showCelticCrossContract, 2500);
+            clearInterval(interval);
+            setTimeout(completeCelticSpread, 800);
         }
+    }, 450);
+}
+
+function drawNextCelticCardInline(index) {
+    const cardData = CELTIC_CARDS_DATA[index];
+    const cardNum = index + 1;
+
+    const cardWrapper = document.createElement("div");
+    cardWrapper.className = `card-wrapper revealed`;
+    
+    const back = document.createElement("div");
+    back.className = "card-face card-back";
+    const front = document.createElement("div");
+    front.className = "card-face card-front";
+
+    const imgSlot = document.createElement("div");
+    imgSlot.className = "card-image-slot";
+    imgSlot.style.backgroundImage = `url('${cardData.img}')`;
+
+    const title = document.createElement("div");
+    title.className = "card-title";
+    title.textContent = cardData.name;
+
+    const orient = document.createElement("div");
+    orient.className = "card-orientation orientation-upright";
+    orient.textContent = cardData.pos;
+
+    front.appendChild(imgSlot);
+    front.appendChild(title);
+    front.appendChild(orient);
+    cardWrapper.appendChild(back);
+    cardWrapper.appendChild(front);
+
+    cardWrapper.style.position = "absolute";
+    cardWrapper.style.left = "50%";
+    cardWrapper.style.top = "50%";
+    cardWrapper.style.transform = "translate(-50%, -50%) scale(0.5)";
+    cardWrapper.style.zIndex = "50";
+    
+    document.querySelector(".celtic-cross-container").appendChild(cardWrapper);
+
+    setTimeout(() => {
+        let targetSlotGuide;
+        if (cardNum <= 6) {
+            targetSlotGuide = document.querySelector(`.celtic-cross-layout [data-slot-num="${cardNum}"]`);
+        } else {
+            targetSlotGuide = document.getElementById(`slot-${cardNum}`);
+        }
+
+        const targetRect = targetSlotGuide.getBoundingClientRect();
+        const containerRect = document.querySelector(".celtic-cross-container").getBoundingClientRect();
+
+        const targetX = targetRect.left - containerRect.left + (targetRect.width / 2);
+        const targetY = targetRect.top - containerRect.top + (targetRect.height / 2);
+
+        cardWrapper.style.left = `${targetX}px`;
+        cardWrapper.style.top = `${targetY}px`;
+        cardWrapper.style.transform = `translate(-50%, -50%) scale(1) ${cardData.rotate ? 'rotate(90deg)' : ''}`;
+        
+        targetSlotGuide.classList.remove("active-slot");
+        targetSlotGuide.style.opacity = 0;
+    }, 50);
+
+    // 各カードクリック時の個別フォーカスは残しておく（後から自由に見れるようにするため）
+    cardWrapper.addEventListener("click", (e) => {
+        e.stopPropagation();
+        focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
+        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
+        typeDialogueText(`【${cardData.name}】 ${cardData.desc}`, celticTextEl);
+    });
+
+    currentCelticIndex = cardNum;
+
+    if (currentCelticIndex < 10) {
+        highlightSlotGuide(currentCelticIndex + 1);
+    } else {
+        const deck = document.getElementById("celtic-cross-deck");
+        if (deck) deck.remove();
+    }
+}
+
+function completeCelticSpread() {
+    isCelticAnimating = false;
+    
+    // スプレッド完成後のセリフ
+    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
+    const summaryText = "「展開はすべて完了しました。これが君の『愚者の旅』の全貌……。過去の野心、現在の依存、そして未来の完成。この完璧な計画を受け入れる準備はできましたか？」";
+    showPaginatedText(summaryText, celticTextEl, celticClickPrompt, () => {
+        celticClickPrompt.classList.remove("hidden");
     });
 }
 
