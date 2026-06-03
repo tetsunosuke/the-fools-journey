@@ -722,6 +722,12 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Show player choice in dialogue box
         pushChatMessage("Player", `選択: ${choiceText}`, true, null, () => {
             setTimeout(() => {
+                // もし desc が空ならば、チャット応答を生成せず自動的に次のステップへ遷移する
+                if (!card.desc) {
+                    advanceGame();
+                    return;
+                }
+
                 // Show result text with tarot card preview image embedded in bubble
                 const narrativeText = card.skipFocus ? card.desc : `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
                 pushChatMessage("The Journey", narrativeText, false, card.skipFocus ? null : card, () => {
