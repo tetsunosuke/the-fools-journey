@@ -313,7 +313,11 @@ function initGame(skipLoad = false) {
 
 function updateBackgroundAndAesthetics() {
     if (currentLoop === 1) {
-        sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
+        if (currentStep === 0) {
+            sceneBgEl.style.backgroundImage = "url('/images/city_street.png')";
+        } else {
+            sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
+        }
         sceneBgEl.style.opacity = 0.35;
         talkPortraitEl.classList.remove("card-glitch-1", "card-glitch-2");
     } else if (currentLoop === 2) {
@@ -325,6 +329,20 @@ function updateBackgroundAndAesthetics() {
         sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
         sceneBgEl.style.opacity = 0.55;
         talkPortraitEl.classList.add("card-glitch-2");
+    }
+}
+
+// --- Dynamic Background Changer ---
+function changeBackground(bgName) {
+    let url = "";
+    if (bgName === "tarot_room") url = "/images/tarot_room.png";
+    else if (bgName === "home_morning") url = "/images/home_morning.png";
+    else if (bgName === "modern_office") url = "/images/modern_office.png";
+    else if (bgName === "city_street") url = "/images/city_street.png";
+    else if (bgName === "glitch_matrix") url = "/images/glitch_matrix.png";
+    
+    if (url) {
+        sceneBgEl.style.backgroundImage = `url('${url}')`;
     }
 }
 
@@ -381,6 +399,36 @@ function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "
         promptEl.classList.add("hidden");
         let pageText = pages[idx];
         
+        // [bg:画像名] タグの検知と背景変更
+        const bgMatch = pageText.match(/\[bg:([^\]]+)\]/);
+        if (bgMatch) {
+            const bgName = bgMatch[1].trim();
+            changeBackground(bgName);
+            pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
+            pages[idx] = pageText;
+        }
+        
+        // [view:chat] などビュー切り替えタグは talk ビュー内では無視してスキップ
+        if (/^\[view:[^\]]+\]$/.test(pageText)) {
+            if (idx < pages.length - 1) { idx++; showPage(); }
+            else { onAllDone(); }
+            return;
+        }
+        
+        // [card_btn:N] タグ: カードN番の画像をフォーカス表示
+        const cardBtnMatch = pageText.match(/^\[card_btn:(\d+)\]$/);
+        if (cardBtnMatch) {
+            const cardNum = cardBtnMatch[1];
+            const imgUrl = `/images/cards/${cardNum}.jpg`;
+            pendingStepLoad = () => {
+                pendingStepLoad = null;
+                if (idx < pages.length - 1) { idx++; showPage(); }
+                else { onAllDone(); }
+            };
+            focusTarotCard(`カード #${cardNum}`, undefined, imgUrl);
+            return;
+        }
+        
         // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
         const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
         if (focusMatch) {
@@ -410,6 +458,16 @@ function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "
         
         if (isTalkView) {
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, currentSpeakerState);
+        }
+
+        // 残留する未処理タグをすべて除去（安全フォールバック）
+        pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
+        
+        // ページが空になった場合はスキップ
+        if (pageText.length === 0) {
+            if (idx < pages.length - 1) { idx++; showPage(); }
+            else { onAllDone(); }
+            return;
         }
 
         const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
@@ -442,7 +500,13 @@ function loadStep() {
 
 function executeLoadStep(stepData) {
     currentArcanaEl.textContent = stepData.arcana;
-    showView(stepData.view);
+    
+    // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
+    let viewToLoad = stepData.view;
+    if (currentLoop === 1 && currentStep === 11) {
+        viewToLoad = "talk";
+    }
+    showView(viewToLoad);
 
     // Apply gauge changes
     if (stepData.stressChange !== 0 || stepData.luckChange !== 0) {
@@ -476,8 +540,17 @@ function executeLoadStep(stepData) {
     else if (currentView === "chat") {
         chatInteractiveZoneEl.innerHTML = "";
         
+        // [bg:画像名] タグの検知と背景変更
+        let chatText = stepData.text;
+        const bgMatch = chatText.match(/\[bg:([^\]]+)\]/);
+        if (bgMatch) {
+            const bgName = bgMatch[1].trim();
+            changeBackground(bgName);
+            chatText = chatText.replace(/\[bg:[^\]]+\]/g, "").trim();
+        }
+        
         // Push incoming message into Chat Timeline, render choices after typing completes
-        pushChatMessage(stepData.speaker, stepData.text, false, null, () => {
+        pushChatMessage(stepData.speaker, chatText, false, null, () => {
             if (currentStep === 12 || currentStep === 13) {
                 renderMotifSelection(currentStep);
             } else {
@@ -508,6 +581,44 @@ function showNextDialoguePage(stepData) {
     let pageText = currentDialoguePages[currentDialoguePageIndex];
     console.log(`Evaluating page [${currentDialoguePageIndex}]:`, pageText);
     
+    // [bg:画像名] タグの検知と背景変更
+    const bgMatch = pageText.match(/\[bg:([^\]]+)\]/);
+    if (bgMatch) {
+        const bgName = bgMatch[1].trim();
+        changeBackground(bgName);
+        pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
+        currentDialoguePages[currentDialoguePageIndex] = pageText;
+    }
+    
+    // [view:chat] などビュー切り替えタグは talk ビュー内では無視してスキップ
+    if (/^\[view:[^\]]+\]$/.test(pageText)) {
+        if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+            currentDialoguePageIndex++;
+            showNextDialoguePage(stepData);
+        } else {
+            finishStepText(stepData);
+        }
+        return;
+    }
+    
+    // [card_btn:N] タグ: カードN番の画像をフォーカス表示
+    const cardBtnMatch = pageText.match(/^\[card_btn:(\d+)\]$/);
+    if (cardBtnMatch) {
+        const cardNum = cardBtnMatch[1];
+        const imgUrl = `/images/cards/${cardNum}.jpg`;
+        pendingStepLoad = () => {
+            pendingStepLoad = null;
+            if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+                currentDialoguePageIndex++;
+                showNextDialoguePage(stepData);
+            } else {
+                finishStepText(stepData);
+            }
+        };
+        focusTarotCard(`カード #${cardNum}`, undefined, imgUrl);
+        return;
+    }
+    
     // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
     const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
     if (focusMatch) {
@@ -536,6 +647,20 @@ function showNextDialoguePage(stepData) {
         pageText = speakerMatch[2].trim();
     }
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, activeDialogueSpeaker);
+    
+    // 残留する未処理タグをすべて除去（安全フォールバック）
+    pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
+    
+    // ページが空になった場合はスキップ
+    if (pageText.length === 0) {
+        if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+            currentDialoguePageIndex++;
+            showNextDialoguePage(stepData);
+        } else {
+            finishStepText(stepData);
+        }
+        return;
+    }
     
     const pageId = `L${currentLoop}-S${currentStep}-P${currentDialoguePageIndex + 1}`;
     console.log(`[Dialogue ID] ${pageId} | Length: ${pageText.length} | Content: ${pageText}`);
@@ -1007,7 +1132,11 @@ document.addEventListener("click", (e) => {
             currentDialoguePageIndex++;
             showNextDialoguePage(SCENARIO[currentLoop][currentStep]);
         } else if (isCardRevealed) {
-            advanceGame();
+            if (currentLoop === 1 && currentStep === 11) {
+                switchToCelticCrossView();
+            } else {
+                advanceGame();
+            }
         }
 
     } else if (currentView === "celtic") {
@@ -1440,6 +1569,24 @@ function highlightSlotGuide(slotNum) {
     }
 }
 
+// --- Celtic Cross View Switcher (Talk → Celtic, then auto-deal) ---
+function switchToCelticCrossView() {
+    showView("celtic");
+    
+    // 演出中は下部ダイアログを非表示にして演出に集中させる
+    const celticDialogContainer = document.querySelector(".dialogue-container-celtic");
+    if (celticDialogContainer) {
+        celticDialogContainer.classList.add("hidden");
+    }
+    
+    renderCelticCross();
+    
+    // 少し間を置いてから自動ドロー開始
+    setTimeout(() => {
+        startAutomaticCelticSpread();
+    }, 500);
+}
+
 // --- Celtic Cross Spread UI ---
 // --- Celtic Cross Spread UI ---
 function renderCelticCross() {
@@ -1473,10 +1620,6 @@ function renderCelticCross() {
 function startAutomaticCelticSpread() {
     isCelticAnimating = true;
     celticClickPrompt.classList.add("hidden");
-    
-    // ソフィアのセリフを配り中表示に
-    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
-    typeDialogueText("「運命のカードたちよ、彼の旅路を照らしだしなさい……」", celticTextEl);
 
     let i = 0;
     const interval = setInterval(() => {
@@ -1570,6 +1713,12 @@ function drawNextCelticCardInline(index) {
 
 function completeCelticSpread() {
     isCelticAnimating = false;
+    
+    // ダイアログを再表示
+    const celticDialogContainer = document.querySelector(".dialogue-container-celtic");
+    if (celticDialogContainer) {
+        celticDialogContainer.classList.remove("hidden");
+    }
     
     // スプレッド完成後のセリフ
     updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
