@@ -410,7 +410,7 @@ function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "
         }
 
         const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
-        console.log(`[Dialogue ID] ${pageId}`);
+        console.log(`[Dialogue ID] ${pageId} | Length: ${pageText.length} | Content: ${pageText}`);
         typeDialogueText(pageText, textEl, () => {
             if (idx < pages.length - 1) {
                 promptEl.classList.remove("hidden");
@@ -535,8 +535,8 @@ function showNextDialoguePage(stepData) {
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, activeDialogueSpeaker);
     
     const pageId = `L${currentLoop}-S${currentStep}-P${currentDialoguePageIndex + 1}`;
-    const numberedPageText = `<span class="dbg">[${pageId}]</span> ${pageText}`;
-    typeDialogueText(numberedPageText, talkTextEl, () => {
+    console.log(`[Dialogue ID] ${pageId} | Length: ${pageText.length} | Content: ${pageText}`);
+    typeDialogueText(pageText, talkTextEl, () => {
         // 次のページがある場合のみ「▼」を表示
         if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
             talkClickPrompt.classList.remove("hidden");
@@ -636,8 +636,8 @@ function pushChatMessage(speaker, text, isSelf = false, cardData = null, onCompl
 
     // Type text inside the textNode, fire callback when done
     const pageId = `L${currentLoop}-S${currentStep}-P1`;
-    const numberedText = `<span class="dbg">[${pageId}]</span> ${text}`;
-    typeDialogueText(numberedText, textNode, onComplete);
+    console.log(`[Dialogue ID] ${pageId} | Length: ${text.length} | Content: ${text}`);
+    typeDialogueText(text, textNode, onComplete);
 }
 
 // --- Render Cards with choice/no-choice Illusion ---
