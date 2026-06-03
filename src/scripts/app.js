@@ -95,7 +95,13 @@ let currentDialoguePageIndex = 0;
 let isTyping = false;
 let skipTyping = null;
 let pendingStepLoad = null;
+let debugPageCounter = 0; // デバッグ用テキスト連番
 let pendingPageCallback = null; // ページ送り中の「次ページを表示する」コールバック
+
+// カード図鑑（一度引いたカードのIDを格納するセット）
+let discoveredCards = new Set();
+// チュートリアルモーダルの表示完了フラグ
+let hasSeenCollectionTutorial = false;
 
 // Gauge values
 let stressVal = 80;
@@ -110,6 +116,70 @@ const endingOverlay = document.getElementById("ending-overlay");
 const endingTitle = document.getElementById("ending-title");
 const endingDesc = document.getElementById("ending-desc");
 const restartBtn = document.getElementById("restart-btn");
+
+// --- Game Save/Load via LocalStorage & URL Params ---
+function loadSaveState() {
+    const savedLoop = localStorage.getItem("fools_journey_loop");
+    const savedStep = localStorage.getItem("fools_journey_step");
+    const isCleared = localStorage.getItem("fools_journey_cleared");
+    const savedCards = localStorage.getItem("fools_journey_discovered_cards");
+    const seenTutorial = localStorage.getItem("fools_journey_seen_col_tutorial");
+
+    if (isCleared === "true") {
+        trueEndCleared = true;
+    }
+    if (savedLoop) {
+        currentLoop = parseInt(savedLoop, 10);
+    }
+    if (savedStep) {
+        currentStep = parseInt(savedStep, 10);
+    }
+    if (savedCards) {
+        discoveredCards = new Set(JSON.parse(savedCards));
+    } else {
+        discoveredCards = new Set();
+    }
+    if (seenTutorial === "true") {
+        hasSeenCollectionTutorial = true;
+    }
+
+    // URLパラメータによる上書き (デバッグ・個別起動用)
+    const params = new URLSearchParams(window.location.search);
+    const paramLoop = params.get('loop');
+    const paramStep = params.get('step');
+    if (paramLoop) {
+        currentLoop = parseInt(paramLoop, 10);
+    }
+    if (paramStep) {
+        currentStep = parseInt(paramStep, 10);
+    }
+}
+
+function saveState() {
+    localStorage.setItem("fools_journey_loop", currentLoop);
+    localStorage.setItem("fools_journey_step", currentStep);
+    localStorage.setItem("fools_journey_cleared", trueEndCleared);
+    localStorage.setItem("fools_journey_discovered_cards", JSON.stringify(Array.from(discoveredCards)));
+    localStorage.setItem("fools_journey_seen_col_tutorial", hasSeenCollectionTutorial ? "true" : "false");
+
+    // URLのパラメータを更新
+    const url = new URL(window.location.href);
+    url.searchParams.set('loop', currentLoop);
+    url.searchParams.set('step', currentStep);
+    window.history.replaceState({}, '', url.toString());
+}
+
+// カードの発見登録ヘルパー
+function discoverCard(cardId) {
+    if (cardId === undefined || cardId === null) return;
+    const numericId = parseInt(cardId, 10);
+    if (!isNaN(numericId) && numericId >= 0 && numericId <= 21) {
+        if (!discoveredCards.has(numericId)) {
+            discoveredCards.add(numericId);
+            saveState();
+        }
+    }
+}
 
 // Status gauges in header
 const stressGaugeEl = document.getElementById("stress-gauge");
@@ -156,45 +226,7 @@ const meditationMotifs = document.getElementById("meditation-motifs");
 const meditationMotifButtons = document.getElementById("meditation-motif-buttons");
 const resetMeditationBtn = document.getElementById("reset-meditation-btn");
 
-// --- Game Save/Load via LocalStorage & URL Params ---
-function loadSaveState() {
-    const savedLoop = localStorage.getItem("fools_journey_loop");
-    const savedStep = localStorage.getItem("fools_journey_step");
-    const isCleared = localStorage.getItem("fools_journey_cleared");
 
-    if (isCleared === "true") {
-        trueEndCleared = true;
-    }
-    if (savedLoop) {
-        currentLoop = parseInt(savedLoop, 10);
-    }
-    if (savedStep) {
-        currentStep = parseInt(savedStep, 10);
-    }
-
-    // URLパラメータによる上書き (デバッグ・個別起動用)
-    const params = new URLSearchParams(window.location.search);
-    const paramLoop = params.get('loop');
-    const paramStep = params.get('step');
-    if (paramLoop) {
-        currentLoop = parseInt(paramLoop, 10);
-    }
-    if (paramStep) {
-        currentStep = parseInt(paramStep, 10);
-    }
-}
-
-function saveState() {
-    localStorage.setItem("fools_journey_loop", currentLoop);
-    localStorage.setItem("fools_journey_step", currentStep);
-    localStorage.setItem("fools_journey_cleared", trueEndCleared);
-
-    // URLのパラメータを更新
-    const url = new URL(window.location.href);
-    url.searchParams.set('loop', currentLoop);
-    url.searchParams.set('step', currentStep);
-    window.history.replaceState({}, '', url.toString());
-}
 
 // --- View Router ---
 function showView(viewName) {
@@ -296,6 +328,14 @@ function updateBackgroundAndAesthetics() {
 const MAX_LINE_CHARS = 80; // この文字数を超えたら次のページへ
 
 function autoSplitTextIntoPages(text, maxChars = MAX_LINE_CHARS) {
+    // まず明示的な段落区切り(\n\n)があれば先にそこで分割し再帰処理
+    if (/\n[\s]*\n/.test(text)) {
+        return text.split(/\n[\s]*\n/)
+            .map(p => p.trim())
+            .filter(p => p.length > 0)
+            .flatMap(p => autoSplitTextIntoPages(p, maxChars));
+    }
+
     if (text.length <= maxChars) return [text];
 
     const pages = [];
@@ -332,7 +372,9 @@ function showPaginatedText(text, textEl, promptEl, onAllDone) {
 
     function showPage() {
         promptEl.classList.add("hidden");
-        typeDialogueText(pages[idx], textEl, () => {
+        const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
+        const numberedText = `<span class="dbg">[${pageId}]</span> ${pages[idx]}`;
+        typeDialogueText(numberedText, textEl, () => {
             if (idx < pages.length - 1) {
                 promptEl.classList.remove("hidden");
                 pendingPageCallback = () => {
@@ -446,7 +488,9 @@ function showNextDialoguePage(stepData) {
         return;
     }
     
-    typeDialogueText(pageText, talkTextEl, () => {
+    const pageId = `L${currentLoop}-S${currentStep}-P${currentDialoguePageIndex + 1}`;
+    const numberedPageText = `<span class="dbg">[${pageId}]</span> ${pageText}`;
+    typeDialogueText(numberedPageText, talkTextEl, () => {
         // 次のページがある場合のみ「▼」を表示
         if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
             talkClickPrompt.classList.remove("hidden");
@@ -545,7 +589,9 @@ function pushChatMessage(speaker, text, isSelf = false, cardData = null, onCompl
     scrollToBottom();
 
     // Type text inside the textNode, fire callback when done
-    typeDialogueText(text, textNode, onComplete);
+    const pageId = `L${currentLoop}-S${currentStep}-P1`;
+    const numberedText = `<span class="dbg">[${pageId}]</span> ${text}`;
+    typeDialogueText(numberedText, textNode, onComplete);
 }
 
 // --- Render Cards with choice/no-choice Illusion ---
@@ -610,6 +656,10 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
     isCardRevealed = true;
     selectedOptionDesc = card.desc;
 
+    if (card && card.id !== undefined) {
+        discoverCard(card.id);
+    }
+
     // skipFocus: true の選択肢はカードポップアップなしで直接次へ進む
     if (card.skipFocus) {
         advanceGame();
@@ -643,7 +693,9 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (currentView === "talk") {
             talkCardsContainer.innerHTML = "";
-            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
+            // 現在のステップのスピーカーを維持（narration-styleを回避）
+            const stepSpeaker = SCENARIO[currentLoop][currentStep]?.speaker || "";
+            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
             
             // Show result text（ページ送り対応）
             showPaginatedText(
@@ -756,6 +808,8 @@ function revealCard(cardElement, card, isInChat = false) {
     selectedOptionDesc = desc;
 
     const cardId = isLegacy ? 16 : card.id; // Fallback to Tower if legacy
+    discoverCard(cardId);
+
     const tarotName = SOUL_CARDS[cardId] ? SOUL_CARDS[cardId].name : (isLegacy ? "" : card.title);
     const orientationText = isLegacy ? "" : (card.upright ? "正位置" : "逆位置");
 
@@ -829,65 +883,43 @@ function revealCard(cardElement, card, isInChat = false) {
     }, 600);
 }
 
-talkTextEl.parentElement.addEventListener("click", () => {
-    if (currentView !== "talk") return;
-    
-    // タイピング中ならスキップ
-    if (isTyping && skipTyping) {
-        skipTyping();
-        return;
-    }
+// --- 画面全体タップでページ送り ---
+// ボタン・カード・モーダルなどインタラクティブ要素は除外
+const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay";
 
-    if (talkClickPrompt.classList.contains("hidden")) return;
+document.addEventListener("click", (e) => {
+    // インタラクティブ要素のクリックは無視
+    if (e.target.closest(SKIP_SELECTORS)) return;
 
-    // ページ送りコールバックがあれば優先して実行（カード結果テキスト等）
-    if (pendingPageCallback) {
-        pendingPageCallback();
-        return;
-    }
-
-    if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
-        currentDialoguePageIndex++;
-        const stepData = SCENARIO[currentLoop][currentStep];
-        showNextDialoguePage(stepData);
-    } else {
-        if (isCardRevealed) {
+    if (currentView === "talk") {
+        if (isTyping && skipTyping) { skipTyping(); return; }
+        if (talkClickPrompt.classList.contains("hidden")) return;
+        if (pendingPageCallback) { pendingPageCallback(); return; }
+        if (currentDialoguePageIndex < currentDialoguePages.length - 1) {
+            currentDialoguePageIndex++;
+            showNextDialoguePage(SCENARIO[currentLoop][currentStep]);
+        } else if (isCardRevealed) {
             advanceGame();
         }
+
+    } else if (currentView === "celtic") {
+        if (isTyping && skipTyping) { skipTyping(); return; }
+        if (celticClickPrompt.classList.contains("hidden")) return;
+        if (pendingPageCallback) { pendingPageCallback(); return; }
+        if (isCardRevealed) advanceGame();
+
+    } else if (currentView === "puzzle") {
+        if (isTyping && skipTyping) { skipTyping(); return; }
+        if (puzzleClickPrompt.classList.contains("hidden")) return;
+        if (pendingPageCallback) { pendingPageCallback(); return; }
+        if (isCardRevealed) advanceGame();
     }
-});
-celticTextEl.parentElement.addEventListener("click", () => {
-    if (currentView !== "celtic") return;
-    if (isTyping && skipTyping) { skipTyping(); return; }
-    if (celticClickPrompt.classList.contains("hidden")) return;
-    if (pendingPageCallback) { pendingPageCallback(); return; }
-    if (isCardRevealed) advanceGame();
-});
-puzzleTextEl.parentElement.addEventListener("click", () => {
-    if (currentView !== "puzzle") return;
-    if (isTyping && skipTyping) { skipTyping(); return; }
-    if (puzzleClickPrompt.classList.contains("hidden")) return;
-    if (pendingPageCallback) { pendingPageCallback(); return; }
-    if (isCardRevealed) advanceGame();
 });
 
 // --- Advance Game Step ---
 function advanceGame() {
     const currentScenarioLength = SCENARIO[currentLoop].length;
 
-    // ━━━ 一時停止：Step 2（アプリインストール）後 ━━━
-    // TODO: デプロイ後、続きが完成したらこのブロックを削除する
-    if (currentLoop === 1 && currentStep === 2) {
-        talkCardsContainer.innerHTML = "";
-        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
-        showPaginatedText(
-            "インストール完了。\n\nこのゲームは現在開発中です。続きをお楽しみに。",
-            talkTextEl, talkClickPrompt,
-            () => { /* ここで止まる */ }
-        );
-        return;
-    }
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     // Bad End branch at Step 8 (Lovers)
     if (currentLoop === 1 && currentStep === 9) {
@@ -1725,6 +1757,17 @@ function applyDynamicAdjustments() {
 }
 
 function showStartScreen() {
+    // URLパラメータによる上書き (デバッグ・個別起動用)
+    const params = new URLSearchParams(window.location.search);
+    const paramLoop = params.get('loop');
+    const paramStep = params.get('step');
+
+    if (paramLoop !== null && paramStep !== null) {
+        startScreenEl.classList.add("hidden");
+        initGame();
+        return;
+    }
+
     const savedLoop = localStorage.getItem("fools_journey_loop");
     const savedStep = localStorage.getItem("fools_journey_step");
     
@@ -1790,6 +1833,78 @@ function setupEventListeners() {
             }
         });
     }
+
+    // --- カード図鑑（コレクション）関連のイベントリスナー ---
+    const collectionBtn = document.getElementById("collection-btn");
+    const collectionModal = document.getElementById("collection-modal");
+    const closeCollectionBtn = document.getElementById("close-collection-btn");
+    const collectionOverlay = document.getElementById("collection-modal-overlay");
+
+    if (collectionBtn) {
+        collectionBtn.addEventListener("click", () => {
+            openCollectionModal();
+        });
+    }
+
+    if (closeCollectionBtn) {
+        closeCollectionBtn.addEventListener("click", () => {
+            if (collectionModal) collectionModal.classList.add("hidden");
+        });
+    }
+
+    if (collectionOverlay) {
+        collectionOverlay.addEventListener("click", () => {
+            if (collectionModal) collectionModal.classList.add("hidden");
+        });
+    }
+}
+
+// 図鑑モーダルを開く
+function openCollectionModal() {
+    const collectionModal = document.getElementById("collection-modal");
+    const collectionGrid = document.getElementById("collection-grid");
+    if (!collectionModal || !collectionGrid) return;
+
+    collectionGrid.innerHTML = "";
+
+    // 0〜21の大アルカナ全てについて描画
+    for (let i = 0; i <= 21; i++) {
+        const hasCard = discoveredCards.has(i);
+        const cardMeta = SOUL_CARDS[i] || { name: `No. ${i}`, desc: "未知のカード" };
+        
+        const item = document.createElement("div");
+        item.className = `collection-grid-item ${hasCard ? "" : "locked"}`;
+        
+        const img = document.createElement("div");
+        img.className = "collection-card-img";
+        if (hasCard) {
+            img.style.backgroundImage = `url('${TAROT_IMAGES[i]}')`;
+        }
+        
+        const name = document.createElement("div");
+        name.className = "collection-card-name";
+        name.textContent = hasCard ? cardMeta.name : "???";
+
+        item.appendChild(img);
+        item.appendChild(name);
+        collectionGrid.appendChild(item);
+
+        // 発見済みのカードは、クリック時に詳細（拡大）ポップアップを開いて意味を表示
+        if (hasCard) {
+            item.addEventListener("click", () => {
+                collectionModal.classList.add("hidden"); // 図鑑を一旦隠す
+                focusTarotCard(i, true, TAROT_IMAGES[i]); // 正位置で拡大表示
+                
+                // 拡大表示が閉じられたら図鑑に戻るようにする
+                pendingStepLoad = () => {
+                    pendingStepLoad = null;
+                    collectionModal.classList.remove("hidden");
+                };
+            });
+        }
+    }
+
+    collectionModal.classList.remove("hidden");
 }
 
 function updateSpeakerVisibility(speakerEl, textEl, speakerName) {

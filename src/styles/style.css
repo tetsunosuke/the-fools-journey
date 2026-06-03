@@ -549,6 +549,17 @@ body {
     display: none !important;
 }
 
+/* デバッグ用テキスト番号 */
+.dbg {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(212, 175, 55, 0.45);
+    letter-spacing: 0;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .cards-container {
@@ -1034,15 +1045,16 @@ body {
     border: var(--border-gold);
     border-radius: 8px;
     padding: 20px;
-    flex: 1;
-    min-height: 140px;
+    min-height: 165px;
+    max-height: 270px;
     position: relative;
+    overflow-y: auto;
 }
 .cards-area-talk {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 220px;
+    min-height: 160px;
 }
 
 /* Scene 2: Chat View styling */
@@ -1188,7 +1200,7 @@ body {
         height: 120px;
     }
     .cards-area-talk {
-        min-height: 170px;
+        min-height: 130px;
     }
     .chat-bubble {
         max-width: 90%;
@@ -1444,7 +1456,10 @@ body {
 /* Custom Modal Style */
 .custom-modal {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: 2000;
     display: flex;
     justify-content: center;
@@ -1515,13 +1530,19 @@ body {
     box-shadow: none;
     padding: 0;
     cursor: pointer;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 .focus-card-image-container {
     height: 70vh;
-    width: auto;
-    aspect-ratio: 120 / 200;
+    width: calc(70vh * (120 / 200));
+    max-width: 85vw;
     perspective: 1000px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 .focus-card-image {
     width: 100%;
@@ -1571,6 +1592,88 @@ body {
     border-left: 2px solid var(--color-gold-glow);
     padding-left: 15px;
 }
+
+/* --- Card Collection Button & Grid --- */
+.collection-btn {
+    margin-left: auto;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--color-gold);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.collection-btn:hover {
+    background: rgba(212, 175, 55, 0.3);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.collection-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.collection-grid-item:hover {
+    transform: translateY(-3px);
+}
+.collection-grid-item.locked {
+    cursor: default;
+    opacity: 0.35;
+}
+.collection-grid-item.locked:hover {
+    transform: none;
+}
+
+.collection-card-img {
+    width: 100%;
+    aspect-ratio: 3/5;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: var(--transition-smooth);
+}
+.collection-grid-item:not(.locked):hover .collection-card-img {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+.collection-grid-item.locked .collection-card-img {
+    background-image: linear-gradient(135deg, #111 25%, #222 25%, #222 50%, #111 50%, #111 75%, #222 75%, #222 100%) !important;
+    background-size: 20px 20px;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.collection-card-name {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.collection-grid-item:not(.locked) .collection-card-name {
+    color: var(--color-gold);
+    font-weight: bold;
+}
+
+/* Responsive grid for collection */
+@media (max-width: 768px) {
+    #collection-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+
 
 
 

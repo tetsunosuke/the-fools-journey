@@ -150,6 +150,7 @@ allStories.forEach((story) => {
                                 <span class="chat-name">The Journey</span>
                                 <span class="chat-status">オンライン</span>
                             </div>
+                            <button id="collection-btn" class="collection-btn" title="引いたカード図鑑">📖 カード図鑑</button>
                         </div>
                         <div class="chat-history" id="chat-history">
                             <!-- 動的にチャット吹き出しが追加される -->
@@ -375,6 +376,18 @@ allStories.forEach((story) => {
                         </div>
                     </div>
                     <div class="focus-card-tip">画面をタップして戻る</div>
+                </div>
+            </div>
+
+            <!-- カード図鑑（コレクション）モーダル -->
+            <div id="collection-modal" class="custom-modal hidden">
+                <div class="custom-modal-overlay" id="collection-modal-overlay"></div>
+                <div class="custom-modal-content collection-content" style="width: 600px; max-width: 95vw; max-height: 85vh; padding: 25px;">
+                    <button id="close-collection-btn" class="custom-modal-close" style="top: 10px; right: 15px;">&times;</button>
+                    <h2 class="collection-title" style="font-family: var(--font-serif); color: var(--color-gold); margin-bottom: 20px; font-size: 22px; text-shadow: 0 0 10px var(--color-gold-glow);">📖 収集したタロット</h2>
+                    <div id="collection-grid" class="collection-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; overflow-y: auto; flex: 1; padding: 10px 5px;">
+                        <!-- JavaScriptで動的にカード一覧を挿入 -->
+                    </div>
                 </div>
             </div>
         </div>
