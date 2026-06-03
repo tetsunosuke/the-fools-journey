@@ -536,6 +536,58 @@ function showDayTransition(dayNum, onComplete) {
     }, 1800);
 }
 
+// --- 誤選択時の囁き演出 ---
+function showWrongChoiceWhisper() {
+    const whisperMessages = [
+        "……それは本当に、あなた自身の選択ですか？",
+        "……カードは、別の道を示していましたよ。",
+        "……ふふ。でも、大丈夫。どんな道も、最後は同じ場所へ辿り着くの。",
+        "……迷子の魂ほど、面白い旅をするものよ。",
+    ];
+    const msg = whisperMessages[Math.floor(Math.random() * whisperMessages.length)];
+    
+    let whisper = document.getElementById("sophia-whisper-overlay");
+    if (!whisper) {
+        whisper = document.createElement("div");
+        whisper.id = "sophia-whisper-overlay";
+        whisper.style.cssText = [
+            "position:fixed", "top:0", "left:0", "right:0",
+            "z-index:8888", "pointer-events:none",
+            "display:flex", "justify-content:center", "padding:24px 16px",
+            "opacity:0", "transform:translateY(-12px)",
+            "transition:opacity 0.5s ease, transform 0.5s ease"
+        ].join(";");
+        document.body.appendChild(whisper);
+    }
+    
+    whisper.innerHTML = `
+        <div style="
+            background: rgba(10,8,20,0.85);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 8px;
+            padding: 12px 20px;
+            max-width: 480px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        ">
+            <div style="font-size:0.65rem; color:rgba(201,168,76,0.6); letter-spacing:0.15em; margin-bottom:6px;">― ソフィアの声 ―</div>
+            <div style="font-size:0.85rem; color:rgba(220,210,255,0.85); font-style:italic; line-height:1.6;">${msg}</div>
+        </div>
+    `;
+    
+    // フェードイン
+    requestAnimationFrame(() => {
+        whisper.style.opacity = "1";
+        whisper.style.transform = "translateY(0)";
+    });
+    
+    // 3.5秒後にフェードアウト
+    setTimeout(() => {
+        whisper.style.opacity = "0";
+        whisper.style.transform = "translateY(-8px)";
+    }, 3500);
+}
+
 function executeLoadStep(stepData) {
     currentArcanaEl.textContent = stepData.arcana;
     
@@ -867,6 +919,11 @@ function renderChoiceCards(cardsList, container, isInChat = false) {
 function handleQuizChoiceSelected(card, choiceText, isInChat) {
     isCardRevealed = true;
     selectedOptionDesc = card.desc;
+    
+    // correct: false の選択肢を選んだ時に囁き演出
+    if (card.correct === false) {
+        showWrongChoiceWhisper();
+    }
 
     if (card && card.id !== undefined) {
         discoverCard(card.id);
