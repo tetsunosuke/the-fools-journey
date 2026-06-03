@@ -1050,6 +1050,12 @@ body {
     position: relative;
     overflow-y: auto;
 }
+.dialogue-container-talk.speaker-player {
+    background: rgba(16, 20, 38, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.25), 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: var(--transition-smooth);
+}
 .cards-area-talk {
     display: flex;
     justify-content: center;
@@ -1570,6 +1576,20 @@ body {
     font-size: 14px;
     font-family: var(--font-mono);
     letter-spacing: 1px;
+}
+.focus-card-desc {
+    font-size: 14px;
+    color: var(--color-text-light);
+    line-height: 1.6;
+    margin: 15px auto 0;
+    max-width: 400px;
+    text-align: center;
+    background: rgba(16, 12, 34, 0.7);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    font-family: var(--font-sans);
 }
 .focus-card-tip {
     font-size: 12px;

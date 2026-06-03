@@ -92,6 +92,7 @@ let trueEndCleared = false;
 let currentView = "talk";
 let currentDialoguePages = [];
 let currentDialoguePageIndex = 0;
+let activeDialogueSpeaker = "";
 let isTyping = false;
 let skipTyping = null;
 let pendingStepLoad = null;
@@ -366,14 +367,50 @@ function autoSplitTextIntoPages(text, maxChars = MAX_LINE_CHARS) {
 }
 
 // --- 汎用ページ送り表示 ---
-function showPaginatedText(text, textEl, promptEl, onAllDone) {
+function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "") {
     const pages = autoSplitTextIntoPages(text);
     let idx = 0;
+    
+    const isTalkView = textEl === talkTextEl;
+    let currentSpeakerState = defaultSpeaker;
 
     function showPage() {
         promptEl.classList.add("hidden");
+        let pageText = pages[idx];
+        
+        // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
+        const focusMatch = pageText.match(/^\[focus:([^:\]]+):?(.*)\]$/);
+        if (focusMatch) {
+            const imgUrl = focusMatch[1].trim();
+            const title = (focusMatch[2] || "").trim();
+            
+            pendingStepLoad = () => {
+                pendingStepLoad = null;
+                if (idx < pages.length - 1) {
+                    idx++;
+                    showPage();
+                } else {
+                    onAllDone();
+                }
+            };
+            
+            focusTarotCard(title, undefined, imgUrl);
+            return;
+        }
+
+        // 動的話者切り替えタグの検知: [speaker:名前]
+        const speakerMatch = pageText.match(/^\[speaker:([^\]]+)\]\r?\n?([\s\S]*)$/);
+        if (speakerMatch) {
+            currentSpeakerState = speakerMatch[1].trim();
+            pageText = speakerMatch[2].trim();
+        }
+        
+        if (isTalkView) {
+            updateSpeakerVisibility(talkSpeakerEl, talkTextEl, currentSpeakerState);
+        }
+
         const pageId = `L${currentLoop}-S${currentStep}-P${idx + 1}`;
-        const numberedText = `<span class="dbg">[${pageId}]</span> ${pages[idx]}`;
+        const numberedText = `<span class="dbg">[${pageId}]</span> ${pageText}`;
         typeDialogueText(numberedText, textEl, () => {
             if (idx < pages.length - 1) {
                 promptEl.classList.remove("hidden");
@@ -418,7 +455,8 @@ function executeLoadStep(stepData) {
         talkPortraitEl.style.opacity = "0";
         document.querySelector(".visual-area-talk").style.display = "none";
 
-        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepData.speaker);
+        activeDialogueSpeaker = stepData.speaker;
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, activeDialogueSpeaker);
 
         // テキストを改ページ(\n\n)で分割し、さらに長い段落を自動分割
         const rawPages = stepData.text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(p => p.length > 0);
@@ -464,7 +502,7 @@ function executeLoadStep(stepData) {
 
 function showNextDialoguePage(stepData) {
     talkClickPrompt.classList.add("hidden");
-    const pageText = currentDialoguePages[currentDialoguePageIndex];
+    let pageText = currentDialoguePages[currentDialoguePageIndex];
     console.log(`Evaluating page [${currentDialoguePageIndex}]:`, pageText);
     
     // インライン画像フォーカスタグの検知: [focus:画像パス:タイトル]
@@ -487,6 +525,14 @@ function showNextDialoguePage(stepData) {
         focusTarotCard(title, undefined, imgUrl);
         return;
     }
+
+    // 動的話者切り替えタグの検知: [speaker:名前]
+    const speakerMatch = pageText.match(/^\[speaker:([^\]]+)\]\r?\n?([\s\S]*)$/);
+    if (speakerMatch) {
+        activeDialogueSpeaker = speakerMatch[1].trim();
+        pageText = speakerMatch[2].trim();
+    }
+    updateSpeakerVisibility(talkSpeakerEl, talkTextEl, activeDialogueSpeaker);
     
     const pageId = `L${currentLoop}-S${currentStep}-P${currentDialoguePageIndex + 1}`;
     const numberedPageText = `<span class="dbg">[${pageId}]</span> ${pageText}`;
@@ -660,17 +706,14 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         discoverCard(card.id);
     }
 
-    // skipFocus: true の選択肢はカードポップアップなしで直接次へ進む
-    if (card.skipFocus) {
-        advanceGame();
-        return;
-    }
-
     const tarotName = SOUL_CARDS[card.id] ? SOUL_CARDS[card.id].name : "タロットカード";
     const orientationText = card.upright ? "正位置" : "逆位置";
 
-    // カードを全画面表示する
-    focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id]);
+    // skipFocus: true の選択肢はカードポップアップをスキップする
+    if (!card.skipFocus) {
+        // カードを全画面表示する
+        focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id]);
+    }
 
     if (isInChat) {
         // Clear interactive zone instantly
@@ -680,8 +723,8 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
         pushChatMessage("Player", `選択: ${choiceText}`, true, null, () => {
             setTimeout(() => {
                 // Show result text with tarot card preview image embedded in bubble
-                const narrativeText = `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
-                pushChatMessage("The Journey", narrativeText, false, card, () => {
+                const narrativeText = card.skipFocus ? card.desc : `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
+                pushChatMessage("The Journey", narrativeText, false, card.skipFocus ? null : card, () => {
                     // Generate Next Button after typing finishes
                     chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
                     document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
@@ -697,11 +740,15 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
             const stepSpeaker = SCENARIO[currentLoop][currentStep]?.speaker || "";
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
             
+            // skipFocus: true の場合はカード名ヘッダーを表示しない
+            const displayText = card.skipFocus ? card.desc : `【${tarotName} (${orientationText})】\n\n${card.desc}`;
+            
             // Show result text（ページ送り対応）
             showPaginatedText(
-                `【${tarotName} (${orientationText})】\n\n${card.desc}`,
+                displayText,
                 talkTextEl, talkClickPrompt,
-                () => { talkClickPrompt.classList.remove("hidden"); }
+                () => { talkClickPrompt.classList.remove("hidden"); },
+                stepSpeaker
             );
         } else {
             advanceGame();
@@ -710,34 +757,75 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
 }
 
 
+// --- Markdown Parser Helper ---
+function parseMarkdown(text) {
+    if (!text) return "";
+    let html = text;
+    // 太字: **text** -> <strong>text</strong>
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // 斜体: *text* -> <em>text</em>
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // 改行: \n -> <br>
+    html = html.replace(/\r?\n/g, '<br>');
+    return html;
+}
+
+// --- HTML string slicer by text length (ignores tags for count) ---
+function getSubHtml(html, visibleCount) {
+    let result = "";
+    let count = 0;
+    let inTag = false;
+    
+    for (let i = 0; i < html.length; i++) {
+        const char = html.charAt(i);
+        if (char === "<") {
+            inTag = true;
+        }
+        
+        result += char;
+        
+        if (char === ">") {
+            inTag = false;
+            continue;
+        }
+        
+        if (!inTag) {
+            count++;
+            if (count >= visibleCount) {
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 // --- Typing Effect ---
 function typeDialogueText(text, container, onComplete = null) {
+    const htmlText = parseMarkdown(text);
     container.innerHTML = "";
-    let i = 0;
+    
+    // Calculate total visible characters by parsing html
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = htmlText;
+    const totalVisibleChars = tempDiv.textContent.length;
+    
+    let visibleCount = 0;
     const speed = 15;
     isTyping = true;
     
     skipTyping = () => {
         isTyping = false;
         skipTyping = null;
-        container.innerHTML = text;
+        container.innerHTML = htmlText;
         scrollToBottom();
         if (onComplete) onComplete();
     };
 
     function type() {
         if (!isTyping) return;
-        if (i < text.length) {
-            if (text.charAt(i) === "<") {
-                const tagEnd = text.indexOf(">", i);
-                if (tagEnd !== -1) {
-                    container.innerHTML += text.substring(i, tagEnd + 1);
-                    i = tagEnd + 1;
-                }
-            } else {
-                container.innerHTML += text.charAt(i);
-                i++;
-            }
+        if (visibleCount <= totalVisibleChars) {
+            container.innerHTML = getSubHtml(htmlText, visibleCount);
+            visibleCount++;
             scrollToBottom();
             setTimeout(type, speed);
         } else {
@@ -1719,6 +1807,7 @@ const cardFocusModal = document.getElementById("card-focus-modal");
 const focusCardImg = document.getElementById("focus-card-img");
 const focusCardName = document.getElementById("focus-card-name");
 const focusCardDirection = document.getElementById("focus-card-direction");
+const focusCardDesc = document.getElementById("focus-card-desc");
 
 // --- Added Helper & Adjustment Functions ---
 function applyDynamicAdjustments() {
@@ -1909,6 +1998,17 @@ function openCollectionModal() {
 
 function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
     speakerEl.textContent = speakerName;
+    
+    // dialogue-container-talk の背景色変更
+    const container = speakerEl.closest(".dialogue-container-talk");
+    if (container) {
+        if (speakerName === "プレイヤー") {
+            container.classList.add("speaker-player");
+        } else {
+            container.classList.remove("speaker-player");
+        }
+    }
+
     if (!speakerName || speakerName === "ナレーション") {
         speakerEl.classList.add("hidden");
         textEl.classList.add("narration-style");
@@ -1921,16 +2021,28 @@ function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
 function focusTarotCard(cardIdOrName, upright, imgUrl) {
     let name = "";
     let imageSrc = "";
+    let descText = "";
     
     if (typeof cardIdOrName === "number") {
         name = SOUL_CARDS[cardIdOrName] ? SOUL_CARDS[cardIdOrName].name : `カード #${cardIdOrName}`;
         imageSrc = imgUrl || TAROT_IMAGES[cardIdOrName] || "";
+        descText = SOUL_CARDS[cardIdOrName] ? SOUL_CARDS[cardIdOrName].desc : "";
     } else {
         name = cardIdOrName || "";
         imageSrc = imgUrl || "";
     }
     
     focusCardName.textContent = name;
+
+    if (focusCardDesc) {
+        if (descText) {
+            focusCardDesc.innerHTML = descText;
+            focusCardDesc.style.display = "block";
+        } else {
+            focusCardDesc.innerHTML = "";
+            focusCardDesc.style.display = "none";
+        }
+    }
 
     // uprightが明示的にboolean値のときのみ正逆位置を表示（画像演出など非カード表示時は非表示）
     if (typeof upright === "boolean") {
