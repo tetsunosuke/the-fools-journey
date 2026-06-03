@@ -495,7 +495,45 @@ function loadStep() {
     selectedOptionDesc = "";
     
     const stepData = SCENARIO[currentLoop][currentStep];
-    executeLoadStep(stepData);
+    
+    // arcana フィールドに「N日目」が含まれる場合は日付トランジションを表示
+    const dayMatch = stepData.arcana ? stepData.arcana.match(/(\d+)日目/) : null;
+    if (dayMatch) {
+        showDayTransition(dayMatch[1], () => executeLoadStep(stepData));
+    } else {
+        executeLoadStep(stepData);
+    }
+}
+
+// --- 日付トランジションオーバーレイ ---
+function showDayTransition(dayNum, onComplete) {
+    let dayOverlay = document.getElementById("day-transition-overlay");
+    if (!dayOverlay) {
+        dayOverlay = document.createElement("div");
+        dayOverlay.id = "day-transition-overlay";
+        dayOverlay.style.cssText = [
+            "position:fixed", "inset:0", "z-index:9999",
+            "background:#000", "display:flex", "flex-direction:column",
+            "align-items:center", "justify-content:center",
+            "opacity:0", "transition:opacity 0.6s ease", "pointer-events:none"
+        ].join(";");
+        dayOverlay.innerHTML = [
+            '<div id="day-overlay-text" style="font-family:serif;color:#c9a84c;',
+            'font-size:clamp(1.2rem,4vw,2rem);letter-spacing:0.3em;',
+            'text-shadow:0 0 20px rgba(201,168,76,0.8);"></div>',
+            '<div id="day-overlay-sub" style="font-size:clamp(0.7rem,2vw,0.9rem);',
+            'color:rgba(255,255,255,0.5);letter-spacing:0.2em;margin-top:12px;"></div>'
+        ].join("");
+        document.body.appendChild(dayOverlay);
+    }
+    document.getElementById("day-overlay-text").textContent = "\u2015 " + dayNum + "日目 \u2015";
+    document.getElementById("day-overlay-sub").textContent = "THE FOOL'S JOURNEY";
+    
+    requestAnimationFrame(() => { dayOverlay.style.opacity = "1"; });
+    setTimeout(() => {
+        dayOverlay.style.opacity = "0";
+        setTimeout(onComplete, 600);
+    }, 1800);
 }
 
 function executeLoadStep(stepData) {
