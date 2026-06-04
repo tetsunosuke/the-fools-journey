@@ -367,7 +367,8 @@ export function drawNextCelticCardInline(index) {
     const cardNum = index + 1;
 
     const cardWrapper = document.createElement("div");
-    cardWrapper.className = `card-wrapper revealed`;
+    cardWrapper.className = `card-wrapper`;
+    cardWrapper.style.pointerEvents = "none";
     
     const back = document.createElement("div");
     back.className = "card-face card-back";
@@ -427,7 +428,7 @@ export function drawNextCelticCardInline(index) {
             cardWrapper.style.top = "0";
             cardWrapper.style.width = "100%";
             cardWrapper.style.height = "100%";
-            cardWrapper.style.transform = cardData.rotate ? 'rotate(90deg)' : 'none';
+            cardWrapper.style.transform = cardData.rotate ? 'rotate(90deg)' : '';
             cardWrapper.style.zIndex = "20";
             cardWrapper.style.pointerEvents = "auto";
 
@@ -442,6 +443,12 @@ export function drawNextCelticCardInline(index) {
     // 各カードクリック時の個別フォーカス
     cardWrapper.addEventListener("click", (e) => {
         e.stopPropagation();
+
+        if (!cardWrapper.classList.contains("revealed")) {
+            cardWrapper.classList.add("revealed");
+            cardWrapper.style.transform = cardData.rotate ? "rotateY(180deg) rotate(90deg)" : "rotateY(180deg)";
+        }
+
         focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
         const posMeaning = cardData.pos.includes(". ") ? cardData.pos.split(". ")[1] : cardData.pos;
@@ -485,17 +492,13 @@ export function completeCelticSpread() {
     
     // スプレッド完成後のセリフ
     updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
-    const summaryText = "「展開はすべて完了しました。これが君の『愚者の旅』の全貌……。過去の要因、現在の状況、そして近い未来。この完璧な計画を受け入れる準備はできましたか？」";
+    const summaryText = "「展開はすべて完了しました。まずは3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）の意味を確認してください」";
     showPaginatedText(summaryText, celticTextEl, celticClickPrompt, () => {
-        celticClickPrompt.classList.remove("hidden");
-        gameState.isCardRevealed = true;
-        
-        const nextHandler = (e) => {
-            e.stopPropagation();
-            advanceGame();
-        };
-        celticClickPrompt.onclick = nextHandler;
-        celticTextEl.parentElement.onclick = nextHandler;
+        // カードをすべて見るまで進行不可にし、プロンプトを非表示化
+        gameState.isCardRevealed = false;
+        celticClickPrompt.classList.add("hidden");
+        celticClickPrompt.onclick = null;
+        celticTextEl.parentElement.onclick = null;
     });
 }
 
