@@ -30,28 +30,28 @@ const TAROT_IMAGES = {
 
 /// --- Soul Cards Mapping ---
 const SOUL_CARDS = {
-    0: { name: "0 : 愚者", desc: "無限の可能性と無計画。君は常に新しい旅を求め、他者のルールに染まりやすい脆弱さを持っています。" },
-    1: { name: "I : 魔術師", desc: "知恵と技術。君は優れた能力を持っていますが、それゆえに完璧なシステムによる統制を望んでしまうのです。" },
-    2: { name: "II : 女教皇", desc: "直感と知識。君は真実を見通す力がありながら、自ら思考を閉ざし、静観という名の盲信を選びがちです。" },
-    3: { name: "III : 女帝", desc: "豊穣と愛。君は物質的・精神的な満たしを求め、それを約束してくれるシステムに身を委ねてしまいます。" },
-    4: { name: "IV : 皇帝", desc: "支配と社会的責任。君は安定した秩序を重んじるがゆえに、アプリの提示する強力なルールを歓迎します。" },
-    5: { name: "V : 法王", desc: "規律と指導. 君は正解を教えてくれる絶対的な存在を信じることで、自ら考える責任を放棄します。" },
-    6: { name: "VI : 恋人たち", desc: "選択と調和。君は運命的な出会いや情動に流されやすく、愛のためにすべてを投げ出す危険があります。" },
-    7: { name: "VII : 戦車", desc: "勝利と前進。君は目に見える成果を急ぐあまり、そのレールがどこへ続くかを確かめることを忘れます。" },
-    8: { name: "VIII : 力", desc: "忍耐と信念。君は苦境に耐える強さを持っていますが、それが不条理なシステムへの服従に変わる恐れがあります。" },
-    9: { name: "IX : 隠者", desc: "探求と静寂。君は自己の内省を深めようとしますが、孤独への恐れからシステムの灯火にすがりつきます。" },
-    10: { name: "X : 運命の輪", desc: "変化と好機。君は状況の移り変わりに一喜一憂し、自ら車輪を回すのではなく運命任せになります。" },
-    11: { name: "XI : 正義", desc: "客観性と決断。君は正しさに固執するあまり、冷酷な裁きを下し、孤立と罪悪感に苛まれます。" },
-    12: { name: "XII : 吊られた男", desc: "試練と自己犠牲。君は耐えることを美徳とし、システムのために自分を犠牲にする愚行を受け入れます。" },
-    13: { name: "XIII : 死神", desc: "終焉と再生。君は変化を恐れるあまり、終わらせるべき関係やシステムにしがみつき続けます。" },
-    14: { name: "XIV : 節制", desc: "調和と純化。君はバランスを好みますが、それは葛藤を避けて現状維持に甘んじることでもあります。" },
-    15: { name: "XV : 悪魔", desc: "束縛と物質欲。君は甘美な檻と依存の心地よさに完全に絡め取られ、抜け出せなくなっています。" },
-    16: { name: "XVI : 塔", desc: "崩壊と劇変。君は積み上げた偽りが崩れ去る恐怖を知りながら、なお再建の約束をシステムに求めます。" },
-    17: { name: "XVII : 星", desc: "希望と憧れ。君は遠い理想を夢見ながら、足元の現実を直視せず、美しい幻影を盲信します。" },
-    18: { name: "XVIII : 月", desc: "不安と欺瞞。君は不確かさに怯え、偽りの真実を提示する占い師の言葉を鵜呑みにしてしまいます。" },
-    19: { name: "XIX : 太陽", desc: "活力と祝福。君は明るい未来を信じて疑いませんが、それは影（シャドウ）を無視した盲目的楽観です。" },
-    20: { name: "XX : 審判", desc: "復活と覚醒。君は過去の過ちからの救済を望み、システムの審判に自らの免罪を委ねます。" },
-    21: { name: "XXI : 世界", desc: "完成と全体性。君は完璧な調和を求めますが、それは自律意思を失ったディストピアでの完成にすぎません。" }
+    0: { name: "0 : 愚者", desc: "無限の可能性と無計画。君は常に新しい旅を求め、他者のルールに染まりやすい脆弱さを持っています。", trueDesc: "自由、純粋、無限の可能性。先入観にとらわれず、未知の旅へ踏み出す勇気。" },
+    1: { name: "I : 魔術師", desc: "知恵と技術。君は優れた能力を持っていますが、それゆえに完璧なシステムによる統制を望んでしまうのです。", trueDesc: "創造力、技術、意志の具体化。自らの可能性を信じ、能動的に現実を作り出す力。" },
+    2: { name: "II : 女教皇", desc: "直感と知識。君は真実を見通す力がありながら、自ら思考を閉ざし、静観という名の盲信を選びがちです。", trueDesc: "直感、知恵、内省。自らの内なる声に耳を傾け、客観的に真実を見極める静かな洞察力。" },
+    3: { name: "III : 女帝", desc: "豊穣と愛. 君は物質的・精神的な満たしを求め、それを約束してくれるシステムに身を委ねてしまいます。", trueDesc: "豊穣、愛、育み。精神的・物質的な豊かさを感じ、生命や関係性を育む慈愛。" },
+    4: { name: "IV : 皇帝", desc: "支配と社会的責任。君は安定した秩序を重んじるがゆえに、アプリの提示する強力なルールを歓迎します。", trueDesc: "秩序、責任、自己統治。自らを律し、現実世界で強固な基盤と安定した意思決定を確立する力。" },
+    5: { name: "V : 法王", desc: "規律と指導. 君は正解を教えてくれる絶対的な存在を信じることで、自ら考える責任を放棄します。", trueDesc: "教え、精神的導き、信念。知識やルールを学びつつも、それを自らの生きる知恵として統合する姿勢。" },
+    6: { name: "VI : 恋人たち", desc: "選択と調和。君は運命的な出会いや情動に流されやすく、愛のためにすべてを投げ出す危険があります。", trueDesc: "選択、調和、真の結びつき。自らの価値観に基づいて能動的に選択し、他者や環境と調和する力。" },
+    7: { name: "VII : 戦車", desc: "勝利と前進。君は目に見える成果を急ぐあまり、そのレールがどこへ続くかを確かめることを忘れます。", trueDesc: "前進、克服、自己制御。目的意識を持って能動的に進み、困難や矛盾を乗り越える強い意志。" },
+    8: { name: "VIII : 力", desc: "忍耐と信念。君は苦境に耐える強さを持っていますが、それが不条理なシステムへの服従に変わる恐れがあります。", trueDesc: "精神的な強さ、忍耐、自己受容。衝動や恐れを否定せず、優しさと対話をもってコントロールする内なる力。" },
+    9: { name: "IX : 隠者", desc: "探求と静寂。君は自己の内省を深めようとしますが、孤独への恐れからシステムの灯火にすがりつきます。", trueDesc: "探求、静寂、精神逆立。外的な喧騒から距離を置き、自らの心の内奥にある真実を照らす灯火を見つけること。" },
+    10: { name: "X : 運命の輪", desc: "変化と好機。君は状況の移り変わりに一喜一憂し、自ら車輪を回すのではなく運命任せになります。", trueDesc: "変化、転換、タイミング。自らの行動と周囲の流れの相互作用を理解し、主体的に運命の車輪を回すこと。" },
+    11: { name: "XI : 正義", desc: "客観性と決断。君は正しさに固執するあまり、冷酷な裁きを下し、孤立と罪悪感に苛まれます。", trueDesc: "均衡、決断、客観的真実。自らの行動と結果の因果関係を客観的に受け止め、公正な決断を下すこと。" },
+    12: { name: "XII : 吊られた男", desc: "試練と自己犠牲。君は耐えることを美徳とし、システムのために自分を犠牲にする愚行を受け入れます。", trueDesc: "視点の転換、手放し、自発的受容。これまでの執着を捨て去ることで、新しい視点や深い洞察を得ること。" },
+    13: { name: "XIII : 死神", desc: "終焉と再生。君は変化を恐れるあまり、終わらせるべき関係やシステムにしがみつき続けます。", trueDesc: "古いものの終焉と新たな始まり。不要になった関係や思考パターンを手放し、再生を受け入れるプロセス。" },
+    14: { name: "XIV : 節制", desc: "調和と純化。君はバランスを好みますが、それは葛藤を避けて現状維持に甘んじることでもあります。", trueDesc: "調和、統合、節度。対立する要素を巧みに組み合わせ、自らの心身の最適なバランスを保ち続ける力。" },
+    15: { name: "XV : 悪魔", desc: "束縛と物質欲。君は甘美な檻と依存の心地よさに完全に絡め取られ、抜け出せなくなっています。", trueDesc: "欲望の自覚、囚われからの解放。自らを縛る執着や依存の影（シャドウ）を認識し、真の自由を取り戻す出発点。" },
+    16: { name: "XVI : 塔", desc: "崩壊と劇変。君は積み上げた偽りが崩れ去る恐怖を知りながら、なお再建の約束をシステムに求めます。", trueDesc: "崩壊、覚醒、真実の露呈。偽りの塔が壊れることで、囚われていた自己が解放され、真の現実に直面すること。" },
+    17: { name: "XVII : 星", desc: "希望と憧れ。君は遠い理想を夢見ながら、足元の現実を直視せず、美しい幻影を盲信します。", trueDesc: "希望、インスピレーション、心の安らぎ。嵐のあとに輝く星のように、内なる無限のインスピレーションと未来への希望。" },
+    18: { name: "XVIII : 月", desc: "不安と欺瞞。君は不確かさに怯え、偽りの真実を提示する占い師の言葉を鵜呑みにしてしまいます。", trueDesc: "深層心理、欺瞞の打破、心の闇との対峙。不確かさや不安を直視し、幻想に惑わされずに自らの本質を探ること。" },
+    19: { name: "XIX : 太陽", desc: "活力と祝福。君は明るい未来を信じて疑いませんが、それは影（シャドウ）を無視した盲目的楽観です。", trueDesc: "活力、光、成功、無邪気さ。自らの影をも受け入れたうえで、無垢な生命力と自己表現を満開に輝かせること。" },
+    20: { name: "XX : 審判", desc: "復活と覚醒。君は過去の過ちからの救済を望み、システムの審判に自らの免罪を委ねます。", trueDesc: "自己再評価、覚醒、真の解放。過去の歩みを統合し、新しい呼び声に応じて本来の自分として目覚めること。" },
+    21: { name: "XXI : 世界", desc: "完成と全体性。君は完璧な調和を求めますが、それは自律意思を失ったディストピアでの完成にすぎません。", trueDesc: "全体性、統合、完成。自律的な旅を経て、自己と世界のすべてが調和し、完成されたひとつの宇宙となること。" }
 };
 
 // --- Celtic Cross Configuration ---
@@ -1550,8 +1550,6 @@ function renderSoulCardForm() {
             }, 1200);
         }
     });
-}
-
 function showSoulCardResult(cardNum) {
     const cardInfo = SOUL_CARDS[cardNum];
     talkCardsContainer.innerHTML = "";
@@ -1564,7 +1562,7 @@ function showSoulCardResult(cardNum) {
     // カードを全画面表示
     focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum]);
 
-    selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>${cardInfo.desc}<br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
+    selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>数秘術（ヌメロロジー）では、誕生日の西暦・月・日のすべての数字を足し続け、1から21の数字を導き出すの。これがあなたの魂の旅路の出発点を示す『ソウルナンバー』であり、対応する大アルカナよ。<br><br>${cardInfo.desc}<br><br>【本来の意味（ポジティブな側面）】<br>${cardInfo.trueDesc}<br><br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
     
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     showPaginatedText(selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
@@ -1717,7 +1715,8 @@ function drawNextCelticCardInline(index) {
         e.stopPropagation();
         focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
-        typeDialogueText(`【${cardData.name}】 ${cardData.desc}`, celticTextEl);
+        const posMeaning = cardData.pos.includes(". ") ? cardData.pos.split(". ")[1] : cardData.pos;
+        typeDialogueText(`この位置は「${posMeaning}」を表します。ここに配された【${cardData.name}】は、${cardData.desc}`, celticTextEl);
     });
 
     currentCelticIndex = cardNum;
@@ -2262,6 +2261,9 @@ const focusCardImg = document.getElementById("focus-card-img");
 const focusCardName = document.getElementById("focus-card-name");
 const focusCardDirection = document.getElementById("focus-card-direction");
 const focusCardDesc = document.getElementById("focus-card-desc");
+const focusCardTabs = document.getElementById("focus-card-tabs");
+const tabGameDesc = document.getElementById("tab-game-desc");
+const tabTrueDesc = document.getElementById("tab-true-desc");
 
 // --- Added Helper & Adjustment Functions ---
 function applyDynamicAdjustments() {
@@ -2489,12 +2491,46 @@ function focusTarotCard(cardIdOrName, upright, imgUrl) {
     focusCardName.textContent = name;
 
     if (focusCardDesc) {
-        if (descText) {
-            focusCardDesc.innerHTML = descText;
+        if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc) {
+            const cardMeta = SOUL_CARDS[cardIdOrName];
+            focusCardTabs.classList.remove("hidden");
             focusCardDesc.style.display = "block";
+            
+            // Set Game tab active handler
+            tabGameDesc.onclick = (e) => {
+                e.stopPropagation();
+                tabGameDesc.style.background = "rgba(255,255,255,0.1)";
+                tabGameDesc.style.border = "1px solid var(--color-gold)";
+                tabGameDesc.style.color = "var(--color-gold)";
+                tabTrueDesc.style.background = "transparent";
+                tabTrueDesc.style.border = "1px solid rgba(255,255,255,0.2)";
+                tabTrueDesc.style.color = "var(--color-text-light)";
+                focusCardDesc.innerHTML = cardMeta.desc;
+            };
+            
+            // Set True tab active handler
+            tabTrueDesc.onclick = (e) => {
+                e.stopPropagation();
+                tabTrueDesc.style.background = "rgba(255,255,255,0.1)";
+                tabTrueDesc.style.border = "1px solid var(--color-gold)";
+                tabTrueDesc.style.color = "var(--color-gold)";
+                tabGameDesc.style.background = "transparent";
+                tabGameDesc.style.border = "1px solid rgba(255,255,255,0.2)";
+                tabGameDesc.style.color = "var(--color-text-light)";
+                focusCardDesc.innerHTML = `<strong>【本来の意味（ポジティブな側面）】</strong><br>${cardMeta.trueDesc}`;
+            };
+            
+            // Default to Game description
+            tabGameDesc.click();
         } else {
-            focusCardDesc.innerHTML = "";
-            focusCardDesc.style.display = "none";
+            focusCardTabs.classList.add("hidden");
+            if (descText) {
+                focusCardDesc.innerHTML = descText;
+                focusCardDesc.style.display = "block";
+            } else {
+                focusCardDesc.innerHTML = "";
+                focusCardDesc.style.display = "none";
+            }
         }
     }
 

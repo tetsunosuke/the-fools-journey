@@ -376,6 +376,11 @@ allStories.forEach((story) => {
                             class="focus-card-direction"
                         >
                         </div>
+                        <!-- タブ切り替えボタン (本来の意味があるカードのみ表示) -->
+                        <div id="focus-card-tabs" class="focus-card-tabs hidden" style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <button id="tab-game-desc" class="tab-btn active" style="background: rgba(255,255,255,0.1); border: 1px solid var(--color-gold); color: var(--color-gold); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;">ゲーム内解釈</button>
+                            <button id="tab-true-desc" class="tab-btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--color-text-light); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;">本来の意味</button>
+                        </div>
                         <div id="focus-card-desc" class="focus-card-desc"></div>
                     </div>
                     <div class="focus-card-tip">画面をタップして戻る</div>
