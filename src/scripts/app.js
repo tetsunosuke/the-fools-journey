@@ -382,7 +382,7 @@ export function showNextDialoguePage(stepData) {
 }
 
 export function finishStepText(stepData) {
-    if (gameState.currentLoop === 1 && gameState.currentStep === 12) {
+    if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
         renderSoulCardForm();
     } else if (gameState.currentLoop === 2 && gameState.currentStep === 2) {
         loadMetaStarStep();

@@ -291,7 +291,9 @@ export function showSoulCardResult(cardNum) {
     
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     showPaginatedText(gameState.selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
-        talkClickPrompt.classList.remove("hidden");
+        showView("celtic");
+        renderCelticCross();
+        showCelticCrossContract();
     });
 }
 
