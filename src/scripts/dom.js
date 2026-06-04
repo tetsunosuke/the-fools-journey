@@ -49,6 +49,8 @@ export const resetMeditationBtn = document.getElementById("reset-meditation-btn"
 export const startScreenEl = document.getElementById("start-screen");
 export const startNewBtn = document.getElementById("start-new-btn");
 export const startContinueBtn = document.getElementById("start-continue-btn");
+export const startCardTrigger = document.getElementById("start-card-trigger");
+export const startInfoZone = document.getElementById("start-info-zone");
 export const showInstructionsBtn = document.getElementById("show-instructions-btn");
 export const instructionsModal = document.getElementById("instructions-modal");
 export const closeInstructionsBtn = document.getElementById("close-instructions-btn");
@@ -138,10 +140,17 @@ export function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
     // dialogue-container-talk の背景色変更
     const container = speakerEl.closest(".dialogue-container-talk");
     if (container) {
+        // すべての話者用クラスを一旦クリア
+        container.classList.remove("speaker-player", "speaker-app", "speaker-sophia", "speaker-philo");
+        
         if (speakerName === "プレイヤー") {
             container.classList.add("speaker-player");
-        } else {
-            container.classList.remove("speaker-player");
+        } else if (speakerName && speakerName.includes("アプリ")) {
+            container.classList.add("speaker-app");
+        } else if (speakerName === "ソフィア" || (speakerName && speakerName.includes("ソフィア"))) {
+            container.classList.add("speaker-sophia");
+        } else if (speakerName === "フィロ" || (speakerName && speakerName.includes("フィロ"))) {
+            container.classList.add("speaker-philo");
         }
     }
 

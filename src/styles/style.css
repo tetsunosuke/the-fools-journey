@@ -1051,6 +1051,24 @@ body {
     box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.25), 0 10px 30px rgba(0, 0, 0, 0.7);
     transition: var(--transition-smooth);
 }
+.dialogue-container-talk.speaker-app {
+    background: rgba(18, 10, 10, 0.95);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: var(--transition-smooth);
+}
+.dialogue-container-talk.speaker-sophia {
+    background: rgba(22, 16, 32, 0.95);
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: var(--transition-smooth);
+}
+.dialogue-container-talk.speaker-philo {
+    background: rgba(10, 22, 18, 0.95);
+    border: 1px solid rgba(16, 185, 129, 0.45);
+    box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: var(--transition-smooth);
+}
 .cards-area-talk {
     display: flex;
     justify-content: center;
@@ -1437,7 +1455,7 @@ body {
 .start-screen-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(5, 4, 10, 0.98);
+    background: radial-gradient(circle at center, rgba(16, 12, 34, 0.98) 0%, rgba(5, 4, 10, 1) 100%);
     z-index: 500;
     display: flex;
     justify-content: center;
@@ -1449,42 +1467,138 @@ body {
     pointer-events: none;
 }
 .start-screen-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
     text-align: center;
     max-width: 600px;
-    padding: 50px 40px;
+    width: 90%;
+    padding: 60px 40px;
     border: var(--border-gold);
-    background: rgba(16, 12, 34, 0.75);
+    background: rgba(10, 8, 22, 0.65);
     backdrop-filter: var(--blur-glass);
-    border-radius: 16px;
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.6);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.1), inset 0 0 30px rgba(0, 0, 0, 0.8);
 }
+
+/* 浮遊するインタラクティブカードのコンテナ */
+.start-card-wrapper {
+    width: 160px;
+    height: 270px;
+    perspective: 1000px;
+    cursor: pointer;
+    animation: floatingCard 4s ease-in-out infinite alternate;
+}
+.start-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1.2s cubic-bezier(0.2, 0.85, 0.32, 1.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.start-card-wrapper.revealed .start-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* カードの表面・裏面共通 */
+.start-card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    overflow: hidden;
+}
+
+/* カードの裏面（未タップ） */
+.start-card-back {
+    background: #0f0a1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px;
+}
+.tarot-back-pattern {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    border: 1px double rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    background-image: 
+        radial-gradient(circle at center, transparent 30%, rgba(212, 175, 55, 0.05) 31%, transparent 35%),
+        repeating-linear-gradient(45deg, rgba(212,175,55,0.02) 0px, rgba(212,175,55,0.02) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(-45deg, rgba(212,175,55,0.02) 0px, rgba(212,175,55,0.02) 2px, transparent 2px, transparent 10px);
+    position: relative;
+}
+.tarot-back-pattern::after {
+    content: "✵";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    color: var(--color-gold);
+    opacity: 0.6;
+    text-shadow: 0 0 10px var(--color-gold-glow);
+}
+.tap-to-reveal {
+    position: absolute;
+    bottom: 25px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--color-gold);
+    animation: tapPulse 2s infinite ease-in-out;
+}
+
+/* カードの表面（タップ後） */
+.start-card-front {
+    background-size: cover;
+    background-position: center;
+    transform: rotateY(180deg);
+}
+.card-inner-glow {
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 25px rgba(212, 175, 55, 0.3);
+}
+
+/* 情報ゾーンのフェードイン */
+.start-info-zone {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 1s ease-out, transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.start-info-zone.hidden {
+    opacity: 0;
+    transform: translateY(15px);
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+    margin: 0;
+}
+
 .game-title-logo {
     font-family: var(--font-serif);
-    font-size: 38px;
+    font-size: 40px;
     font-weight: 700;
     color: var(--color-gold);
-    letter-spacing: 6px;
+    letter-spacing: 8px;
     margin-bottom: 12px;
-    text-shadow: 0 0 15px var(--color-gold-glow);
+    text-shadow: 0 0 18px var(--color-gold-glow);
     animation: titlePulse 4s ease-in-out infinite alternate;
 }
 .game-subtitle-logo {
     font-family: var(--font-sans);
-    font-size: 14px;
-    color: var(--color-text-muted);
-    letter-spacing: 2px;
-    margin-bottom: 40px;
-}
-.game-desc-logo {
-    font-family: var(--font-sans);
     font-size: 13px;
-    color: var(--color-text-light);
-    opacity: 0.85;
-    letter-spacing: 1px;
-    line-height: 1.6;
-    margin-top: -20px;
-    margin-bottom: 35px;
-    font-weight: 300;
+    color: var(--color-text-muted);
+    letter-spacing: 3px;
+    margin-bottom: 30px;
 }
 .start-button-group {
     display: flex;
@@ -1495,11 +1609,24 @@ body {
 .start-button-group .action-btn {
     width: 280px;
     text-align: center;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
 
 @keyframes titlePulse {
     0% { text-shadow: 0 0 10px var(--color-gold-glow); }
     100% { text-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+}
+
+@keyframes floatingCard {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+    100% { transform: translateY(0px) rotate(-1deg); }
+}
+
+@keyframes tapPulse {
+    0% { opacity: 0.4; text-shadow: 0 0 2px rgba(212,175,55,0.1); }
+    50% { opacity: 1; text-shadow: 0 0 8px rgba(212,175,55,0.6); }
+    100% { opacity: 0.4; text-shadow: 0 0 2px rgba(212,175,55,0.1); }
 }
 
 /* Custom Modal Style */
@@ -2130,7 +2257,311 @@ body {
                 opacity 0.7s ease !important;
 }
 
+/* ==========================================================================
+   App View & Floating Bubble Styles
+   ========================================================================== */
 
+/* フローティングバブル */
+.app-bubble {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(15, 10, 30, 0.85);
+    border: 1.5px solid var(--color-gold);
+    box-shadow: 0 0 15px var(--color-gold-glow), inset 0 0 10px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    z-index: 450;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    outline: none;
+}
+.app-bubble:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+}
+.app-bubble.hidden {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+    pointer-events: none;
+}
+.bubble-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bubble-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 4px var(--color-gold-glow));
+}
+.bubble-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid var(--color-gold);
+    opacity: 0.8;
+    animation: bubblePulseAnim 2s infinite ease-out;
+    pointer-events: none;
+}
 
+@keyframes bubblePulseAnim {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
 
+/* スマホデバイス風モーダルコンテンツ */
+.app-device-content {
+    position: relative;
+    width: 380px;
+    height: 640px;
+    max-width: 95vw;
+    max-height: 90vh;
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 36px;
+    background: rgba(10, 8, 22, 0.96);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(139, 92, 246, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
 
+/* ヘッダーエリア */
+.app-device-header {
+    background: rgba(15, 12, 35, 0.95);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 12px 20px 0 20px;
+    flex-shrink: 0;
+}
+.app-status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-muted);
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+.app-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.app-main-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: var(--color-gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--color-gold-glow);
+}
+.app-close-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    transition: var(--transition-smooth);
+}
+.app-close-btn:hover {
+    color: var(--color-gold);
+}
+
+/* タブバー */
+.app-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.app-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.app-tab-btn.active {
+    color: var(--color-gold);
+    border-bottom: 2px solid var(--color-gold);
+    text-shadow: 0 0 8px var(--color-gold-glow);
+}
+
+/* メインボディ */
+.app-device-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+.app-tab-panel {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+.app-tab-panel.active {
+    display: flex;
+}
+.app-section-title {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* コレクショングリッド */
+.app-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding-bottom: 10px;
+}
+.app-card-item {
+    aspect-ratio: 2/3.3;
+    border-radius: 6px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    background: rgba(5, 4, 10, 0.8);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.app-card-item:hover {
+    border-color: var(--color-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+.app-card-item.locked {
+    cursor: default;
+}
+.app-card-item.locked::after {
+    content: "？";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.15);
+    font-family: var(--font-mono);
+}
+.app-card-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+.app-card-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10, 8, 22, 0.85);
+    font-family: var(--font-serif);
+    font-size: 8px;
+    text-align: center;
+    padding: 3px 0;
+    color: var(--color-gold);
+    border-top: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* バイタルデータ */
+.vital-meters {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.vital-meter-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.vital-meter-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+.vital-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.vital-bar {
+    height: 100%;
+    width: 0;
+    transition: width 1s ease-out;
+}
+.vital-bar.stress {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+.vital-bar.luck {
+    background: linear-gradient(90deg, #d4af37, #f3f4f6);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+.vital-meter-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-align: right;
+    font-weight: bold;
+}
+.vital-meter-item:has(.stress) .vital-meter-value {
+    color: #ef4444;
+}
+.vital-meter-item:has(.luck) .vital-meter-value {
+    color: var(--color-gold);
+}
+
+/* バイタルコンソール */
+.vital-console {
+    flex: 1;
+    background: rgba(5, 5, 8, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 180px;
+}
+.console-header {
+    background: rgba(15, 12, 35, 0.8);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-gold);
+    padding: 6px 10px;
+    letter-spacing: 1px;
+}
+.console-body {
+    flex: 1;
+    padding: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.5;
+    color: #39ff14; /* Default Matrix Green */
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+.console-body.warning-mode {
+    color: #ef4444 !important;
+}

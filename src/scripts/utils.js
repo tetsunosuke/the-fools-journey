@@ -169,5 +169,6 @@ export function processPageTags(pageText, currentSpeaker, onFocusDone) {
         currentSpeaker = "";
     }
 
-    return { text: pageText, speaker: currentSpeaker, skip: false, handled: false };
+    const shouldSkip = (pageText.length === 0);
+    return { text: pageText, speaker: currentSpeaker, skip: shouldSkip, handled: false };
 }

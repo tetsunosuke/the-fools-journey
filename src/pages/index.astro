@@ -57,18 +57,28 @@ allStories.forEach((story) => {
             <!-- スタート画面（タイトル画面） -->
             <div id="start-screen" class="start-screen-overlay">
                 <div class="start-screen-content">
-                    <h1 class="game-title-logo">THE TAROT JOURNEY</h1>
-                    <h2 class="game-subtitle-logo">
-                        ― 運命をめぐる、あなたとタロットカードの旅 ―
-                    </h2>
-                    <h3 class="game-desc-logo">
-                        このアプリではゲームのストーリーを通じて<br
-                        />タロットカードについて学ぶことができます
-                    </h3>
-                    <div class="start-button-group">
-                        <button id="start-new-btn" class="action-btn"
-                            >物語を紡ぐ (最初から)</button
-                        >
+                    <!-- 浮遊し、タップで反転するスタートカード -->
+                    <div id="start-card-trigger" class="start-card-wrapper">
+                        <div class="start-card-inner">
+                            <div class="start-card-face start-card-back">
+                                <div class="tarot-back-pattern"></div>
+                                <div class="tap-to-reveal">TAP TO REVEAL</div>
+                            </div>
+                            <div class="start-card-face start-card-front" style="background-image: url('/images/cards/0.jpg');">
+                                <div class="card-inner-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- カードタップ後にフェードインする情報ゾーン -->
+                    <div id="start-info-zone" class="start-info-zone hidden">
+                        <h1 class="game-title-logo">THE TAROT JOURNEY</h1>
+                        <h2 class="game-subtitle-logo">
+                            ― 運命をめぐる、あなたとタロットカードの旅 ―
+                        </h2>
+                        <div class="start-button-group">
+                            <button id="start-new-btn" class="action-btn">物語を紡ぐ (最初から)</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,31 +356,72 @@ allStories.forEach((story) => {
                 </div>
             </div>
 
-            <!-- カード図鑑（コレクション）モーダル -->
-            <div id="collection-modal" class="custom-modal hidden">
-                <div class="custom-modal-overlay" id="collection-modal-overlay">
+            <!-- アプリ起動用フローティングバブル -->
+            <button id="app-bubble" class="app-bubble hidden" title="アプリ The Journey を起動">
+                <div class="bubble-inner">
+                    <span class="bubble-icon">📱</span>
+                    <span class="bubble-pulse"></span>
                 </div>
-                <div
-                    class="custom-modal-content collection-content"
-                    style="width: 600px; max-width: 95vw; max-height: 85vh; padding: 25px;"
-                >
-                    <button
-                        id="close-collection-btn"
-                        class="custom-modal-close"
-                        style="top: 10px; right: 15px;">&times;</button
-                    >
-                    <h2
-                        class="collection-title"
-                        style="font-family: var(--font-serif); color: var(--color-gold); margin-bottom: 20px; font-size: 22px; text-shadow: 0 0 10px var(--color-gold-glow);"
-                    >
-                        📖 収集したタロット
-                    </h2>
-                    <div
-                        id="collection-grid"
-                        class="collection-grid"
-                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; overflow-y: auto; flex: 1; padding: 10px 5px;"
-                    >
-                        <!-- JavaScriptで動的にカード一覧を挿入 -->
+            </button>
+
+            <!-- 疑似スマートフォン型 アプリデバイス画面 -->
+            <div id="app-device-modal" class="custom-modal hidden">
+                <div class="custom-modal-overlay" id="app-device-overlay"></div>
+                <div class="app-device-content">
+                    <!-- アプリのヘッダー -->
+                    <div class="app-device-header">
+                        <div class="app-status-bar">
+                            <span class="app-status-time">00:00</span>
+                            <span class="app-status-signal">📶 🔋 100%</span>
+                        </div>
+                        <div class="app-title-bar">
+                            <h2 class="app-main-title">THE JOURNEY</h2>
+                            <button id="close-app-btn" class="app-close-btn">&times;</button>
+                        </div>
+                        <!-- タブメニュー -->
+                        <div class="app-tabs">
+                            <button id="app-tab-collection" class="app-tab-btn active" data-tab="collection">COLLECTION</button>
+                            <button id="app-tab-vital" class="app-tab-btn" data-tab="vital">VITAL DATA</button>
+                        </div>
+                    </div>
+
+                    <!-- アプリのメインボディ -->
+                    <div class="app-device-body">
+                        <!-- コレクション（カード図鑑）タブ -->
+                        <div id="app-panel-collection" class="app-tab-panel active">
+                            <div class="app-section-title">発見したアルカナ</div>
+                            <div id="app-collection-grid" class="app-collection-grid">
+                                <!-- JavaScriptで動的にカードを挿入 -->
+                            </div>
+                        </div>
+
+                        <!-- バイタルデータタブ -->
+                        <div id="app-panel-vital" class="app-tab-panel">
+                            <div class="app-section-title">バイタル・アナリティクス</div>
+                            <div class="vital-meters">
+                                <div class="vital-meter-item">
+                                    <div class="vital-meter-label">STRESS LEVEL</div>
+                                    <div class="vital-bar-container">
+                                        <div id="vital-bar-stress" class="vital-bar stress" style="width: 0%;"></div>
+                                    </div>
+                                    <div id="vital-text-stress" class="vital-meter-value">--%</div>
+                                </div>
+                                <div class="vital-meter-item">
+                                    <div class="vital-meter-label">LUCK RATE</div>
+                                    <div class="vital-bar-container">
+                                        <div id="vital-bar-luck" class="vital-bar luck" style="width: 0%;"></div>
+                                    </div>
+                                    <div id="vital-text-luck" class="vital-meter-value">--%</div>
+                                </div>
+                            </div>
+                            <!-- コンソールログ -->
+                            <div class="vital-console">
+                                <div class="console-header">SYSTEM DIAGNOSTICS</div>
+                                <div id="vital-console-log" class="console-body">
+                                    <!-- タイピングログ -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

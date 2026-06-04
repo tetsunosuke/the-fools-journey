@@ -15,7 +15,7 @@ import {
     celticSpeakerEl, celticTextEl, celticClickPrompt, puzzleSpeakerEl, puzzleTextEl,
     puzzleClickPrompt, meditationContainer, drawMeditationBtn, meditationCardZone,
     meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons,
-    resetMeditationBtn, startScreenEl, startNewBtn, startContinueBtn, showInstructionsBtn,
+    resetMeditationBtn, startScreenEl, startNewBtn, startContinueBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
     instructionsModal, closeInstructionsBtn, cardFocusModal, focusCardImg, focusCardName,
     focusCardDirection, focusCardDesc, focusCardTabs, tabGameDesc, tabTrueDesc
 } from "./dom.js";
@@ -28,6 +28,7 @@ import {
     setupStoneDrag, handlePuzzleChoice, loadMetaStarStep, setupCardDrag, triggerFateBrokenByDrag,
     triggerTrueEndingUnlock, showTrueEndingOverlay, initMeditationMode, drawMeditationCard, selectMeditationMotif
 } from "./puzzle.js";
+import { initAppView, updateAppView, toggleAppView } from "./app_view.js";
 
 // --- Multi-Scene Game Scenario (with View flags) ---
 export const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
@@ -62,12 +63,15 @@ export function initGame(skipLoad = false) {
 
     // Restore background & setup starting views
     updateBackgroundAndAesthetics();
+    initAppView();
+    updateAppView();
     loadStep();
 }
 
 // --- Load Single Story/View Step ---
 export function loadStep() {
     saveState();
+    updateAppView();
     
     loopCountEl.textContent = gameState.currentLoop;
     const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
@@ -939,11 +943,26 @@ export function showStartScreen() {
     }
     
     startScreenEl.classList.remove("hidden");
+    if (startCardTrigger) startCardTrigger.classList.remove("revealed");
+    if (startInfoZone) startInfoZone.classList.add("hidden");
     gameContainer.classList.add("hidden");
     meditationContainer.classList.add("hidden");
 }
 
 export function setupEventListeners() {
+    if (startCardTrigger) {
+        startCardTrigger.addEventListener("click", () => {
+            if (!startCardTrigger.classList.contains("revealed")) {
+                startCardTrigger.classList.add("revealed");
+                setTimeout(() => {
+                    if (startInfoZone) {
+                        startInfoZone.classList.remove("hidden");
+                    }
+                }, 600); // 3D反転の演出開始から0.6秒後にロゴ等の情報をフェードイン表示
+            }
+        });
+    }
+
     if (startNewBtn) {
         startNewBtn.addEventListener("click", () => {
             localStorage.clear();
@@ -1068,9 +1087,12 @@ export function openCollectionModal() {
 
 // --- 画面全体タップでページ送り ---
 // ボタン・カード・モーダルなどインタラクティブ要素は除外
-const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay, input, label, .soul-card-form";
+const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay, input, label, .soul-card-form, .app-bubble, .app-device-content";
 
 document.addEventListener("click", (e) => {
+    // アプリビューが開いている間は全体クリック進行をブロック
+    if (gameState.isAppViewOpen) return;
+
     // 生年月日入力フォームや計算アニメーション中は画面全体クリックでの進行を完全にブロックする
     if (document.querySelector(".soul-card-form") || document.querySelector(".soul-calculation-box")) {
         return;
