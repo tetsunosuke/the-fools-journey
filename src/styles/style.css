@@ -1468,6 +1468,17 @@ body {
     letter-spacing: 2px;
     margin-bottom: 40px;
 }
+.game-desc-logo {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-text-light);
+    opacity: 0.85;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    margin-top: -20px;
+    margin-bottom: 35px;
+    font-weight: 300;
+}
 .start-button-group {
     display: flex;
     flex-direction: column;

@@ -33,7 +33,7 @@ allStories.forEach((story) => {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PROJECT FOOL - プロジェクト・フール</title>
+        <title>TAROT JOURNEY（タロット・ジャーニー）</title>
         <!-- Google Fonts: 神秘的なCinzel、モダンなMontserrat、デバッグ用のShare Tech Mono -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -57,10 +57,14 @@ allStories.forEach((story) => {
             <!-- スタート画面（タイトル画面） -->
             <div id="start-screen" class="start-screen-overlay">
                 <div class="start-screen-content">
-                    <h1 class="game-title-logo">THE FOOL'S JOURNEY</h1>
-                    <p class="game-subtitle-logo">
+                    <h1 class="game-title-logo">THE TAROT JOURNEY</h1>
+                    <h2 class="game-subtitle-logo">
                         ― 運命をめぐる、あなたとタロットカードの旅 ―
-                    </p>
+                    </h2>
+                    <h3 class="game-desc-logo">
+                        このアプリではゲームのストーリーを通じて<br
+                        />タロットカードについて学ぶことができます
+                    </h3>
                     <div class="start-button-group">
                         <button id="start-new-btn" class="action-btn"
                             >物語を紡ぐ (最初から)</button
@@ -152,7 +156,11 @@ allStories.forEach((story) => {
                                 <span class="chat-name">The Journey</span>
                                 <span class="chat-status">オンライン</span>
                             </div>
-                            <button id="collection-btn" class="collection-btn" title="引いたカード図鑑">📖 カード図鑑</button>
+                            <button
+                                id="collection-btn"
+                                class="collection-btn"
+                                title="引いたカード図鑑">📖 カード図鑑</button
+                            >
                         </div>
                         <div class="chat-history" id="chat-history">
                             <!-- 動的にチャット吹き出しが追加される -->
@@ -377,9 +385,23 @@ allStories.forEach((story) => {
                         >
                         </div>
                         <!-- タブ切り替えボタン (本来の意味があるカードのみ表示) -->
-                        <div id="focus-card-tabs" class="focus-card-tabs hidden" style="display: flex; gap: 10px; margin-bottom: 12px;">
-                            <button id="tab-game-desc" class="tab-btn active" style="background: rgba(255,255,255,0.1); border: 1px solid var(--color-gold); color: var(--color-gold); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;">ゲーム内解釈</button>
-                            <button id="tab-true-desc" class="tab-btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--color-text-light); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;">本来の意味</button>
+                        <div
+                            id="focus-card-tabs"
+                            class="focus-card-tabs hidden"
+                            style="display: flex; gap: 10px; margin-bottom: 12px;"
+                        >
+                            <button
+                                id="tab-game-desc"
+                                class="tab-btn active"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid var(--color-gold); color: var(--color-gold); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;"
+                                >ゲーム内解釈</button
+                            >
+                            <button
+                                id="tab-true-desc"
+                                class="tab-btn"
+                                style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--color-text-light); padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px;"
+                                >本来の意味</button
+                            >
                         </div>
                         <div id="focus-card-desc" class="focus-card-desc"></div>
                     </div>
@@ -389,11 +411,28 @@ allStories.forEach((story) => {
 
             <!-- カード図鑑（コレクション）モーダル -->
             <div id="collection-modal" class="custom-modal hidden">
-                <div class="custom-modal-overlay" id="collection-modal-overlay"></div>
-                <div class="custom-modal-content collection-content" style="width: 600px; max-width: 95vw; max-height: 85vh; padding: 25px;">
-                    <button id="close-collection-btn" class="custom-modal-close" style="top: 10px; right: 15px;">&times;</button>
-                    <h2 class="collection-title" style="font-family: var(--font-serif); color: var(--color-gold); margin-bottom: 20px; font-size: 22px; text-shadow: 0 0 10px var(--color-gold-glow);">📖 収集したタロット</h2>
-                    <div id="collection-grid" class="collection-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; overflow-y: auto; flex: 1; padding: 10px 5px;">
+                <div class="custom-modal-overlay" id="collection-modal-overlay">
+                </div>
+                <div
+                    class="custom-modal-content collection-content"
+                    style="width: 600px; max-width: 95vw; max-height: 85vh; padding: 25px;"
+                >
+                    <button
+                        id="close-collection-btn"
+                        class="custom-modal-close"
+                        style="top: 10px; right: 15px;">&times;</button
+                    >
+                    <h2
+                        class="collection-title"
+                        style="font-family: var(--font-serif); color: var(--color-gold); margin-bottom: 20px; font-size: 22px; text-shadow: 0 0 10px var(--color-gold-glow);"
+                    >
+                        📖 収集したタロット
+                    </h2>
+                    <div
+                        id="collection-grid"
+                        class="collection-grid"
+                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; overflow-y: auto; flex: 1; padding: 10px 5px;"
+                    >
                         <!-- JavaScriptで動的にカード一覧を挿入 -->
                     </div>
                 </div>

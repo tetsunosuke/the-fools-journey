@@ -922,8 +922,10 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
     selectedOptionDesc = card.desc;
     
     // correct: false の選択肢を選んだ時に囁き演出
-    if (card.correct === false) {
+    if (card.correct === false || card.correct === "false") {
         showWrongChoiceWhisper();
+        isCardRevealed = false;
+        return; // 進行をブロックし、選択肢画面を維持する
     }
 
     if (card && card.id !== undefined) {
@@ -936,7 +938,7 @@ function handleQuizChoiceSelected(card, choiceText, isInChat) {
     // skipFocus: true の選択肢はカードポップアップをスキップする
     if (!card.skipFocus) {
         // カードを全画面表示する
-        focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id]);
+        focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id], currentLoop === 1);
     }
 
     if (isInChat) {
@@ -1138,7 +1140,7 @@ function revealCard(cardElement, card, isInChat = false) {
     const orientationText = isLegacy ? "" : (card.upright ? "正位置" : "逆位置");
 
     // カードを全画面表示する
-    focusTarotCard(cardId, isLegacy ? true : card.upright, TAROT_IMAGES[cardId]);
+    focusTarotCard(cardId, isLegacy ? true : card.upright, TAROT_IMAGES[cardId], currentLoop === 1);
 
     setTimeout(() => {
         if (isInChat) {
@@ -1638,7 +1640,7 @@ function showSoulCardResult(cardNum) {
     talkCardsContainer.appendChild(cardWrapper);
 
     // カードを全画面表示
-    focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum]);
+    focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum], currentLoop === 1);
 
     selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>数秘術（ヌメロロジー）では、誕生日の西暦・月・日のすべての数字を足し続け、1から21の数字を導き出すの。これがあなたの魂の旅路の出発点を示す『ソウルナンバー』であり、対応する大アルカナよ。<br><br>${cardInfo.desc}<br><br>【本来の意味（ポジティブな側面）】<br>${cardInfo.trueDesc}<br><br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
     
@@ -2559,7 +2561,7 @@ function updateSpeakerVisibility(speakerEl, textEl, speakerName) {
     }
 }
 
-function focusTarotCard(cardIdOrName, upright, imgUrl) {
+function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc = false) {
     let name = "";
     let imageSrc = "";
     let descText = "";
@@ -2576,7 +2578,7 @@ function focusTarotCard(cardIdOrName, upright, imgUrl) {
     focusCardName.textContent = name;
 
     if (focusCardDesc) {
-        if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc) {
+        if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc) {
             const cardMeta = SOUL_CARDS[cardIdOrName];
             focusCardTabs.classList.remove("hidden");
             focusCardDesc.style.display = "block";
