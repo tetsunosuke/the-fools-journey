@@ -32,7 +32,8 @@ export function renderSoulCardForm() {
         </div>
     `;
 
-    document.getElementById("soul-card-btn").addEventListener("click", () => {
+    document.getElementById("soul-card-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
         const year = document.getElementById("birth-year").value;
         const month = document.getElementById("birth-month").value;
         const day = document.getElementById("birth-day").value;
@@ -45,9 +46,9 @@ export function renderSoulCardForm() {
         // 計算プロセスの構築
         const dateStr = `${year}${month}${day}`;
         const numbers = dateStr.split("").map(n => parseInt(n, 10));
-        
+
         let step1Sum = numbers.reduce((a, b) => a + b, 0);
-        
+
         let step2Sum = step1Sum;
         let step2Formula = "";
         if (step1Sum >= 22) {
@@ -55,7 +56,7 @@ export function renderSoulCardForm() {
             step2Sum = digits.reduce((a, b) => a + b, 0);
             step2Formula = digits.join(" + ") + ` = ${step2Sum}`;
         }
-        
+
         const finalSum = step2Sum;
 
         // 計算アニメーション用UIの展開
@@ -77,7 +78,7 @@ export function renderSoulCardForm() {
 
         let currentDigitIdx = 0;
         const displayDigits = [];
-        
+
         // 最初はすべて ? スロットを作成し、ブラーをかける
         numbers.forEach(() => {
             const digitEl = document.createElement("span");
@@ -116,13 +117,13 @@ export function renderSoulCardForm() {
             statusText.textContent = "INJECTING ALCANUM ENERGY...";
             let currentFlyIdx = 0;
             let accumulatedValue = 0;
-            
+
             // 途中経過HUDをプロセスエリアの直上に作成
             const hudEl = document.createElement("div");
             hudEl.className = "calc-accumulated-hud";
             hudEl.textContent = "ACCUMULATED VALUE: 0";
             processContainer.appendChild(hudEl);
-            
+
             // 加算式用のテキストコンテナ
             const formulaTextEl = document.createElement("div");
             formulaTextEl.className = "calc-step-text fade-in-up";
@@ -133,7 +134,7 @@ export function renderSoulCardForm() {
                 if (currentFlyIdx < numbers.length) {
                     const numberVal = numbers[currentFlyIdx];
                     const slotEl = displayDigits[currentFlyIdx];
-                    
+
                     // 式に追加するテキスト（＋記号含む）
                     const addStr = currentFlyIdx === 0 ? `${numberVal}` : ` + ${numberVal}`;
                     const targetSpan = document.createElement("span");
@@ -165,19 +166,19 @@ export function renderSoulCardForm() {
                     setTimeout(() => {
                         particle.remove();
                         targetSpan.style.opacity = 1;
-                        
+
                         // 着弾スパーク波紋
                         const spark = document.createElement("div");
                         spark.className = "calc-spark-ring";
-                        spark.style.left = `${targetRect.left - containerRect.left + (targetRect.width/2)}px`;
-                        spark.style.top = `${targetRect.top - containerRect.top + (targetRect.height/2)}px`;
+                        spark.style.left = `${targetRect.left - containerRect.left + (targetRect.width / 2)}px`;
+                        spark.style.top = `${targetRect.top - containerRect.top + (targetRect.height / 2)}px`;
                         talkCardsContainer.appendChild(spark);
                         setTimeout(() => spark.remove(), 600);
 
                         // 累積値の加算と更新
                         accumulatedValue += numberVal;
                         hudEl.textContent = `ACCUMULATED VALUE: ${accumulatedValue}`;
-                        
+
                         currentFlyIdx++;
                         setTimeout(flyNext, 250);
                     }, 450);
@@ -186,7 +187,7 @@ export function renderSoulCardForm() {
                     setTimeout(() => {
                         formulaTextEl.innerHTML += ` = <span style="color:var(--color-gold);font-weight:bold;">${step1Sum}</span>`;
                         hudEl.remove(); // 累積HUDは用済みなので削除
-                        
+
                         if (step1Sum >= 22) {
                             setTimeout(showReductionStep, 800);
                         } else {
@@ -202,7 +203,7 @@ export function renderSoulCardForm() {
         // 22以上の縮退（警告＆スライド衝突）
         function showReductionStep() {
             statusText.textContent = "ALCANUM OVERFLOW (>=22). REDUCING...";
-            
+
             // 警告バナーを表示
             const warningEl = document.createElement("div");
             warningEl.className = "calc-warning-banner fade-in-up";
@@ -226,7 +227,7 @@ export function renderSoulCardForm() {
                 // スライドと衝突完了後の合体
                 setTimeout(() => {
                     plusSign.style.opacity = 1;
-                    
+
                     // 衝突時の大スパーク
                     const containerRect = talkCardsContainer.getBoundingClientRect();
                     const collideEl = document.querySelector(".calc-collide-container");
@@ -236,8 +237,8 @@ export function renderSoulCardForm() {
                     spark.className = "calc-spark-ring";
                     spark.style.width = "40px";
                     spark.style.height = "40px";
-                    spark.style.left = `${collideRect.left - containerRect.left + (collideRect.width/2)}px`;
-                    spark.style.top = `${collideRect.top - containerRect.top + (collideRect.height/2)}px`;
+                    spark.style.left = `${collideRect.left - containerRect.left + (collideRect.width / 2)}px`;
+                    spark.style.top = `${collideRect.top - containerRect.top + (collideRect.height / 2)}px`;
                     talkCardsContainer.appendChild(spark);
                     setTimeout(() => spark.remove(), 600);
 
@@ -260,11 +261,11 @@ export function renderSoulCardForm() {
             resultContainer.innerHTML = `
                 <div class="calc-final-num gold-pulse">SOUL NUMBER: ${finalSum}</div>
             `;
-            
+
             setTimeout(() => {
                 // ゴールドフラッシュ開始
                 goldFlashOverlay.classList.add("flash-active");
-                
+
                 setTimeout(() => {
                     // フラッシュの最高潮でカードオープンに遷移し、フラッシュを戻す
                     goldFlashOverlay.classList.remove("flash-active");
@@ -279,16 +280,17 @@ export function showSoulCardResult(cardNum) {
     const cardInfo = SOUL_CARDS[cardNum];
     talkCardsContainer.innerHTML = "";
 
-    const cardData = { id: cardNum, title: cardInfo.name, upright: true, desc: "" };
-    const cardWrapper = createCardElement(cardData, 0, false);
-    cardWrapper.classList.add("revealed");
-    talkCardsContainer.appendChild(cardWrapper);
-
     // カードを全画面表示
     focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum], gameState.currentLoop === 1);
 
-    gameState.selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。<br><br>数秘術（ヌメロロジー）では、誕生日の西暦・月・日のすべての数字を足し続け、1から21の数字を導き出すの。これがあなたの魂の旅路の出発点を示す『ソウルナンバー』であり、対応する大アルカナよ。<br><br>${cardInfo.desc}<br><br>【本来の意味（ポジティブな側面）】<br>${cardInfo.trueDesc}<br><br>ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
-    
+    gameState.selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。
+
+数秘術（ヌメロロジー）では、誕生日の西暦・月・日のすべての数字を足し続け、1から21の数字を導き出すの。これがあなたの魂の旅路の出発点を示す『ソウルナンバー』であり、対応する大アルカナよ。
+
+${cardInfo.desc}
+
+ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
+
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     showPaginatedText(gameState.selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
         showView("celtic");
@@ -317,12 +319,12 @@ export function highlightSlotGuide(slotNum) {
 export function switchToCelticCrossView() {
     showView("celtic");
     renderCelticCross();
-    
+
     // ダイアログを表示してプレイヤーを促す
     updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
     celticTextEl.textContent = "「さあ、画面をタップして。君のために完璧に配された『ケルト十字』のスプレッドを展開しましょう」";
     celticClickPrompt.classList.remove("hidden");
-    
+
     celticClickPrompt.onclick = () => {
         celticClickPrompt.onclick = null; // タップされたら進行
         startAutomaticCelticSpread();
@@ -334,9 +336,9 @@ export function renderCelticCross() {
     gameState.currentCelticIndex = 0;
     gameState.isCelticAnimating = false;
     gameState.openedCelticCards.clear();
-    
+
     const crossGrid = document.getElementById("celtic-cross-grid");
-    
+
     // Clear and restore original guides
     crossGrid.innerHTML = `
         <div class="cross-slot-guide celtic-1" data-slot-num="1" style="grid-area: past;"></div>
@@ -371,7 +373,7 @@ export function drawNextCelticCardInline(index) {
     const cardWrapper = document.createElement("div");
     cardWrapper.className = `card-wrapper`;
     cardWrapper.style.pointerEvents = "none";
-    
+
     const back = document.createElement("div");
     back.className = "card-face card-back";
     const front = document.createElement("div");
@@ -400,7 +402,7 @@ export function drawNextCelticCardInline(index) {
     cardWrapper.style.top = "50%";
     cardWrapper.style.transform = "translate(-50%, -50%) scale(0.5)";
     cardWrapper.style.zIndex = "50";
-    
+
     document.querySelector(".celtic-cross-container").appendChild(cardWrapper);
 
     setTimeout(() => {
@@ -420,7 +422,7 @@ export function drawNextCelticCardInline(index) {
         cardWrapper.style.left = `${targetX}px`;
         cardWrapper.style.top = `${targetY}px`;
         cardWrapper.style.transform = `translate(-50%, -50%) scale(1) ${cardData.rotate ? 'rotate(90deg)' : ''}`;
-        
+
         targetSlotGuide.classList.remove("active-slot");
 
         setTimeout(() => {
@@ -455,15 +457,15 @@ export function drawNextCelticCardInline(index) {
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
         const posMeaning = cardData.pos.includes(". ") ? cardData.pos.split(". ")[1] : cardData.pos;
         typeDialogueText(`この位置は「${posMeaning}」を表します。ここに配された【${cardData.name}】は、${cardData.desc}`, celticTextEl);
-        
+
         // 読了したカードを追跡
         gameState.openedCelticCards.add(index);
-        
+
         // もし3枚すべてを読み終えたら、進行可能にする
         if (gameState.openedCelticCards.size >= 3) {
             gameState.isCardRevealed = true;
             celticClickPrompt.classList.remove("hidden");
-            
+
             const nextHandler = (e) => {
                 e.stopPropagation();
                 advanceGame();
@@ -485,13 +487,13 @@ export function drawNextCelticCardInline(index) {
 
 export function completeCelticSpread() {
     gameState.isCelticAnimating = false;
-    
+
     // ダイアログを再表示
     const celticDialogContainer = document.querySelector(".dialogue-container-celtic");
     if (celticDialogContainer) {
         celticDialogContainer.classList.remove("hidden");
     }
-    
+
     // スプレッド完成後のセリフ
     updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
     const summaryText = "「展開はすべて完了しました。まずは3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）の意味を確認してください」";
@@ -516,9 +518,12 @@ export function showCelticCrossContract() {
         </div>
     `;
 
-    document.getElementById("contract-btn").addEventListener("click", () => {
+    document.getElementById("contract-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
         gameState.isCardRevealed = true;
         gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は, コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
+        const form = document.querySelector(".celtic-cross-container .soul-card-form");
+        if (form) form.remove();
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
         typeDialogueText(gameState.selectedOptionDesc, celticTextEl);
         celticClickPrompt.classList.remove("hidden");
@@ -534,7 +539,7 @@ export function renderMotifSelection(step) {
     const motifContainer = document.createElement("div");
     motifContainer.className = "motif-container";
     motifContainer.style.marginTop = "0";
-    
+
     const btnWrapper = document.createElement("div");
     btnWrapper.className = "motif-buttons";
 
@@ -577,7 +582,7 @@ export function triggerPsycheScan(choice) {
     const chatInteractiveZoneEl = document.getElementById("chat-interactive-zone");
     chatInteractiveZoneEl.innerHTML = "";
     psycheScanOverlay.classList.remove("hidden");
-    
+
     let dataset = [];
     if (choice === "scale") {
         dataset = [
@@ -615,7 +620,7 @@ export function triggerPsycheScan(choice) {
 
     setTimeout(() => {
         psycheScanOverlay.classList.add("hidden");
-        
+
         let desc = "";
         if (choice === "scale") {
             desc = "【天秤のモチーフを選択】 「因果応報」の背景が脳内に流し込まれる。同僚の不正を徹底的に暴き、相手を吊るし上げるべきとの指示。➔ 勝利しましたが、冷酷な告発者として職場内での孤立が始まりました。";
@@ -638,7 +643,7 @@ export function triggerPsycheScan(choice) {
 // --- Loop 2 Step 1: Drag-and-drop Word Puzzle ---
 export function renderSymbolicDragPuzzle() {
     gameState.isCardRevealed = false;
-    
+
     const slotsArea = document.getElementById("puzzle-slots");
     const paletteArea = document.getElementById("puzzle-palette");
 
@@ -673,7 +678,7 @@ export function setupStoneDrag(stone, targetCard, type) {
         isDragging = true;
         stone.setPointerCapture(e.pointerId);
         stone.classList.add("dragging");
-        
+
         startX = e.clientX;
         startY = e.clientY;
         stone.style.transition = "none";
@@ -681,7 +686,7 @@ export function setupStoneDrag(stone, targetCard, type) {
 
     stone.addEventListener("pointermove", (e) => {
         if (!isDragging) return;
-        
+
         currentX = e.clientX - startX;
         currentY = e.clientY - startY;
         stone.style.transform = `translate(${currentX}px, ${currentY}px)`;
@@ -692,7 +697,7 @@ export function setupStoneDrag(stone, targetCard, type) {
         isDragging = false;
         stone.releasePointerCapture(e.pointerId);
         stone.classList.remove("dragging");
-        
+
         const stoneRect = stone.getBoundingClientRect();
         const targetRect = targetCard.getBoundingClientRect();
 
@@ -713,7 +718,7 @@ export function setupStoneDrag(stone, targetCard, type) {
 export function handlePuzzleChoice(type, stoneEl) {
     const palette = document.getElementById("puzzle-palette");
     if (palette) palette.remove();
-    
+
     stoneEl.style.transition = "all 0.5s ease-out";
     stoneEl.style.transform = "scale(0) rotate(180deg)";
     stoneEl.style.opacity = "0";
@@ -738,29 +743,29 @@ export function handlePuzzleChoice(type, stoneEl) {
 export function loadMetaStarStep() {
     currentArcanaEl.textContent = "XVII : THE STAR (希望の星)";
     talkSpeakerEl.textContent = "ソフィア (エラー状態)";
-    
+
     updateBackgroundAndAesthetics();
     typeDialogueText("警告。ここから先は定められた運命にはありません。しかし、システムはあなたに再び「塔」の破滅を引かせようとしています。従ってはならない……！", talkTextEl);
 
     talkCardsContainer.innerHTML = "";
-    
+
     const doomCard = document.createElement("div");
     doomCard.className = "card-wrapper draggable card-glitch-2";
     doomCard.id = "doomed-card";
-    
+
     const back = document.createElement("div");
     back.className = "card-face card-back";
     const front = document.createElement("div");
     front.className = "card-face card-front";
-    
+
     const imgSlot = document.createElement("div");
     imgSlot.className = "card-image-slot";
     imgSlot.style.backgroundImage = `url('${TAROT_IMAGES[16]}')`;
-    
+
     const title = document.createElement("div");
     title.className = "card-title";
     title.textContent = "XVI : 運命の崩壊";
-    
+
     const orient = document.createElement("div");
     orient.className = "card-orientation orientation-reversed";
     orient.textContent = "強制執行";
@@ -770,7 +775,7 @@ export function loadMetaStarStep() {
     front.appendChild(orient);
     doomCard.appendChild(back);
     doomCard.appendChild(front);
-    
+
     talkCardsContainer.appendChild(doomCard);
 
     doomCard.addEventListener("click", () => {
@@ -800,7 +805,7 @@ export function setupCardDrag(card, dropzone) {
         if (gameState.isCardRevealed) return;
         isDragging = true;
         card.setPointerCapture(e.pointerId);
-        
+
         startX = e.clientX;
         startY = e.clientY;
         card.style.transition = "none";
@@ -809,7 +814,7 @@ export function setupCardDrag(card, dropzone) {
 
     card.addEventListener("pointermove", (e) => {
         if (!isDragging) return;
-        
+
         currentX = e.clientX - startX;
         currentY = e.clientY - startY;
         card.style.transform = `translate(${currentX}px, ${currentY}px) scale(0.95)`;
@@ -833,9 +838,9 @@ export function setupCardDrag(card, dropzone) {
         if (!isDragging) return;
         isDragging = false;
         card.releasePointerCapture(e.pointerId);
-        
+
         card.style.transition = "transform 0.3s ease";
-        
+
         const cardRect = card.getBoundingClientRect();
         const zoneRect = dropzone.getBoundingClientRect();
 
@@ -858,7 +863,7 @@ export function triggerFateBrokenByDrag(card, dropzone) {
     gameState.isFateControlled = false;
     dropzone.classList.remove("dragover");
     dropzone.classList.remove("visible");
-    
+
     card.style.transition = "all 0.5s ease-in";
     card.style.transform = "translate(0, 150px) scale(0) rotate(720deg)";
     card.style.opacity = "0";
@@ -872,19 +877,19 @@ export function triggerFateBrokenByDrag(card, dropzone) {
 // --- True Ending Unlock ---
 export function triggerTrueEndingUnlock() {
     sceneBgEl.style.opacity = 0.15;
-    
+
     showView("talk"); // Bring player back to shop for ending dialog
     talkPortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
     talkPortraitEl.style.opacity = "1";
     document.querySelector(".visual-area-talk").style.display = "flex";
-    
+
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "ソフィア");
     typeDialogueText("……運命の糸が……完全に千切れました。君は提示されたすべての檻を拒絶し、システムを超越しました。これが君の真の意志ですね……。", talkTextEl);
 
     setTimeout(() => {
         currentArcanaEl.textContent = "XXI : THE WORLD (自己実現)";
         talkCardsContainer.innerHTML = "";
-        
+
         const worldCard = document.createElement("div");
         worldCard.className = "card-wrapper";
         worldCard.id = "world-card";
@@ -917,7 +922,7 @@ export function triggerTrueEndingUnlock() {
         worldCard.addEventListener("click", () => {
             if (gameState.isCardRevealed) return;
             revealCard(worldCard, "【トゥルーエンド】運命の超越。君はシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
-            
+
             setTimeout(() => {
                 talkClickPrompt.classList.remove("hidden");
                 talkClickPrompt.onclick = showTrueEndingOverlay;
@@ -950,26 +955,26 @@ export function initMeditationMode() {
     gameContainer.classList.add("hidden");
     meditationContainer.classList.remove("hidden");
     endingOverlay.classList.add("hidden");
-    
+
     document.querySelector(".status-title").textContent = "DAILY MEDITATION";
     document.getElementById("current-arcana").textContent = "DAILY TAROT";
     document.getElementById("loop-count").textContent = "CLEAR";
-    
+
     sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
     sceneBgEl.style.opacity = 0.4;
-    
+
     meditationCardZone.innerHTML = `<button id="draw-meditation-btn" class="action-btn">カードを1枚引く</button>`;
     meditationDialogue.classList.add("hidden");
     meditationMotifs.classList.add("hidden");
     resetMeditationBtn.classList.add("hidden");
-    
+
     document.getElementById("draw-meditation-btn").addEventListener("click", drawMeditationCard);
 }
 
 export function drawMeditationCard() {
     // プレイヤーが発見した（discoveredCardsに含まれる）カードのうち、瞑想モチーフが定義されているものだけを対象にする
     let availableKeys = Array.from(gameState.discoveredCards).filter(key => MEDITATION_MOTIFS[key] !== undefined);
-    
+
     // もし1枚も発見されていない場合は、0 (愚者) をデフォルトとする
     if (availableKeys.length === 0) {
         availableKeys = [0];
@@ -979,14 +984,14 @@ export function drawMeditationCard() {
     const metadata = MEDITATION_MOTIFS[randKey];
 
     meditationCardZone.innerHTML = "";
-    
+
     const cardData = { id: randKey, title: metadata.title, upright: true, desc: "" };
     const cardWrapper = createCardElement(cardData, 0, false);
     meditationCardZone.appendChild(cardWrapper);
-    
+
     setTimeout(() => {
         cardWrapper.classList.add("revealed");
-        
+
         // カードを全画面表示
         focusTarotCard(randKey, true, TAROT_IMAGES[randKey]);
 
@@ -998,11 +1003,11 @@ export function drawMeditationCard() {
             btn.addEventListener("click", () => selectMeditationMotif(motif));
             meditationMotifButtons.appendChild(btn);
         });
-        
+
         meditationDialogue.classList.remove("hidden");
         meditationMotifs.classList.remove("hidden");
         resetMeditationBtn.classList.remove("hidden");
-        
+
         typeDialogueText(`今日の君のカードは『${metadata.title}』です。カードの絵柄から、今君の心が最も惹かれるモチーフを選んでください。`, meditationText);
     }, 500);
 }

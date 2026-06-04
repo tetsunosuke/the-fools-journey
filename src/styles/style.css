@@ -1174,6 +1174,24 @@ body {
     text-shadow: 0 0 5px var(--color-gold-glow);
 }
 
+/* System/Narration message in chat log */
+.chat-bubble.msg-system {
+    align-self: center;
+    max-width: 95%;
+    margin: 8px 0;
+    text-align: center;
+    justify-content: center;
+}
+.chat-bubble.msg-system .bubble-content {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    font-style: italic;
+    box-shadow: none;
+}
+
 .chat-interactive-zone {
     padding: 15px 20px;
     background: rgba(5, 4, 10, 0.6);

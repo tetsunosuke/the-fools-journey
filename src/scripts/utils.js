@@ -142,7 +142,7 @@ export function processPageTags(pageText, currentSpeaker, onFocusDone) {
     if (cardBtnMatch) {
         const cardNum = cardBtnMatch[1];
         gameState.pendingStepLoad = () => { gameState.pendingStepLoad = null; onFocusDone(); };
-        focusTarotCard(parseInt(cardNum, 10), true);
+        focusTarotCard(parseInt(cardNum, 10), true, undefined, gameState.currentLoop === 1);
         return { text: "", speaker: currentSpeaker, skip: false, handled: true };
     }
 
@@ -163,6 +163,11 @@ export function processPageTags(pageText, currentSpeaker, onFocusDone) {
 
     // 残留タグをすべて除去（安全フォールバック）
     pageText = pageText.replace(/\[[^\]]+\]/g, "").trim();
+
+    // 括弧「（」で始まる文章はプレイヤーの独白またはナレーションなので、話者表示をリセット
+    if (pageText.startsWith("（")) {
+        currentSpeaker = "";
+    }
 
     return { text: pageText, speaker: currentSpeaker, skip: false, handled: false };
 }

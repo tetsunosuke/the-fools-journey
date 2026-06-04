@@ -179,6 +179,9 @@ export function executeLoadStep(stepData) {
     
     // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
     let viewToLoad = stepData.view;
+    if (viewToLoad === "chat") {
+        viewToLoad = "talk"; // チャット画面は廃止し、会話・ナレーション画面に統一
+    }
     if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
         viewToLoad = "talk";
     }
@@ -235,11 +238,91 @@ export function executeLoadStep(stepData) {
             }
         };
 
-        const parsedResult = processPageTags(stepData.text, "The Journey", triggerNextPage);
+        const pages = stepData.text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(p => p.length > 0);
+        let appStarted = false; // アプリ（カードやチャット）が本格起動したかどうかのフラグ
         
-        if (parsedResult.handled) return; // focus等の別ポップアップで処理済みの場合はここで終了
+        const showNextChatPage = (idx, currentSpeaker) => {
+            if (idx >= pages.length) {
+                triggerNextPage();
+                return;
+            }
+            
+            const nextCallback = () => {
+                showNextChatPage(idx + 1, parsedResult.speaker);
+            };
+            
+            const parsedResult = processPageTags(pages[idx], currentSpeaker, nextCallback);
+            
+            if (parsedResult.handled) {
+                appStarted = true; // カード等のアクションが発生したためアプリ起動
+                return; // Wait for modal action
+            }
+            
+            if (parsedResult.skip || !parsedResult.text) {
+                showNextChatPage(idx + 1, parsedResult.speaker);
+                return;
+            }
+            
+            const isNarrative = parsedResult.speaker === "ナレーション" || 
+                                parsedResult.speaker === "" ||
+                                parsedResult.text.startsWith("（");
 
-        pushChatMessage("The Journey", parsedResult.text, false, null, triggerNextPage);
+            if (!isNarrative) {
+                appStarted = true; // アプリやプレイヤーの発言が開始されたためアプリ起動
+            }
+
+            if (isNarrative && !appStarted) {
+                // アプリ起動前のナレーションは talk ビューで表示
+                showView("talk");
+                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
+                talkClickPrompt.classList.add("hidden");
+
+                typeDialogueText(parsedResult.text, talkTextEl, () => {
+                    talkClickPrompt.classList.remove("hidden");
+                    const nextHandler = (e) => {
+                        if (e) e.stopPropagation();
+                        talkClickPrompt.onclick = null;
+                        talkTextEl.parentElement.onclick = null;
+                        gameState.advanceChatPage = null;
+                        nextCallback();
+                    };
+                    talkClickPrompt.onclick = nextHandler;
+                    talkTextEl.parentElement.onclick = nextHandler;
+                    gameState.advanceChatPage = nextHandler;
+                });
+            } else {
+                // アプリ起動後は chat ビューで表示
+                showView("chat");
+                
+                let isSelf = false;
+                if (parsedResult.speaker === "プレイヤー") {
+                    isSelf = true;
+                } else if (isNarrative) {
+                    isSelf = "system"; // アプリ起動後のナレーションはシステムログ風
+                }
+                
+                pushChatMessage(parsedResult.speaker, parsedResult.text, isSelf, null, () => {
+                    const nextHandler = (e) => {
+                        if (e) e.stopPropagation();
+                        gameState.advanceChatPage = null;
+                        chatInteractiveZoneEl.innerHTML = "";
+                        nextCallback();
+                    };
+                    gameState.advanceChatPage = nextHandler;
+                    
+                    const isLastPage = idx === pages.length - 1;
+                    if (isLastPage && stepData.cards && stepData.cards.length > 0) {
+                        gameState.advanceChatPage = null;
+                        triggerNextPage();
+                    } else {
+                        chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-click-to-advance">タップして進む</button>`;
+                        document.getElementById("chat-click-to-advance").addEventListener("click", nextHandler);
+                    }
+                });
+            }
+        };
+        
+        showNextChatPage(0, "The Journey");
     }
     else if (gameState.currentView === "celtic") {
         if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
@@ -258,6 +341,7 @@ export function executeLoadStep(stepData) {
 }
 
 export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpeaker = "") {
+    gameState.isReadingResult = true;
     const rawPages = text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(p => p.length > 0);
     const pages = rawPages.flatMap(page => {
         if (/^\[focus:/.test(page)) return [page];
@@ -278,6 +362,7 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
             } else {
                 promptEl.onclick = null;
                 textEl.parentElement.onclick = null;
+                gameState.isReadingResult = false;
                 onAllDone();
             }
         });
@@ -290,6 +375,7 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
             } else {
                 promptEl.onclick = null;
                 textEl.parentElement.onclick = null;
+                gameState.isReadingResult = false;
                 onAllDone();
             }
             return;
@@ -312,20 +398,24 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
         }
 
         typeDialogueText(result.text, textEl, () => {
-            if (index < pages.length - 1) {
-                promptEl.classList.remove("hidden");
-                const nextHandler = (e) => {
-                    e.stopPropagation();
-                    index++;
-                    showPage();
-                };
-                promptEl.onclick = nextHandler;
-                textEl.parentElement.onclick = nextHandler;
-            } else {
+            promptEl.classList.remove("hidden");
+            const nextHandler = (e) => {
+                if (e) e.stopPropagation();
                 promptEl.onclick = null;
                 textEl.parentElement.onclick = null;
-                onAllDone();
-            }
+                gameState.advanceReadingResultPage = null;
+                
+                if (index < pages.length - 1) {
+                    index++;
+                    showPage();
+                } else {
+                    gameState.isReadingResult = false;
+                    onAllDone();
+                }
+            };
+            promptEl.onclick = nextHandler;
+            textEl.parentElement.onclick = nextHandler;
+            gameState.advanceReadingResultPage = nextHandler;
         });
     }
 
@@ -425,10 +515,15 @@ export function pushChatMessage(speaker, text, isSelf = false, cardData = null, 
         chatHistoryEl.appendChild(cardDisplay);
     }
 
+    const isSystem = isSelf === "system";
     const bubble = document.createElement("div");
-    bubble.className = `chat-bubble ${isSelf ? 'msg-self' : 'msg-other'}`;
+    if (isSystem) {
+        bubble.className = "chat-bubble msg-system";
+    } else {
+        bubble.className = `chat-bubble ${isSelf ? 'msg-self' : 'msg-other'}`;
+    }
 
-    if (!isSelf) {
+    if (!isSelf && !isSystem) {
         const avatar = document.createElement("div");
         avatar.className = "bubble-avatar";
         avatar.style.backgroundImage = "url('/images/sophia_portrait.png')";
@@ -973,9 +1068,14 @@ export function openCollectionModal() {
 
 // --- 画面全体タップでページ送り ---
 // ボタン・カード・モーダルなどインタラクティブ要素は除外
-const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay";
+const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay, input, label, .soul-card-form";
 
 document.addEventListener("click", (e) => {
+    // 生年月日入力フォームや計算アニメーション中は画面全体クリックでの進行を完全にブロックする
+    if (document.querySelector(".soul-card-form") || document.querySelector(".soul-calculation-box")) {
+        return;
+    }
+
     // ケルト十字ビューの場合は、手動カード確認（クリック）以外の「画面全体タップによる進行」を透過させます。
     if (gameState.currentView === "celtic" && !gameState.isCelticAnimating) {
         // カードをクリックした場合はstopPropagationされるためここには来ず、
@@ -986,6 +1086,18 @@ document.addEventListener("click", (e) => {
 
     if (gameState.isTyping && gameState.skipTyping) {
         gameState.skipTyping();
+        return;
+    }
+
+    if (gameState.isReadingResult) {
+        if (gameState.advanceReadingResultPage) {
+            gameState.advanceReadingResultPage();
+        }
+        return;
+    }
+
+    if (gameState.advanceChatPage) {
+        gameState.advanceChatPage();
         return;
     }
 
