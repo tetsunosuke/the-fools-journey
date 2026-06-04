@@ -122,7 +122,7 @@ allStories.forEach((story) => {
             <main id="game-container">
                 <!-- 【シーン1: 占い店での対面対話】 -->
                 <div id="view-talk" class="game-view">
-                    <section class="visual-area-talk">
+                    <section class="visual-area-talk" style="display: none;">
                         <div class="oracle-avatar-container">
                             <div class="oracle-portrait" id="talk-portrait">
                             </div>
@@ -174,77 +174,14 @@ allStories.forEach((story) => {
                     </div>
                 </div>
 
-                <!-- 【シーン3: ケルト十字儀式】 -->
+                <!-- 【シーン3: スリーカードスプレッド儀式】 -->
                 <div id="view-celtic" class="game-view hidden">
                     <div class="celtic-cross-container">
                         <div class="celtic-cross-layout" id="celtic-cross-grid">
-                            <div
-                                class="cross-slot-guide celtic-1"
-                                data-slot-num="1"
-                                style="grid-area: present;"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide celtic-2"
-                                data-slot-num="2"
-                                style="grid-area: present; transform: rotate(90deg);"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide celtic-3"
-                                data-slot-num="3"
-                                style="grid-area: conscious;"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide celtic-4"
-                                data-slot-num="4"
-                                style="grid-area: unconscious;"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide celtic-5"
-                                data-slot-num="5"
-                                style="grid-area: past;"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide celtic-6"
-                                data-slot-num="6"
-                                style="grid-area: future;"
-                            >
-                            </div>
-                            <div
-                                class="card-wrapper celtic-deck"
-                                id="celtic-cross-deck"
-                            >
-                            </div>
-                        </div>
-                        <div class="celtic-staff-layout" id="celtic-staff-grid">
-                            <div
-                                class="cross-slot-guide"
-                                data-slot-num="7"
-                                id="slot-7"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide"
-                                data-slot-num="8"
-                                id="slot-8"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide"
-                                data-slot-num="9"
-                                id="slot-9"
-                            >
-                            </div>
-                            <div
-                                class="cross-slot-guide"
-                                data-slot-num="10"
-                                id="slot-10"
-                            >
-                            </div>
+                            <div class="cross-slot-guide celtic-1" data-slot-num="1" style="grid-area: past;"></div>
+                            <div class="cross-slot-guide celtic-2" data-slot-num="2" style="grid-area: present;"></div>
+                            <div class="cross-slot-guide celtic-3" data-slot-num="3" style="grid-area: future;"></div>
+                            <div class="card-wrapper celtic-deck" id="celtic-cross-deck"></div>
                         </div>
                     </div>
                     <section class="dialogue-container-celtic">

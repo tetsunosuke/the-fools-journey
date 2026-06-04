@@ -643,14 +643,13 @@ body {
 .celtic-cross-layout {
     display: grid;
     grid-template-areas:
-        ". conscious ."
-        "past present future"
-        ". unconscious .";
-    gap: 15px;
+        "past present future";
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
     justify-content: center;
     align-items: center;
     position: relative;
-    min-height: 380px;
+    min-height: 250px;
 }
 .celtic-cross-layout .card-wrapper {
     width: 75px;
@@ -671,19 +670,9 @@ body {
     transform: scale(1.1);
     z-index: 10;
 }
-.celtic-cross-layout .celtic-1 { grid-area: present; z-index: 2; }
-.celtic-cross-layout .celtic-2 {
-    grid-area: present;
-    transform: rotate(90deg);
-    z-index: 3;
-}
-.celtic-cross-layout .celtic-2:hover {
-    transform: rotate(90deg) scale(1.1);
-}
-.celtic-cross-layout .celtic-3 { grid-area: conscious; }
-.celtic-cross-layout .celtic-4 { grid-area: unconscious; }
-.celtic-cross-layout .celtic-5 { grid-area: past; }
-.celtic-cross-layout .celtic-6 { grid-area: future; }
+.celtic-cross-layout .celtic-1 { grid-area: past; }
+.celtic-cross-layout .celtic-2 { grid-area: present; }
+.celtic-cross-layout .celtic-3 { grid-area: future; }
 
 .celtic-staff-layout {
     display: flex;
@@ -1052,7 +1041,7 @@ body {
     border-radius: 8px;
     padding: 20px;
     min-height: 165px;
-    max-height: 270px;
+    max-height: none;
     position: relative;
     overflow-y: auto;
 }
