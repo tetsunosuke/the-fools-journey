@@ -589,7 +589,7 @@ function executeLoadStep(stepData) {
     
     // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
     let viewToLoad = stepData.view;
-    if (currentLoop === 1 && currentStep === 11) {
+    if (currentLoop === 1 && currentStep === 13) {
         viewToLoad = "talk";
     }
     showView(viewToLoad);
@@ -637,7 +637,7 @@ function executeLoadStep(stepData) {
         
         // Push incoming message into Chat Timeline, render choices after typing completes
         pushChatMessage(stepData.speaker, chatText, false, null, () => {
-            if (currentStep === 12 || currentStep === 13) {
+            if (currentStep === 17 || currentStep === 21) {
                 renderMotifSelection(currentStep);
             } else {
                 renderChoiceCards(stepData.cards, chatInteractiveZoneEl, true);
@@ -704,7 +704,7 @@ function showNextDialoguePage(stepData) {
 }
 
 function finishStepText(stepData) {
-    if (currentLoop === 1 && currentStep === 10) {
+    if (currentLoop === 1 && currentStep === 12) {
         renderSoulCardForm();
     } else if (currentLoop === 2 && currentStep === 2) {
         loadMetaStarStep();
@@ -1151,7 +1151,7 @@ document.addEventListener("click", (e) => {
             currentDialoguePageIndex++;
             showNextDialoguePage(SCENARIO[currentLoop][currentStep]);
         } else if (isCardRevealed) {
-            if (currentLoop === 1 && currentStep === 11) {
+            if (currentLoop === 1 && currentStep === 13) {
                 switchToCelticCrossView();
             } else {
                 advanceGame();
@@ -1187,8 +1187,8 @@ function advanceGame() {
     const currentScenarioLength = SCENARIO[currentLoop].length;
 
 
-    // Bad End branch at Step 8 (Lovers)
-    if (currentLoop === 1 && currentStep === 9) {
+    // Bad End branch at Step 11 (Chariot)
+    if (currentLoop === 1 && currentStep === 11) {
         if (selectedOptionDesc.includes("逆位置の『愚者』")) {
             stressVal = 100;
             luckVal = 0;
@@ -1236,9 +1236,9 @@ function triggerLoversBadEnd() {
             しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独が君を包みます。<br><br>
             <span style="color: var(--color-accent-red);">「君は導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
         `;
-        restartBtn.textContent = "6日目をやり直す";
+        restartBtn.textContent = "8日目をやり直す";
         restartBtn.onclick = () => {
-            currentStep = 9;
+            currentStep = 11;
             saveState();
             initGame();
         };
