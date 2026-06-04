@@ -1550,6 +1550,7 @@ function renderSoulCardForm() {
             }, 1200);
         }
     });
+}
 function showSoulCardResult(cardNum) {
     const cardInfo = SOUL_CARDS[cardNum];
     talkCardsContainer.innerHTML = "";
