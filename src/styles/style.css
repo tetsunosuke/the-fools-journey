@@ -1416,8 +1416,8 @@ body {
 /* For mobile screen sizes */
 @media (max-width: 768px) {
     .dialogue-card-image {
-        width: 120px;
-        height: 200px;
+        width: 100px;
+        height: 167px;
     }
 }
 
@@ -1568,12 +1568,30 @@ body {
     justify-content: center;
 }
 .focus-card-image-container {
-    height: 70vh;
-    width: calc(70vh * (120 / 200));
+    height: 55vh; /* PCでもやや控えめにして見やすく調整 */
+    width: calc(55vh * (120 / 200));
     max-width: 85vw;
     perspective: 1000px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     flex-shrink: 0;
+}
+@media (max-width: 768px) {
+    .focus-card-image-container {
+        height: 42vh; /* モバイルでの高さを大幅に下げて上部の見切れを完全に防止 */
+        width: calc(42vh * (120 / 200));
+        max-width: 75vw;
+        margin-bottom: 10px;
+    }
+    .focus-card-name {
+        font-size: 18px !important;
+    }
+    .focus-card-desc {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+        margin-top: 8px !important;
+        padding: 8px 12px !important;
+        max-width: 90% !important;
+    }
 }
 .focus-card-image {
     width: 100%;
