@@ -78,10 +78,10 @@ export function loadStep() {
     }
 
     // 日付が変わるタイミング（日目）を検知してデイリー・トランジションを再生
-    if (stepData.text && /^―+\s*\d+日目/.test(stepData.text)) {
-        const dayMatch = stepData.text.match(/―+\s*(\d+)日目/);
-        const dayNum = dayMatch ? dayMatch[1] : gameState.currentStep;
-        
+    // 先頭の [bg:...] タグ等を許容しつつ、その直後の「（X日目」や「―― X日目」から日数を抽出する
+    const dayMatch = stepData.text ? stepData.text.match(/^(?:\[[^\]]+\]\s*)*[（――\s]*(\d+)日目/) : null;
+    if (dayMatch) {
+        const dayNum = dayMatch[1];
         showDayTransition(dayNum, () => {
             executeLoadStep(stepData);
         });
@@ -107,7 +107,7 @@ export function showDayTransition(dayNum, onComplete) {
     }
     
     document.getElementById("day-overlay-text").textContent = `― ${dayNum}日目 ―`;
-    document.getElementById("day-overlay-sub").textContent = "THE FOOL'S JOURNEY";
+    document.getElementById("day-overlay-sub").textContent = "THE TAROT JOURNEY";
 
     dayOverlay.style.opacity = "0";
     dayOverlay.style.display = "flex";
