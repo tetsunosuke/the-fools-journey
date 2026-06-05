@@ -1,5 +1,5 @@
 [view: talk]
-[arcana: XVII : THE STAR (希望 of 星) - MALFUNCTION]
+[arcana: XVII : THE STAR (希望の星) - MALFUNCTION]
 [speaker: ソフィア (エラー)]
 
 [speaker:ソフィア (エラー)]
