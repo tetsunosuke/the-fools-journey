@@ -983,19 +983,6 @@ export function applyDynamicAdjustments() {
         });
     }
     
-    // SOUL_CARDS replacement: "あなた" -> "君"
-    for (let cardId in SOUL_CARDS) {
-        if (SOUL_CARDS[cardId].desc) {
-            SOUL_CARDS[cardId].desc = SOUL_CARDS[cardId].desc.replace(/あなた/g, "君");
-        }
-    }
-
-    // THREE_CARDS_DATA replacement: "あなた" -> "君"
-    THREE_CARDS_DATA.forEach(card => {
-        if (card.desc) {
-            card.desc = card.desc.replace(/あなた/g, "君");
-        }
-    });
 }
 
 export function showStartScreen() {
