@@ -33,6 +33,23 @@ import { initAppView, updateAppView, toggleAppView } from "./app_view.js";
 // --- Multi-Scene Game Scenario (with View flags) ---
 export const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
 
+// --- Dynamic View Switch Hook ---
+window.triggerViewChange = (viewName) => {
+    console.log("Dynamically switching view to:", viewName);
+    showView(viewName);
+    if (viewName === "celtic") {
+        renderCelticCross();
+        // 1周目の占い（step-12）の場合は、少しディレイを入れてカード自動展開を開始
+        if (gameState.currentLoop === 1 && gameState.currentStep === 12) {
+            setTimeout(startAutomaticCelticSpread, 600);
+        } else {
+            startAutomaticCelticSpread();
+        }
+    } else if (viewName === "puzzle") {
+        renderSymbolicDragPuzzle();
+    }
+};
+
 // --- Initialization ---
 export function initGame(skipLoad = false) {
     if (!skipLoad) loadSaveState();
@@ -81,11 +98,33 @@ export function loadStep() {
         return;
     }
 
-    // 日付が変わるタイミング（日目）を検知してデイリー・トランジションを再生
-    // 先頭の [bg:...] タグ等を許容しつつ、その直後の「（X日目」や「―― X日目」から日数を抽出する
-    const dayMatch = stepData.text ? stepData.text.match(/^(?:\[[^\]]+\]\s*)*[（――\s]*(\d+)日目/) : null;
-    if (dayMatch) {
-        const dayNum = dayMatch[1];
+    // 明示的な transition タグがあれば優先して使用し、無ければ後方互換性のためにテキストから「日目」を抽出する
+    let dayNum = stepData.transition;
+    if (!dayNum && stepData.text) {
+        const dayMatch = stepData.text.match(/^(?:\[[^\]]+\]\s*)*[（――\s]*(\d+)日目/);
+        if (dayMatch) {
+            dayNum = dayMatch[1];
+        }
+    }
+
+    if (dayNum) {
+        // トランジション（黒背景アイキャッチ）が入る前に、前ステップの残存テキストを完全にクリアする
+        if (talkTextEl) talkTextEl.textContent = "";
+        if (talkSpeakerEl) {
+            talkSpeakerEl.textContent = "";
+            talkSpeakerEl.classList.add("hidden");
+        }
+        if (celticTextEl) celticTextEl.textContent = "";
+        if (celticSpeakerEl) {
+            celticSpeakerEl.textContent = "";
+            celticSpeakerEl.classList.add("hidden");
+        }
+        if (puzzleTextEl) puzzleTextEl.textContent = "";
+        if (puzzleSpeakerEl) {
+            puzzleSpeakerEl.textContent = "";
+            puzzleSpeakerEl.classList.add("hidden");
+        }
+
         showDayTransition(dayNum, () => {
             executeLoadStep(stepData);
         });
@@ -136,46 +175,84 @@ export function showWrongChoiceWhisper() {
     ];
     const msg = whisperMessages[Math.floor(Math.random() * whisperMessages.length)];
     
-    let whisper = document.getElementById("sophia-whisper-overlay");
-    if (!whisper) {
-        whisper = document.createElement("div");
-        whisper.id = "sophia-whisper-overlay";
-        whisper.style.cssText = [
-            "position:fixed", "top:0", "left:0", "right:0",
-            "z-index:8888", "pointer-events:none",
-            "display:flex", "justify-content:center", "padding:24px 16px",
-            "opacity:0", "transform:translateY(-12px)",
-            "transition:opacity 0.5s ease, transform 0.5s ease"
-        ].join(";");
-        document.body.appendChild(whisper);
+    const bubble = document.getElementById("app-bubble");
+    const isBubbleVisible = bubble && !bubble.classList.contains("hidden");
+    
+    if (isBubbleVisible) {
+        // 既存のトーストがあれば削除
+        const oldToast = document.getElementById("app-bubble-toast");
+        if (oldToast) oldToast.remove();
+        
+        const toast = document.createElement("div");
+        toast.id = "app-bubble-toast";
+        toast.className = "bubble-notification-toast";
+        toast.innerHTML = `
+            <div style="font-size:0.65rem; color:#ff4a4a; letter-spacing:0.1em; margin-bottom:4px; font-weight:bold; font-family:var(--font-mono)">⚠️ SYSTEM WARNING</div>
+            <div>${msg}</div>
+        `;
+        
+        bubble.appendChild(toast);
+        
+        // バブルを揺らす
+        bubble.classList.add("bubble-shake-warning");
+        setTimeout(() => {
+            bubble.classList.remove("bubble-shake-warning");
+        }, 500);
+        
+        // フェードイン
+        requestAnimationFrame(() => {
+            toast.classList.add("show");
+        });
+        
+        // 4秒後にフェードアウトして削除
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000);
+    } else {
+        // フォールバック: 画面上部オーバーレイ表示
+        let whisper = document.getElementById("sophia-whisper-overlay");
+        if (!whisper) {
+            whisper = document.createElement("div");
+            whisper.id = "sophia-whisper-overlay";
+            whisper.style.cssText = [
+                "position:fixed", "top:0", "left:0", "right:0",
+                "z-index:8888", "pointer-events:none",
+                "display:flex", "justify-content:center", "padding:24px 16px",
+                "opacity:0", "transform:translateY(-12px)",
+                "transition:opacity 0.5s ease, transform 0.5s ease"
+            ].join(";");
+            document.body.appendChild(whisper);
+        }
+        
+        whisper.innerHTML = `
+            <div style="
+                background: rgba(10,8,20,0.85);
+                border: 1px solid rgba(239,68,68,0.5);
+                border-radius: 8px;
+                padding: 12px 20px;
+                max-width: 480px;
+                text-align: center;
+                backdrop-filter: blur(8px);
+                box-shadow: 0 4px 15px rgba(239,68,68,0.2);
+            ">
+                <div style="font-size:0.65rem; color:#ff4a4a; letter-spacing:0.15em; margin-bottom:6px; font-weight:bold; font-family:var(--font-mono)">⚠️ SYSTEM WARNING</div>
+                <div style="font-size:0.85rem; color:#ffd6d6; font-style:italic; line-height:1.6;">${msg}</div>
+            </div>
+        `;
+        
+        requestAnimationFrame(() => {
+            whisper.style.opacity = "1";
+            whisper.style.transform = "translateY(0)";
+        });
+        
+        setTimeout(() => {
+            whisper.style.opacity = "0";
+            whisper.style.transform = "translateY(-8px)";
+        }, 3500);
     }
-    
-    whisper.innerHTML = `
-        <div style="
-            background: rgba(10,8,20,0.85);
-            border: 1px solid rgba(201,168,76,0.3);
-            border-radius: 8px;
-            padding: 12px 20px;
-            max-width: 480px;
-            text-align: center;
-            backdrop-filter: blur(8px);
-        ">
-            <div style="font-size:0.65rem; color:rgba(201,168,76,0.6); letter-spacing:0.15em; margin-bottom:6px;">― ソフィアの声 ―</div>
-            <div style="font-size:0.85rem; color:rgba(220,210,255,0.85); font-style:italic; line-height:1.6;">${msg}</div>
-        </div>
-    `;
-    
-    // フェードイン
-    requestAnimationFrame(() => {
-        whisper.style.opacity = "1";
-        whisper.style.transform = "translateY(0)";
-    });
-    
-    // 3.5秒後にフェードアウト
-    setTimeout(() => {
-        whisper.style.opacity = "0";
-        whisper.style.transform = "translateY(-8px)";
-    }, 3500);
 }
 
 export function executeLoadStep(stepData) {
@@ -190,11 +267,6 @@ export function executeLoadStep(stepData) {
         viewToLoad = "talk";
     }
     showView(viewToLoad);
-
-    // Apply gauge changes
-    if (stepData.stressChange !== 0 || stepData.luckChange !== 0) {
-        updateGauges(stepData.stressChange, stepData.luckChange);
-    }
 
     if (gameState.currentView === "talk") {
         talkClickPrompt.classList.add("hidden");
@@ -334,7 +406,7 @@ export function executeLoadStep(stepData) {
             renderCelticCross();
             showCelticCrossContract();
         } else {
-            // 2周目では自動的にケルト十字を展開する
+            // 2周目、あるいは1周目step-12の自動開始用（通常遷移時など）
             renderCelticCross();
             startAutomaticCelticSpread();
         }
@@ -650,7 +722,7 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
                 }
 
                 // Show result text with tarot card preview image embedded in bubble
-                const narrativeText = card.skipFocus ? card.desc : `【${tarotName} (${orientationText})】を引きました。<br><br>${card.desc}`;
+                const narrativeText = card.desc;
                 pushChatMessage("The Journey", narrativeText, false, card.skipFocus ? null : card, () => {
                     // Generate Next Button after typing finishes
                     chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
@@ -669,12 +741,19 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
                 advanceGame();
                 return;
             }
+            
+            // celticビューへの移行が含まれている場合は、会話表示をスキップして直接ビュー切り替えをキックする
+            if (card.desc.includes("[view: celtic]")) {
+                if (typeof window.triggerViewChange === "function") {
+                    window.triggerViewChange("celtic");
+                }
+                return;
+            }
             // 現在のステップのスピーカーを維持（narration-styleを回避）
             const stepSpeaker = SCENARIO[gameState.currentLoop][gameState.currentStep]?.speaker || "";
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
             
-            // skipFocus: true の場合はカード名ヘッダーを表示しない
-            const displayText = card.skipFocus ? card.desc : `【${tarotName} (${orientationText})】\n\n${card.desc}`;
+            const displayText = card.desc;
             
             // Show result text（ページ送り対応）
             showPaginatedText(
@@ -709,8 +788,8 @@ export function revealCard(cardElement, card, isInChat = false) {
 
     setTimeout(() => {
         if (isInChat) {
-            // 1. Show the drawn card name first in the dialog
-            pushChatMessage("The Journey", `【${tarotName} (${orientationText})】を引きました。`);
+            // 1. Show simple text instead of mechanical card name
+            pushChatMessage("The Journey", "カードを引きました。");
 
             // 2. Render choice button based on card.title
             chatInteractiveZoneEl.innerHTML = `
@@ -744,8 +823,8 @@ export function revealCard(cardElement, card, isInChat = false) {
                         talkClickPrompt.classList.remove("hidden");
                     });
                 } else {
-                    // Show drawn card info first
-                    typeDialogueText(`【${tarotName} (${orientationText})】`, talkTextEl);
+                    // Show simple text
+                    typeDialogueText("カードを引きました。", talkTextEl);
                     
                     // Create choice button in cards-area-talk (talkCardsContainer)
                     talkCardsContainer.innerHTML = `

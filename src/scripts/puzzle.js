@@ -283,7 +283,7 @@ export function showSoulCardResult(cardNum) {
     // カードを全画面表示
     focusTarotCard(cardNum, true, TAROT_IMAGES[cardNum], gameState.currentLoop === 1);
 
-    gameState.selectedOptionDesc = `君のソウルカードは【${cardInfo.name}】です。
+    gameState.selectedOptionDesc = `あなたのソウルカードは【${cardInfo.name}】です。
 
 数秘術（ヌメロロジー）では、誕生日の西暦・月・日のすべての数字を足し続け、1から21の数字を導き出すの。これがあなたの魂の旅路の出発点を示す『ソウルナンバー』であり、対応する大アルカナよ。
 
@@ -494,15 +494,22 @@ export function completeCelticSpread() {
         celticDialogContainer.classList.remove("hidden");
     }
 
-    // スプレッド完成後のセリフ
+    // スプレッド完成後のセリフ (選択肢のdescから [view: celtic] などのタグを除去して使用)
     updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
-    const summaryText = "「展開はすべて完了しました。まずは3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）の意味を確認してください」";
-    showPaginatedText(summaryText, celticTextEl, celticClickPrompt, () => {
-        // カードをすべて見るまで進行不可にし、プロンプトを非表示化
+    let summaryText = "「カードが展開されたわ。配置された3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）が示す真実をのぞいてみてちょうだい」";
+    if (gameState.selectedOptionDesc) {
+        summaryText = gameState.selectedOptionDesc.replace(/\[[^\]]+\]/g, "").trim();
+    }
+
+    // ▼プロンプトを非表示化し、クリック待ちを解除
+    celticClickPrompt.classList.add("hidden");
+    celticClickPrompt.onclick = null;
+    celticTextEl.parentElement.onclick = null;
+
+    // テキスト表示のみを行い、カードタップを促す
+    typeDialogueText(summaryText, celticTextEl, () => {
         gameState.isCardRevealed = false;
         celticClickPrompt.classList.add("hidden");
-        celticClickPrompt.onclick = null;
-        celticTextEl.parentElement.onclick = null;
     });
 }
 

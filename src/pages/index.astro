@@ -5,26 +5,150 @@ import { getCollection } from "astro:content";
 
 const allStories = await getCollection("story");
 
+function parseStoryBody(body, storyId) {
+    const lines = body.split(/\r?\n/);
+    
+    let view = 'talk';
+    let arcana = '';
+    let speaker = 'ナレーション';
+    let choiceIllusion = false;
+    let focusImage = null;
+    let focusTitle = null;
+    let transition = null;
+    
+    let currentLineIndex = 0;
+    while (currentLineIndex < lines.length) {
+        const line = lines[currentLineIndex].trim();
+        if (line.startsWith('[') && line.endsWith(']')) {
+            const inner = line.slice(1, -1);
+            const colonIndex = inner.indexOf(':');
+            if (colonIndex !== -1) {
+                const key = inner.slice(0, colonIndex).trim();
+                const val = inner.slice(colonIndex + 1).trim();
+                
+                if (key === 'view') view = val;
+                else if (key === 'arcana') arcana = val;
+                else if (key === 'speaker') speaker = val;
+                else if (key === 'choiceIllusion') choiceIllusion = (val === 'true');
+                else if (key === 'focusImage') focusImage = val;
+                else if (key === 'focusTitle') focusTitle = val;
+                else if (key === 'transition') transition = val;
+            }
+            currentLineIndex++;
+        } else if (line === '') {
+            currentLineIndex++;
+        } else {
+            break;
+        }
+    }
+    
+    const remainingLines = lines.slice(currentLineIndex);
+    const fullText = remainingLines.join('\n');
+    
+    // 選択肢分岐の切り離し
+    const branchMarker = /#\s*---\s*(?:以下、選択肢分岐\s*---)?/;
+    const markerIndex = fullText.search(branchMarker);
+    
+    let text = fullText;
+    let branchText = '';
+    if (markerIndex !== -1) {
+        text = fullText.substring(0, markerIndex).trim();
+        branchText = fullText.substring(markerIndex).replace(branchMarker, '').trim();
+    } else {
+        const firstChoiceIndex = fullText.indexOf('- 選択肢:');
+        if (firstChoiceIndex !== -1) {
+            text = fullText.substring(0, firstChoiceIndex).trim();
+            branchText = fullText.substring(firstChoiceIndex).trim();
+        }
+    }
+    
+    const cards = [];
+    if (branchText) {
+        const choiceBlocks = branchText.split(/(?=\n-\s*選択肢:)|^(?=-\s*選択肢:)/m);
+        choiceBlocks.forEach(block => {
+            const trimmedBlock = block.trim();
+            if (!trimmedBlock) return;
+            
+            const blockLines = trimmedBlock.split('\n');
+            const titleLine = blockLines[0];
+            const titleMatch = titleLine.match(/^-\s*選択肢:\s*(.*)$/);
+            if (!titleMatch) return;
+            
+            const title = titleMatch[1].trim();
+            let upright = false;
+            let correct = undefined;
+            let skipFocus = false;
+            let id = 0;
+            
+            let descStartLine = 1;
+            if (blockLines[1]) {
+                const optionMatch = blockLines[1].trim().match(/^\[option:\s*(.*)\s*\]$/);
+                if (optionMatch) {
+                    const optionsList = optionMatch[1].split(',').map(o => o.trim());
+                    optionsList.forEach(opt => {
+                        if (opt.startsWith('id=')) {
+                            id = parseInt(opt.split('=')[1], 10);
+                        } else if (opt === 'upright') {
+                            upright = true;
+                        } else if (opt === 'correct') {
+                            correct = true;
+                        } else if (opt === 'incorrect') {
+                            correct = false;
+                        } else if (opt === 'skipFocus') {
+                            skipFocus = true;
+                        }
+                    });
+                    descStartLine = 2;
+                }
+            }
+            
+            // desc の抽出
+            const descLines = blockLines.slice(descStartLine);
+            // 行頭のインデントを除去
+            const cleanedDescLines = descLines.map(line => {
+                return line.replace(/^( {2,4}|\t)/, '');
+            });
+            const desc = cleanedDescLines.join('\n').trim();
+            
+            cards.push({
+                id,
+                title,
+                upright,
+                correct,
+                skipFocus,
+                desc
+            });
+        });
+    }
+    
+    return {
+        view,
+        arcana,
+        speaker,
+        text,
+        choiceIllusion,
+        focusImage,
+        focusTitle,
+        transition,
+        cards
+    };
+}
+
 const scenarioData = {};
 allStories.forEach((story) => {
-    const data = story.data;
-    const loopNum = data.loop;
-    const stepNum = data.step;
+    const idMatch = story.id.match(/loop-(\d)[-\/]step-(\d+)/);
+    if (!idMatch) {
+        console.warn(`Unrecognized story ID format: ${story.id}`);
+        return;
+    }
+    const loopNum = parseInt(idMatch[1], 10);
+    const stepNum = parseInt(idMatch[2], 10);
+    
     if (!scenarioData[loopNum]) {
         scenarioData[loopNum] = [];
     }
-    scenarioData[loopNum][stepNum] = {
-        view: data.view,
-        arcana: data.arcana,
-        speaker: data.speaker,
-        text: story.body.trim(),
-        stressChange: data.stressChange,
-        luckChange: data.luckChange,
-        choiceIllusion: data.choiceIllusion,
-        focusImage: data.focusImage || null,
-        focusTitle: data.focusTitle || null,
-        cards: data.choices || [],
-    };
+    
+    scenarioData[loopNum][stepNum] = parseStoryBody(story.body, story.id);
 });
 ---
 
@@ -142,10 +266,8 @@ allStories.forEach((story) => {
                     </section>
                     <section class="dialogue-container-talk">
                         <div class="dialogue-box">
-                            <div class="speaker-name" id="talk-speaker">
-                                ソフィア
-                            </div>
-                            <div class="text-content" id="talk-text">...</div>
+                            <div class="speaker-name hidden" id="talk-speaker"></div>
+                            <div class="text-content" id="talk-text"></div>
                             <div class="click-prompt" id="talk-click-prompt">
                                 ▼
                             </div>
@@ -196,10 +318,8 @@ allStories.forEach((story) => {
                     </div>
                     <section class="dialogue-container-celtic">
                         <div class="dialogue-box">
-                            <div class="speaker-name" id="celtic-speaker">
-                                ソフィア
-                            </div>
-                            <div class="text-content" id="celtic-text">...</div>
+                            <div class="speaker-name hidden" id="celtic-speaker"></div>
+                            <div class="text-content" id="celtic-text"></div>
                             <div class="click-prompt" id="celtic-click-prompt">
                                 ▼
                             </div>
@@ -215,10 +335,8 @@ allStories.forEach((story) => {
                     </div>
                     <section class="dialogue-container-puzzle">
                         <div class="dialogue-box">
-                            <div class="speaker-name" id="puzzle-speaker">
-                                内省
-                            </div>
-                            <div class="text-content" id="puzzle-text">...</div>
+                            <div class="speaker-name hidden" id="puzzle-speaker"></div>
+                            <div class="text-content" id="puzzle-text"></div>
                             <div class="click-prompt" id="puzzle-click-prompt">
                                 ▼
                             </div>

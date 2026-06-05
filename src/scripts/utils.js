@@ -132,9 +132,14 @@ export function processPageTags(pageText, currentSpeaker, onFocusDone) {
         pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
     }
 
-    // [view:X] → talk ビュー内では無視してスキップ
-    if (/^\[view:[^\]]+\]$/.test(pageText)) {
-        return { text: pageText, speaker: currentSpeaker, skip: true, handled: false };
+    // [view:X] → ビュー切り替えを実行してタグを除去
+    const viewMatch = pageText.match(/\[view:([^\]]+)\]/);
+    if (viewMatch) {
+        const targetView = viewMatch[1].trim();
+        if (typeof window.triggerViewChange === "function") {
+            window.triggerViewChange(targetView);
+        }
+        pageText = pageText.replace(/\[view:[^\]]+\]/g, "").trim();
     }
 
     // [card_btn:N] → カード画像をフォーカス表示

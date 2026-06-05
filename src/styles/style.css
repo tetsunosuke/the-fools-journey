@@ -2557,6 +2557,201 @@ body {
     padding: 10px;
     font-family: var(--font-mono);
     font-size: 10px;
+    text-shadow: 0 0 10px var(--color-gold-glow);
+}
+.app-close-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    transition: var(--transition-smooth);
+}
+.app-close-btn:hover {
+    color: var(--color-gold);
+}
+
+/* タブバー */
+.app-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.app-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.app-tab-btn.active {
+    color: var(--color-gold);
+    border-bottom: 2px solid var(--color-gold);
+    text-shadow: 0 0 8px var(--color-gold-glow);
+}
+
+/* メインボディ */
+.app-device-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+.app-tab-panel {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+.app-tab-panel.active {
+    display: flex;
+}
+.app-section-title {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* コレクショングリッド */
+.app-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding-bottom: 10px;
+}
+.app-card-item {
+    aspect-ratio: 2/3.3;
+    border-radius: 6px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    background: rgba(5, 4, 10, 0.8);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.app-card-item:hover {
+    border-color: var(--color-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+.app-card-item.locked {
+    cursor: default;
+}
+.app-card-item.locked::after {
+    content: "？";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.15);
+    font-family: var(--font-mono);
+}
+.app-card-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+.app-card-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10, 8, 22, 0.85);
+    font-family: var(--font-serif);
+    font-size: 8px;
+    text-align: center;
+    padding: 3px 0;
+    color: var(--color-gold);
+    border-top: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* バイタルデータ */
+.vital-meters {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.vital-meter-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.vital-meter-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+.vital-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.vital-bar {
+    height: 100%;
+    width: 0;
+    transition: width 1s ease-out;
+}
+.vital-bar.stress {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+.vital-bar.luck {
+    background: linear-gradient(90deg, #d4af37, #f3f4f6);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+.vital-meter-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-align: right;
+    font-weight: bold;
+}
+.vital-meter-item:has(.stress) .vital-meter-value {
+    color: #ef4444;
+}
+.vital-meter-item:has(.luck) .vital-meter-value {
+    color: var(--color-gold);
+}
+
+/* バイタルコンソール */
+.vital-console {
+    flex: 1;
+    background: rgba(5, 5, 8, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 180px;
+}
+.console-header {
+    background: rgba(15, 12, 35, 0.8);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-gold);
+    padding: 6px 10px;
+    letter-spacing: 1px;
+}
+.console-body {
+    flex: 1;
+    padding: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
     line-height: 1.5;
     color: #39ff14; /* Default Matrix Green */
     overflow-y: auto;
@@ -2564,4 +2759,68 @@ body {
 }
 .console-body.warning-mode {
     color: #ef4444 !important;
+}
+
+/* --- App Bubble Notification Toast & Warning Shake --- */
+.bubble-notification-toast {
+    position: absolute;
+    bottom: 75px; /* Float above the bubble */
+    right: 0;
+    background: rgba(12, 8, 24, 0.96);
+    border: 1.5px solid rgba(239, 68, 68, 0.6);
+    border-radius: 12px;
+    padding: 12px 16px;
+    width: 280px;
+    color: #ffd6d6;
+    font-size: 13px;
+    line-height: 1.6;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35), inset 0 0 15px rgba(239, 68, 68, 0.1);
+    backdrop-filter: blur(12px);
+    z-index: 500;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    pointer-events: none;
+    font-family: var(--font-sans), Montserrat, sans-serif;
+    text-align: left;
+}
+.bubble-notification-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.bubble-notification-toast::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 22px;
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: rgba(12, 8, 24, 0.96) transparent;
+    display: block;
+    width: 0;
+}
+.bubble-notification-toast::before {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 21px;
+    border-width: 8px 7px 0;
+    border-style: solid;
+    border-color: rgba(239, 68, 68, 0.6) transparent;
+    display: block;
+    width: 0;
+    z-index: -1;
+}
+
+/* App bubble shake warning animation */
+.bubble-shake-warning {
+    animation: bubbleWarningShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.7) !important;
+}
+@keyframes bubbleWarningShake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
 }
