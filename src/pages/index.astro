@@ -7,120 +7,130 @@ const allStories = await getCollection("story");
 
 function parseStoryBody(body, storyId) {
     const lines = body.split(/\r?\n/);
-    
-    let view = 'talk';
-    let arcana = '';
-    let speaker = 'ナレーション';
+
+    let view = "talk";
+    let arcana = "";
+    let speaker = "ナレーション";
     let choiceIllusion = false;
     let focusImage = null;
     let focusTitle = null;
     let transition = null;
-    
+
     let currentLineIndex = 0;
     while (currentLineIndex < lines.length) {
         const line = lines[currentLineIndex].trim();
-        if (line.startsWith('[') && line.endsWith(']')) {
+        if (line.startsWith("[") && line.endsWith("]")) {
             const inner = line.slice(1, -1);
-            const colonIndex = inner.indexOf(':');
+            const colonIndex = inner.indexOf(":");
             if (colonIndex !== -1) {
                 const key = inner.slice(0, colonIndex).trim();
                 const val = inner.slice(colonIndex + 1).trim();
-                
-                if (key === 'view') view = val;
-                else if (key === 'arcana') arcana = val;
-                else if (key === 'speaker') speaker = val;
-                else if (key === 'choiceIllusion') choiceIllusion = (val === 'true');
-                else if (key === 'focusImage') focusImage = val;
-                else if (key === 'focusTitle') focusTitle = val;
-                else if (key === 'transition') transition = val;
+
+                if (key === "view") view = val;
+                else if (key === "arcana") arcana = val;
+                else if (key === "speaker") speaker = val;
+                else if (key === "choiceIllusion")
+                    choiceIllusion = val === "true";
+                else if (key === "focusImage") focusImage = val;
+                else if (key === "focusTitle") focusTitle = val;
+                else if (key === "transition") transition = val;
             }
             currentLineIndex++;
-        } else if (line === '') {
+        } else if (line === "") {
             currentLineIndex++;
         } else {
             break;
         }
     }
-    
+
     const remainingLines = lines.slice(currentLineIndex);
-    const fullText = remainingLines.join('\n');
-    
+    const fullText = remainingLines.join("\n");
+
     // 選択肢分岐の切り離し
     const branchMarker = /#\s*---\s*(?:以下、選択肢分岐\s*---)?/;
     const markerIndex = fullText.search(branchMarker);
-    
+
     let text = fullText;
-    let branchText = '';
+    let branchText = "";
     if (markerIndex !== -1) {
         text = fullText.substring(0, markerIndex).trim();
-        branchText = fullText.substring(markerIndex).replace(branchMarker, '').trim();
+        branchText = fullText
+            .substring(markerIndex)
+            .replace(branchMarker, "")
+            .trim();
     } else {
-        const firstChoiceIndex = fullText.indexOf('- 選択肢:');
+        const firstChoiceIndex = fullText.indexOf("- 選択肢:");
         if (firstChoiceIndex !== -1) {
             text = fullText.substring(0, firstChoiceIndex).trim();
             branchText = fullText.substring(firstChoiceIndex).trim();
         }
     }
-    
+
     const cards = [];
     if (branchText) {
-        const choiceBlocks = branchText.split(/(?=\n-\s*選択肢:)|^(?=-\s*選択肢:)/m);
-        choiceBlocks.forEach(block => {
+        const choiceBlocks = branchText.split(
+            /(?=\n-\s*選択肢:)|^(?=-\s*選択肢:)/m,
+        );
+        choiceBlocks.forEach((block) => {
             const trimmedBlock = block.trim();
             if (!trimmedBlock) return;
-            
-            const blockLines = trimmedBlock.split('\n');
+
+            const blockLines = trimmedBlock.split("\n");
             const titleLine = blockLines[0];
             const titleMatch = titleLine.match(/^-\s*選択肢:\s*(.*)$/);
             if (!titleMatch) return;
-            
+
             const title = titleMatch[1].trim();
             let upright = false;
             let correct = undefined;
             let skipFocus = false;
             let id = 0;
-            
+
             let descStartLine = 1;
             if (blockLines[1]) {
-                const optionMatch = blockLines[1].trim().match(/^\[option:\s*(.*)\s*\]$/);
+                const optionMatch = blockLines[1]
+                    .trim()
+                    .match(/^\[option:\s*(.*)\s*\]$/);
                 if (optionMatch) {
-                    const optionsList = optionMatch[1].split(',').map(o => o.trim());
-                    optionsList.forEach(opt => {
-                        if (opt.startsWith('id=')) {
-                            id = parseInt(opt.split('=')[1], 10);
-                        } else if (opt === 'upright') {
+                    const optionsList = optionMatch[1]
+                        .split(",")
+                        .map((o) => o.trim());
+                    optionsList.forEach((opt) => {
+                        if (opt.startsWith("id=")) {
+                            id = parseInt(opt.split("=")[1], 10);
+                        } else if (opt === "upright") {
                             upright = true;
-                        } else if (opt === 'correct') {
+                        } else if (opt === "correct") {
                             correct = true;
-                        } else if (opt === 'incorrect') {
+                        } else if (opt === "incorrect") {
                             correct = false;
-                        } else if (opt === 'skipFocus') {
+                        } else if (opt === "skipFocus") {
                             skipFocus = true;
                         }
                     });
                     descStartLine = 2;
                 }
             }
-            
+
             // desc の抽出
             const descLines = blockLines.slice(descStartLine);
             // 行頭のインデントを除去
-            const cleanedDescLines = descLines.map(line => {
-                return line.replace(/^( {2,4}|\t)/, '');
+            const cleanedDescLines = descLines.map((line) => {
+                return line.replace(/^( {2,4}|\t)/, "");
             });
-            const desc = cleanedDescLines.join('\n').trim();
-            
+            const desc = cleanedDescLines.join("\n").trim();
+
             cards.push({
                 id,
                 title,
                 upright,
                 correct,
                 skipFocus,
-                desc
+                desc,
             });
         });
     }
-    
+
     return {
         view,
         arcana,
@@ -130,7 +140,7 @@ function parseStoryBody(body, storyId) {
         focusImage,
         focusTitle,
         transition,
-        cards
+        cards,
     };
 }
 
@@ -143,11 +153,11 @@ allStories.forEach((story) => {
     }
     const loopNum = parseInt(idMatch[1], 10);
     const stepNum = parseInt(idMatch[2], 10);
-    
+
     if (!scenarioData[loopNum]) {
         scenarioData[loopNum] = [];
     }
-    
+
     scenarioData[loopNum][stepNum] = parseStoryBody(story.body, story.id);
 });
 ---
@@ -186,14 +196,17 @@ allStories.forEach((story) => {
                         <div class="start-card-inner">
                             <div class="start-card-face start-card-back">
                                 <div class="tarot-back-pattern"></div>
-                                <div class="tap-to-reveal">TAP TO REVEAL</div>
+                                <div class="tap-to-reveal">カードに触れる</div>
                             </div>
-                            <div class="start-card-face start-card-front" style="background-image: url('/images/cards/0.jpg');">
+                            <div
+                                class="start-card-face start-card-front"
+                                style="background-image: url('/images/cards/0.jpg');"
+                            >
                                 <div class="card-inner-glow"></div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- カードタップ後にフェードインする情報ゾーン -->
                     <div id="start-info-zone" class="start-info-zone hidden">
                         <h1 class="game-title-logo">THE TAROT JOURNEY</h1>
@@ -201,7 +214,9 @@ allStories.forEach((story) => {
                             ― 運命をめぐる、あなたとタロットカードの旅 ―
                         </h2>
                         <div class="start-button-group">
-                            <button id="start-new-btn" class="action-btn">物語を紡ぐ (最初から)</button>
+                            <button id="start-new-btn" class="action-btn"
+                                >物語を紡ぐ (最初から)</button
+                            >
                         </div>
                     </div>
                 </div>
@@ -266,7 +281,8 @@ allStories.forEach((story) => {
                     </section>
                     <section class="dialogue-container-talk">
                         <div class="dialogue-box">
-                            <div class="speaker-name hidden" id="talk-speaker"></div>
+                            <div class="speaker-name hidden" id="talk-speaker">
+                            </div>
                             <div class="text-content" id="talk-text"></div>
                             <div class="click-prompt" id="talk-click-prompt">
                                 ▼
@@ -310,15 +326,38 @@ allStories.forEach((story) => {
                 <div id="view-celtic" class="game-view hidden">
                     <div class="celtic-cross-container">
                         <div class="celtic-cross-layout" id="celtic-cross-grid">
-                            <div class="cross-slot-guide celtic-1" data-slot-num="1" style="grid-area: past;"></div>
-                            <div class="cross-slot-guide celtic-2" data-slot-num="2" style="grid-area: present;"></div>
-                            <div class="cross-slot-guide celtic-3" data-slot-num="3" style="grid-area: future;"></div>
-                            <div class="card-wrapper celtic-deck" id="celtic-cross-deck"></div>
+                            <div
+                                class="cross-slot-guide celtic-1"
+                                data-slot-num="1"
+                                style="grid-area: past;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-2"
+                                data-slot-num="2"
+                                style="grid-area: present;"
+                            >
+                            </div>
+                            <div
+                                class="cross-slot-guide celtic-3"
+                                data-slot-num="3"
+                                style="grid-area: future;"
+                            >
+                            </div>
+                            <div
+                                class="card-wrapper celtic-deck"
+                                id="celtic-cross-deck"
+                            >
+                            </div>
                         </div>
                     </div>
                     <section class="dialogue-container-celtic">
                         <div class="dialogue-box">
-                            <div class="speaker-name hidden" id="celtic-speaker"></div>
+                            <div
+                                class="speaker-name hidden"
+                                id="celtic-speaker"
+                            >
+                            </div>
                             <div class="text-content" id="celtic-text"></div>
                             <div class="click-prompt" id="celtic-click-prompt">
                                 ▼
@@ -335,7 +374,11 @@ allStories.forEach((story) => {
                     </div>
                     <section class="dialogue-container-puzzle">
                         <div class="dialogue-box">
-                            <div class="speaker-name hidden" id="puzzle-speaker"></div>
+                            <div
+                                class="speaker-name hidden"
+                                id="puzzle-speaker"
+                            >
+                            </div>
                             <div class="text-content" id="puzzle-text"></div>
                             <div class="click-prompt" id="puzzle-click-prompt">
                                 ▼
@@ -475,7 +518,11 @@ allStories.forEach((story) => {
             </div>
 
             <!-- アプリ起動用フローティングバブル -->
-            <button id="app-bubble" class="app-bubble hidden" title="アプリ The Journey を起動">
+            <button
+                id="app-bubble"
+                class="app-bubble hidden"
+                title="アプリ The Journey を起動"
+            >
                 <div class="bubble-inner">
                     <span class="bubble-icon">📱</span>
                     <span class="bubble-pulse"></span>
@@ -494,48 +541,97 @@ allStories.forEach((story) => {
                         </div>
                         <div class="app-title-bar">
                             <h2 class="app-main-title">THE JOURNEY</h2>
-                            <button id="close-app-btn" class="app-close-btn">&times;</button>
+                            <button id="close-app-btn" class="app-close-btn"
+                                >&times;</button
+                            >
                         </div>
                         <!-- タブメニュー -->
                         <div class="app-tabs">
-                            <button id="app-tab-collection" class="app-tab-btn active" data-tab="collection">COLLECTION</button>
-                            <button id="app-tab-vital" class="app-tab-btn" data-tab="vital">VITAL DATA</button>
+                            <button
+                                id="app-tab-collection"
+                                class="app-tab-btn active"
+                                data-tab="collection">COLLECTION</button
+                            >
+                            <button
+                                id="app-tab-vital"
+                                class="app-tab-btn"
+                                data-tab="vital">VITAL DATA</button
+                            >
                         </div>
                     </div>
 
                     <!-- アプリのメインボディ -->
                     <div class="app-device-body">
                         <!-- コレクション（カード図鑑）タブ -->
-                        <div id="app-panel-collection" class="app-tab-panel active">
-                            <div class="app-section-title">発見したアルカナ</div>
-                            <div id="app-collection-grid" class="app-collection-grid">
+                        <div
+                            id="app-panel-collection"
+                            class="app-tab-panel active"
+                        >
+                            <div class="app-section-title">
+                                発見したアルカナ
+                            </div>
+                            <div
+                                id="app-collection-grid"
+                                class="app-collection-grid"
+                            >
                                 <!-- JavaScriptで動的にカードを挿入 -->
                             </div>
                         </div>
 
                         <!-- バイタルデータタブ -->
                         <div id="app-panel-vital" class="app-tab-panel">
-                            <div class="app-section-title">バイタル・アナリティクス</div>
+                            <div class="app-section-title">
+                                バイタル・アナリティクス
+                            </div>
                             <div class="vital-meters">
                                 <div class="vital-meter-item">
-                                    <div class="vital-meter-label">STRESS LEVEL</div>
-                                    <div class="vital-bar-container">
-                                        <div id="vital-bar-stress" class="vital-bar stress" style="width: 0%;"></div>
+                                    <div class="vital-meter-label">
+                                        STRESS LEVEL
                                     </div>
-                                    <div id="vital-text-stress" class="vital-meter-value">--%</div>
+                                    <div class="vital-bar-container">
+                                        <div
+                                            id="vital-bar-stress"
+                                            class="vital-bar stress"
+                                            style="width: 0%;"
+                                        >
+                                        </div>
+                                    </div>
+                                    <div
+                                        id="vital-text-stress"
+                                        class="vital-meter-value"
+                                    >
+                                        --%
+                                    </div>
                                 </div>
                                 <div class="vital-meter-item">
-                                    <div class="vital-meter-label">LUCK RATE</div>
-                                    <div class="vital-bar-container">
-                                        <div id="vital-bar-luck" class="vital-bar luck" style="width: 0%;"></div>
+                                    <div class="vital-meter-label">
+                                        LUCK RATE
                                     </div>
-                                    <div id="vital-text-luck" class="vital-meter-value">--%</div>
+                                    <div class="vital-bar-container">
+                                        <div
+                                            id="vital-bar-luck"
+                                            class="vital-bar luck"
+                                            style="width: 0%;"
+                                        >
+                                        </div>
+                                    </div>
+                                    <div
+                                        id="vital-text-luck"
+                                        class="vital-meter-value"
+                                    >
+                                        --%
+                                    </div>
                                 </div>
                             </div>
                             <!-- コンソールログ -->
                             <div class="vital-console">
-                                <div class="console-header">SYSTEM DIAGNOSTICS</div>
-                                <div id="vital-console-log" class="console-body">
+                                <div class="console-header">
+                                    SYSTEM DIAGNOSTICS
+                                </div>
+                                <div
+                                    id="vital-console-log"
+                                    class="console-body"
+                                >
                                     <!-- タイピングログ -->
                                 </div>
                             </div>
