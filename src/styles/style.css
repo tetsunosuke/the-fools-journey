@@ -41,7 +41,7 @@ body {
     color: var(--color-text-light);
     font-family: var(--font-sans);
     overflow: hidden;
-    height: 100vh;
+    height: 100dvh;
     width: 100vw;
 }
 
@@ -1044,6 +1044,7 @@ body {
     max-height: none;
     position: relative;
     overflow-y: auto;
+    flex: 1;
 }
 .dialogue-container-talk.speaker-player {
     background: rgba(16, 20, 38, 0.95);
@@ -1249,7 +1250,7 @@ body {
     .chat-bubble {
         max-width: 90%;
     }
-    .dialogue-container-celtic, .dialogue-container-puzzle {
+    .dialogue-container-celtic, .dialogue-container-puzzle, .dialogue-container-talk {
         padding: 12px 18px;
         min-height: 120px;
     }
