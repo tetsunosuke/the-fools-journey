@@ -1755,6 +1755,20 @@ body {
     box-shadow: 0 0 35px rgba(212, 175, 55, 0.5);
     transition: transform 0.6s ease;
 }
+
+/* Custom aspect ratio for side-by-side comparison images */
+.focus-card-image-container.is-compare {
+    width: 65vh !important;
+    max-width: 90vw !important;
+}
+@media (max-width: 768px) {
+    .focus-card-image-container.is-compare {
+        width: 85vw !important;
+        height: calc(85vw * (340 / 400)) !important;
+        max-width: 90vw !important;
+    }
+}
+
 .focus-card-info {
     text-align: center;
     font-family: var(--font-serif);
@@ -1912,8 +1926,63 @@ body {
 
 .day-transition-content {
     text-align: center;
+    position: relative;
+    z-index: 2;
     animation: dayTextZoom 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+
+.day-card-art {
+    position: absolute;
+    width: 200px;
+    height: 340px;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    filter: grayscale(30%) contrast(120%) brightness(80%);
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+    z-index: 1;
+    pointer-events: none;
+    animation: cardPulse 3s ease-in-out infinite alternate;
+}
+
+/* Day Transition Custom Tarot Back Styling */
+.day-card-art.tarot-back-pattern {
+    width: 200px !important;
+    height: 340px !important;
+    opacity: 0.35 !important;
+    background-color: rgba(20, 16, 38, 0.95);
+    border: 1px double rgba(212, 175, 55, 0.4);
+    background-image: 
+        radial-gradient(circle at center, transparent 30%, rgba(212, 175, 55, 0.2) 31%, transparent 35%),
+        repeating-linear-gradient(45deg, rgba(212,175,55,0.05) 0px, rgba(212,175,55,0.05) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(-45deg, rgba(212,175,55,0.05) 0px, rgba(212,175,55,0.05) 2px, transparent 2px, transparent 10px);
+}
+
+.day-card-art.tarot-back-pattern::after {
+    content: "✵";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: var(--color-gold);
+    opacity: 0.8;
+    text-shadow: 0 0 15px var(--color-gold-glow);
+}
+
+
+@keyframes cardPulse {
+    0% {
+        transform: scale(0.98);
+        opacity: 0.12;
+    }
+    100% {
+        transform: scale(1.02);
+        opacity: 0.18;
+    }
+}
+
 
 .day-transition-title {
     font-family: var(--font-serif), Cinzel, serif;

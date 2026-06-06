@@ -125,6 +125,7 @@ export function changeBackground(bgName) {
     let url = "";
     if (bgName === "tarot_room") url = "/images/tarot_room.png";
     else if (bgName === "home_morning") url = "/images/home_morning.png";
+    else if (bgName === "home_night") url = "/images/home_night.png";
     else if (bgName === "modern_office") url = "/images/modern_office.png";
     else if (bgName === "city_street") url = "/images/city_street.png";
     else if (bgName === "glitch_matrix") url = "/images/glitch_matrix.png";
@@ -178,6 +179,15 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
     }
     
     focusCardName.textContent = name;
+
+    const imageContainer = document.querySelector(".focus-card-image-container");
+    if (imageContainer) {
+        if (imageSrc && imageSrc.includes("compare")) {
+            imageContainer.classList.add("is-compare");
+        } else {
+            imageContainer.classList.remove("is-compare");
+        }
+    }
 
     if (focusCardDesc) {
         if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc) {

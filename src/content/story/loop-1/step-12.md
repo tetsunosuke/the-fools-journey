@@ -1,5 +1,5 @@
 [view: talk]
-[arcana: CELTIC CROSS (ケルト十字の展開)]
+[arcana: ー]
 
 [bg:tarot_room]
 息を切らして占いショップに駆け込むと、薄暗い部屋の奥で、ソフィアは最初からわかっていたかのように静かに微笑んでいた

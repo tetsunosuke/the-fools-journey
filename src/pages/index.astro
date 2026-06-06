@@ -534,14 +534,14 @@ allStories.forEach((story) => {
                 </div>
             </div>
             <!-- アプリ通知＆連携用 常設ボトムバー -->
-            <div id="app-notification-bar" class="app-notification-bar hidden">
+            <div id="app-notification-bar" class="app-notification-bar hidden" style="cursor: pointer;">
                 <div class="app-bar-inner">
                     <span class="app-bar-icon">📱</span>
-                    <div class="app-bar-content">
+                    <div class="app-bar-content" style="flex: 1;">
                         <span class="app-bar-title">THE JOURNEY</span>
                         <div id="app-bar-text" class="app-bar-text"></div>
                     </div>
-                    <button id="app-bar-trigger" class="app-bar-btn">アプリ起動</button>
+                    <span class="app-bar-arrow" style="color: var(--color-gold); font-size: 16px; margin-left: 10px; opacity: 0.7;">❯</span>
                 </div>
             </div>
 

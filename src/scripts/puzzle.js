@@ -518,17 +518,28 @@ export function showCelticCrossContract() {
         <div class="soul-card-form" style="max-width: 500px; margin: 40px auto 0;">
             <label>【本契約の決済条件】</label>
             <p style="font-size:13px; color:var(--color-text-light); text-align:center; line-height:1.6;">
-                「これからの人生のあらゆる決断を、自分の頭で下すと誓わないこと」<br><br>
+                「これからの人生のあらゆる決断を、自分の頭で下さないと誓うこと」<br><br>
                 自律という不確かな苦痛を捨て、カードの完璧な調律を受け入れますか？
             </p>
             <button id="contract-btn" class="action-btn" style="margin-top:10px;">すべてを委ね、契約する</button>
         </div>
     `;
 
+    // ソフィアからの契約を促すセリフを表示
+    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
+    const contractPromptText = "さあ、これが「本契約」の決済条件よ。提示された条件をよく読んで、そのスマートフォンからすべてを委ねる誓いを立ててちょうだい";
+
+    // プロンプトを非表示化し、クリック待ちを解除
+    celticClickPrompt.classList.add("hidden");
+    celticClickPrompt.onclick = null;
+    celticTextEl.parentElement.onclick = null;
+
+    typeDialogueText(contractPromptText, celticTextEl);
+
     document.getElementById("contract-btn").addEventListener("click", (e) => {
         e.stopPropagation();
         gameState.isCardRevealed = true;
-        gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は, コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
+        gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は、コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
         const form = document.querySelector(".celtic-cross-container .soul-card-form");
         if (form) form.remove();
         updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");

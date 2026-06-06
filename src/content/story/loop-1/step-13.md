@@ -1,5 +1,5 @@
 [view: talk]
-[arcana: SOUL CARD (本契約の決定)]
+[arcana: ー]
 [speaker: ソフィア]
 
 [speaker:ソフィア]

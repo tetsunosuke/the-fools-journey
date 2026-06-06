@@ -133,6 +133,43 @@ export function loadStep() {
     }
 }
 
+const ROMAN_MAP = {
+    "0": 0, "FOOL": 0,
+    "I": 1, "MAGICIAN": 1,
+    "II": 2, "HIGH PRIESTESS": 2, "PRIESTESS": 2,
+    "III": 3, "EMPRESS": 3,
+    "IV": 4, "EMPEROR": 4,
+    "V": 5, "HIEROPHANT": 5,
+    "VI": 6, "LOVERS": 6,
+    "VII": 7, "CHARIOT": 7,
+    "VIII": 8, "STRENGTH": 8,
+    "IX": 9, "HERMIT": 9,
+    "X": 10, "WHEEL OF FORTUNE": 10, "WHEEL": 10,
+    "XI": 11, "JUSTICE": 11,
+    "XII": 12, "HANGED MAN": 12, "HANGED": 12,
+    "XIII": 13, "DEATH": 13,
+    "XIV": 14, "TEMPERANCE": 14,
+    "XV": 15, "DEVIL": 15,
+    "XVI": 16, "TOWER": 16,
+    "XVII": 17, "STAR": 17,
+    "XVIII": 18, "MOON": 18,
+    "XIX": 19, "SUN": 19,
+    "XX": 20, "JUDGEMENT": 20,
+    "XXI": 21, "WORLD": 21
+};
+
+function findCardIndexFromText(text) {
+    if (!text) return null;
+    const upper = text.toUpperCase();
+    const words = upper.split(/[^A-Z0-9]/);
+    for (const word of words) {
+        if (ROMAN_MAP[word] !== undefined) {
+            return ROMAN_MAP[word];
+        }
+    }
+    return null;
+}
+
 // --- Day Transition eye-catch animation ---
 export function showDayTransition(dayNum, onComplete) {
     let dayOverlay = document.getElementById("day-transition-overlay");
@@ -141,6 +178,7 @@ export function showDayTransition(dayNum, onComplete) {
         dayOverlay.id = "day-transition-overlay";
         dayOverlay.className = "day-transition-overlay";
         dayOverlay.innerHTML = `
+            <div class="day-card-art" id="day-overlay-art"></div>
             <div class="day-transition-content">
                 <div class="day-num-text" id="day-overlay-text"></div>
                 <div class="day-sub-text" id="day-overlay-sub"></div>
@@ -149,8 +187,51 @@ export function showDayTransition(dayNum, onComplete) {
         document.getElementById("game-wrapper").appendChild(dayOverlay);
     }
 
-    document.getElementById("day-overlay-text").textContent = `― ${dayNum}日目 ―`;
-    document.getElementById("day-overlay-sub").textContent = "THE TAROT JOURNEY";
+    if (dayNum.includes("|")) {
+        const parts = dayNum.split("|");
+        document.getElementById("day-overlay-text").textContent = `― ${parts[0].trim()} ―`;
+        document.getElementById("day-overlay-sub").textContent = parts[1].trim();
+    } else {
+        let displayText = dayNum;
+        if (/^\d+$/.test(dayNum.trim())) {
+            displayText = `${dayNum.trim()}日目`;
+        }
+        document.getElementById("day-overlay-text").textContent = `― ${displayText} ―`;
+        document.getElementById("day-overlay-sub").textContent = "THE TAROT JOURNEY";
+    }
+
+    const artEl = document.getElementById("day-overlay-art");
+    if (artEl) {
+        let cardIdx = findCardIndexFromText(dayNum);
+        
+        // 朝のトランジション（dayNumが数字のみ）の場合、ロード中のステップのarcana情報から特定を試みる
+        if (cardIdx === null && SCENARIO[gameState.currentLoop] && SCENARIO[gameState.currentLoop][gameState.currentStep]) {
+            const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
+            if (stepData && stepData.arcana) {
+                cardIdx = findCardIndexFromText(stepData.arcana);
+            }
+        }
+
+        // 朝か夜かの判定
+        const isMorning = !dayNum.includes("夜") && /^\d+$/.test(dayNum.trim());
+
+        if (isMorning) {
+            // 朝の場合はカードの裏面を表示
+            artEl.style.backgroundImage = "";
+            artEl.classList.add("tarot-back-pattern");
+            artEl.style.display = "block";
+        } else if (cardIdx !== null && cardIdx !== undefined) {
+            // 夜の場合はカードの表面（特定したアルカナ画像）を表示
+            artEl.classList.remove("tarot-back-pattern");
+            artEl.style.backgroundImage = `url('/images/cards/${cardIdx}.jpg')`;
+            artEl.style.display = "block";
+        } else {
+            artEl.classList.remove("tarot-back-pattern");
+            artEl.style.backgroundImage = "none";
+            artEl.style.display = "none";
+        }
+    }
+
 
     dayOverlay.style.opacity = "0";
     dayOverlay.style.display = "flex";
@@ -164,6 +245,11 @@ export function showDayTransition(dayNum, onComplete) {
         }, 600);
     }, 1800);
 }
+
+
+// Global register
+window.showDayTransition = showDayTransition;
+
 
 // --- 誤選択時の囁き演出（バーに警告表示）---
 export function showWrongChoiceWhisper() {
@@ -254,10 +340,6 @@ export function showAppNotificationToast(msg) {
     bar.classList.add("notify-message");
     if (barTitle) barTitle.textContent = "THE JOURNEY";
     if (barText) barText.textContent = msg;
-
-    // 「アプリ起動」ボタンのラベルを変更
-    const triggerBtn = document.getElementById("app-bar-trigger");
-    if (triggerBtn) triggerBtn.textContent = "確認する";
 }
 
 // --- アプリ通知テキストをデフォルトに戻す ---
@@ -276,9 +358,6 @@ export function clearAppNotificationToast() {
         const arcanaText = currentArcanaEl ? currentArcanaEl.textContent : "";
         barText.textContent = arcanaText || "今日のカード";
     }
-
-    const triggerBtn = document.getElementById("app-bar-trigger");
-    if (triggerBtn) triggerBtn.textContent = "アプリ起動";
 
     // バーの表示・非表示をゲーム状態に合わせて元に戻す
     if (gameState.currentStep < 4 && gameState.currentLoop < 2) {
@@ -805,8 +884,8 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
                 }
                 return;
             }
-            // 現在のステップのスピーカーを維持（narration-styleを回避）
-            const stepSpeaker = SCENARIO[gameState.currentLoop][gameState.currentStep]?.speaker || "";
+            // 選択肢の解説はデフォルトでナレーションとする
+            const stepSpeaker = "ナレーション";
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
 
             const displayText = card.desc;

@@ -132,6 +132,17 @@ export function processPageTags(pageText, currentSpeaker, onFocusDone) {
         pageText = pageText.replace(/\[bg:[^\]]+\]/g, "").trim();
     }
 
+    // [transition:12日目・夜 | XI : JUSTICE] → トランジションを表示してタグを除去
+    const transitionMatch = pageText.match(/\[transition:([^\]]+)\]/);
+    if (transitionMatch) {
+        const transitionVal = transitionMatch[1].trim();
+        pageText = pageText.replace(/\[transition:[^\]]+\]/g, "").trim();
+        if (typeof window.showDayTransition === "function") {
+            window.showDayTransition(transitionVal, onFocusDone);
+            return { text: "", speaker: currentSpeaker, skip: false, handled: true };
+        }
+    }
+
     // [view:X] → ビュー切り替えを実行してタグを除去
     const viewMatch = pageText.match(/\[view:([^\]]+)\]/);
     if (viewMatch) {
