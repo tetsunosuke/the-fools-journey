@@ -2274,8 +2274,8 @@ body {
 
 .app-bubble {
     position: absolute; /* 親コンテナの右下を基準とする */
-    bottom: 25px;
-    right: 25px;
+    bottom: calc(25px + env(safe-area-inset-bottom));
+    right: calc(25px + env(safe-area-inset-right));
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -2296,8 +2296,8 @@ body {
 }
 @media (max-width: 768px) {
     .app-bubble {
-        bottom: 20px !important;
-        right: 20px !important;
+        bottom: calc(15px + env(safe-area-inset-bottom)) !important;
+        right: calc(15px + env(safe-area-inset-right)) !important;
         width: 50px !important;
         height: 50px !important;
     }
@@ -2785,7 +2785,7 @@ body {
 /* --- App Bubble Notification Toast & Warning Shake --- */
 .bubble-notification-toast {
     position: absolute;
-    bottom: 75px; /* Float above the bubble */
+    bottom: calc(100% + 15px); /* Float dynamically above the bubble */
     right: 0;
     background: rgba(12, 8, 24, 0.96);
     border: 1.5px solid rgba(239, 68, 68, 0.6);
