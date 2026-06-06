@@ -6,6 +6,7 @@
 
 [focus:/images/app_screenshot.png:アプリ「The Journey」]
 
+[speaker:ソフィア]
 ふふ、目の前でインストールしてくれたのね。さあ、アプリを起動してみて。何て書いてあるかしら？
 
 # --- 以下、選択肢分岐 ---

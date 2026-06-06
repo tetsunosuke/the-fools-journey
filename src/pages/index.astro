@@ -517,7 +517,10 @@ allStories.forEach((story) => {
                 </div>
             </div>
 
-            <!-- アプリ起動用フローティングバブル -->
+        </div>
+
+        <!-- アプリ起動用フローティングバブル（fixedバグ対策のコンテナ付） -->
+        <div id="app-bubble-container" class="app-bubble-container">
             <button
                 id="app-bubble"
                 class="app-bubble hidden"
@@ -528,112 +531,112 @@ allStories.forEach((story) => {
                     <span class="bubble-pulse"></span>
                 </div>
             </button>
+        </div>
 
-            <!-- 疑似スマートフォン型 アプリデバイス画面 -->
-            <div id="app-device-modal" class="custom-modal hidden">
-                <div class="custom-modal-overlay" id="app-device-overlay"></div>
-                <div class="app-device-content">
-                    <!-- アプリのヘッダー -->
-                    <div class="app-device-header">
-                        <div class="app-status-bar">
-                            <span class="app-status-time">00:00</span>
-                            <span class="app-status-signal">📶 🔋 100%</span>
+        <!-- 疑似スマートフォン型 アプリデバイス画面 -->
+        <div id="app-device-modal" class="custom-modal hidden">
+            <div class="custom-modal-overlay" id="app-device-overlay"></div>
+            <div class="app-device-content">
+                <!-- アプリのヘッダー -->
+                <div class="app-device-header">
+                    <div class="app-status-bar">
+                        <span class="app-status-time">00:00</span>
+                        <span class="app-status-signal">📶 🔋 100%</span>
+                    </div>
+                    <div class="app-title-bar">
+                        <h2 class="app-main-title">THE JOURNEY</h2>
+                        <button id="close-app-btn" class="app-close-btn"
+                            >&times;</button
+                        >
+                    </div>
+                    <!-- タブメニュー -->
+                    <div class="app-tabs">
+                        <button
+                            id="app-tab-collection"
+                            class="app-tab-btn active"
+                            data-tab="collection">COLLECTION</button
+                        >
+                        <button
+                            id="app-tab-vital"
+                            class="app-tab-btn"
+                            data-tab="vital">VITAL DATA</button
+                        >
+                    </div>
+                </div>
+
+                <!-- アプリのメインボディ -->
+                <div class="app-device-body">
+                    <!-- コレクション（カード図鑑）タブ -->
+                    <div
+                        id="app-panel-collection"
+                        class="app-tab-panel active"
+                    >
+                        <div class="app-section-title">
+                            発見したアルカナ
                         </div>
-                        <div class="app-title-bar">
-                            <h2 class="app-main-title">THE JOURNEY</h2>
-                            <button id="close-app-btn" class="app-close-btn"
-                                >&times;</button
-                            >
-                        </div>
-                        <!-- タブメニュー -->
-                        <div class="app-tabs">
-                            <button
-                                id="app-tab-collection"
-                                class="app-tab-btn active"
-                                data-tab="collection">COLLECTION</button
-                            >
-                            <button
-                                id="app-tab-vital"
-                                class="app-tab-btn"
-                                data-tab="vital">VITAL DATA</button
-                            >
+                        <div
+                            id="app-collection-grid"
+                            class="app-collection-grid"
+                        >
+                            <!-- JavaScriptで動的にカードを挿入 -->
                         </div>
                     </div>
 
-                    <!-- アプリのメインボディ -->
-                    <div class="app-device-body">
-                        <!-- コレクション（カード図鑑）タブ -->
-                        <div
-                            id="app-panel-collection"
-                            class="app-tab-panel active"
-                        >
-                            <div class="app-section-title">
-                                発見したアルカナ
-                            </div>
-                            <div
-                                id="app-collection-grid"
-                                class="app-collection-grid"
-                            >
-                                <!-- JavaScriptで動的にカードを挿入 -->
-                            </div>
+                    <!-- バイタルデータタブ -->
+                    <div id="app-panel-vital" class="app-tab-panel">
+                        <div class="app-section-title">
+                            バイタル・アナリティクス
                         </div>
-
-                        <!-- バイタルデータタブ -->
-                        <div id="app-panel-vital" class="app-tab-panel">
-                            <div class="app-section-title">
-                                バイタル・アナリティクス
-                            </div>
-                            <div class="vital-meters">
-                                <div class="vital-meter-item">
-                                    <div class="vital-meter-label">
-                                        STRESS LEVEL
-                                    </div>
-                                    <div class="vital-bar-container">
-                                        <div
-                                            id="vital-bar-stress"
-                                            class="vital-bar stress"
-                                            style="width: 0%;"
-                                        >
-                                        </div>
-                                    </div>
-                                    <div
-                                        id="vital-text-stress"
-                                        class="vital-meter-value"
-                                    >
-                                        --%
-                                    </div>
+                        <div class="vital-meters">
+                            <div class="vital-meter-item">
+                                <div class="vital-meter-label">
+                                    STRESS LEVEL
                                 </div>
-                                <div class="vital-meter-item">
-                                    <div class="vital-meter-label">
-                                        LUCK RATE
-                                    </div>
-                                    <div class="vital-bar-container">
-                                        <div
-                                            id="vital-bar-luck"
-                                            class="vital-bar luck"
-                                            style="width: 0%;"
-                                        >
-                                        </div>
-                                    </div>
+                                <div class="vital-bar-container">
                                     <div
-                                        id="vital-text-luck"
-                                        class="vital-meter-value"
+                                        id="vital-bar-stress"
+                                        class="vital-bar stress"
+                                        style="width: 0%;"
                                     >
-                                        --%
                                     </div>
-                                </div>
-                            </div>
-                            <!-- コンソールログ -->
-                            <div class="vital-console">
-                                <div class="console-header">
-                                    SYSTEM DIAGNOSTICS
                                 </div>
                                 <div
-                                    id="vital-console-log"
-                                    class="console-body"
+                                    id="vital-text-stress"
+                                    class="vital-meter-value"
                                 >
-                                    <!-- タイピングログ -->
+                                    --%
                                 </div>
+                            </div>
+                            <div class="vital-meter-item">
+                                <div class="vital-meter-label">
+                                    LUCK RATE
+                                </div>
+                                <div class="vital-bar-container">
+                                    <div
+                                        id="vital-bar-luck"
+                                        class="vital-bar luck"
+                                        style="width: 0%;"
+                                    >
+                                    </div>
+                                </div>
+                                <div
+                                    id="vital-text-luck"
+                                    class="vital-meter-value"
+                                >
+                                    --%
+                                </div>
+                            </div>
+                        </div>
+                        <!-- コンソールログ -->
+                        <div class="vital-console">
+                            <div class="console-header">
+                                SYSTEM DIAGNOSTICS
+                            </div>
+                            <div
+                                id="vital-console-log"
+                                class="console-body"
+                            >
+                                <!-- タイピングログ -->
                             </div>
                         </div>
                     </div>

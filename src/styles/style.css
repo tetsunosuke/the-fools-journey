@@ -1044,7 +1044,6 @@ body {
     max-height: none;
     position: relative;
     overflow-y: auto;
-    flex: 1;
 }
 .dialogue-container-talk.speaker-player {
     background: rgba(16, 20, 38, 0.95);
@@ -2262,9 +2261,19 @@ body {
    App View & Floating Bubble Styles
    ========================================================================== */
 
-/* フローティングバブル */
-.app-bubble {
+/* フローティングバブル用コンテナ（包含ブロック固定バグ対策） */
+.app-bubble-container {
     position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* 下の要素の操作を妨げない */
+    z-index: 9999; /* 常に最前面 */
+}
+
+.app-bubble {
+    position: absolute; /* 親コンテナの右下を基準とする */
     bottom: 25px;
     right: 25px;
     width: 60px;
@@ -2274,16 +2283,27 @@ body {
     border: 1.5px solid var(--color-gold);
     box-shadow: 0 0 15px var(--color-gold-glow), inset 0 0 10px rgba(139, 92, 246, 0.4);
     cursor: pointer;
-    z-index: 450;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     outline: none;
+    pointer-events: auto; /* バブル自体はクリック可能にする */
 }
 .app-bubble:hover {
     transform: scale(1.1) rotate(5deg);
     box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+}
+@media (max-width: 768px) {
+    .app-bubble {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .bubble-icon {
+        font-size: 20px !important;
+    }
 }
 .app-bubble.hidden {
     opacity: 0;
@@ -2788,6 +2808,11 @@ body {
 .bubble-notification-toast.show {
     opacity: 1;
     transform: translateY(0);
+}
+.bubble-notification-toast.app-info {
+    border: 1.5px solid rgba(212, 175, 55, 0.6);
+    color: #fffdec;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25), inset 0 0 15px rgba(212, 175, 55, 0.1);
 }
 .bubble-notification-toast::after {
     content: '';

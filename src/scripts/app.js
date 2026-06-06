@@ -62,7 +62,7 @@ export function initGame(skipLoad = false) {
     gameState.isCardRevealed = false;
     gameState.isFateControlled = true;
     gameState.selectedOptionDesc = "";
-    
+
     // UI resets
     endingOverlay.classList.add("hidden");
     glitchOverlay.classList.remove("glitch-active");
@@ -89,10 +89,10 @@ export function initGame(skipLoad = false) {
 export function loadStep() {
     saveState();
     updateAppView();
-    
+
     loopCountEl.textContent = gameState.currentLoop;
     const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
-    
+
     if (!stepData) {
         console.error(`Step not found! Loop: ${gameState.currentLoop}, Step: ${gameState.currentStep}`);
         return;
@@ -148,13 +148,13 @@ export function showDayTransition(dayNum, onComplete) {
         `;
         document.getElementById("game-wrapper").appendChild(dayOverlay);
     }
-    
+
     document.getElementById("day-overlay-text").textContent = `― ${dayNum}日目 ―`;
     document.getElementById("day-overlay-sub").textContent = "THE TAROT JOURNEY";
 
     dayOverlay.style.opacity = "0";
     dayOverlay.style.display = "flex";
-    
+
     requestAnimationFrame(() => { dayOverlay.style.opacity = "1"; });
     setTimeout(() => {
         dayOverlay.style.opacity = "0";
@@ -174,15 +174,15 @@ export function showWrongChoiceWhisper() {
         "……迷子の魂ほど、面白い旅をするものよ。",
     ];
     const msg = whisperMessages[Math.floor(Math.random() * whisperMessages.length)];
-    
+
     const bubble = document.getElementById("app-bubble");
     const isBubbleVisible = bubble && !bubble.classList.contains("hidden");
-    
+
     if (isBubbleVisible) {
         // 既存のトーストがあれば削除
         const oldToast = document.getElementById("app-bubble-toast");
         if (oldToast) oldToast.remove();
-        
+
         const toast = document.createElement("div");
         toast.id = "app-bubble-toast";
         toast.className = "bubble-notification-toast";
@@ -190,20 +190,20 @@ export function showWrongChoiceWhisper() {
             <div style="font-size:0.65rem; color:#ff4a4a; letter-spacing:0.1em; margin-bottom:4px; font-weight:bold; font-family:var(--font-mono)">⚠️ SYSTEM WARNING</div>
             <div>${msg}</div>
         `;
-        
+
         bubble.appendChild(toast);
-        
+
         // バブルを揺らす
         bubble.classList.add("bubble-shake-warning");
         setTimeout(() => {
             bubble.classList.remove("bubble-shake-warning");
         }, 500);
-        
+
         // フェードイン
         requestAnimationFrame(() => {
             toast.classList.add("show");
         });
-        
+
         // 4秒後にフェードアウトして削除
         setTimeout(() => {
             toast.classList.remove("show");
@@ -226,7 +226,7 @@ export function showWrongChoiceWhisper() {
             ].join(";");
             document.body.appendChild(whisper);
         }
-        
+
         whisper.innerHTML = `
             <div style="
                 background: rgba(10,8,20,0.85);
@@ -242,12 +242,12 @@ export function showWrongChoiceWhisper() {
                 <div style="font-size:0.85rem; color:#ffd6d6; font-style:italic; line-height:1.6;">${msg}</div>
             </div>
         `;
-        
+
         requestAnimationFrame(() => {
             whisper.style.opacity = "1";
             whisper.style.transform = "translateY(0)";
         });
-        
+
         setTimeout(() => {
             whisper.style.opacity = "0";
             whisper.style.transform = "translateY(-8px)";
@@ -255,9 +255,65 @@ export function showWrongChoiceWhisper() {
     }
 }
 
+// --- アプリからの通知トースト演出 ---
+export function showAppNotificationToast(msg) {
+    const bubble = document.getElementById("app-bubble");
+    if (!bubble) return;
+
+    // バブルが非表示の場合は、一時的に表示する
+    const wasHidden = bubble.classList.contains("hidden");
+    if (wasHidden) {
+        bubble.classList.remove("hidden");
+    }
+
+    // 既存のトーストがあれば削除
+    const oldToast = document.getElementById("app-bubble-toast");
+    if (oldToast) oldToast.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "app-bubble-toast";
+    toast.className = "bubble-notification-toast app-info";
+    toast.innerHTML = `
+        <div style="font-size:0.65rem; color:var(--color-gold); letter-spacing:0.1em; margin-bottom:4px; font-weight:bold; font-family:var(--font-mono)">📱 APP NOTIFICATION</div>
+        <div style="font-size:0.85rem; color:#fffdec; line-height:1.6;">${msg}</div>
+    `;
+
+    bubble.appendChild(toast);
+
+    // バブルを軽くバウンドさせてアピールする
+    bubble.classList.add("bubble-shake-warning");
+    setTimeout(() => {
+        bubble.classList.remove("bubble-shake-warning");
+    }, 500);
+
+    // フェードイン
+    requestAnimationFrame(() => {
+        toast.classList.add("show");
+    });
+}
+
+// --- アプリ通知トーストのクリア ---
+export function clearAppNotificationToast() {
+    const toast = document.getElementById("app-bubble-toast");
+    if (toast) {
+        toast.classList.remove("show");
+        setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+
+            // バブルの表示・非表示状態をゲーム状態に合わせて元に戻す
+            const bubble = document.getElementById("app-bubble");
+            if (bubble) {
+                if (gameState.currentStep < 4 && gameState.currentLoop < 2) {
+                    bubble.classList.add("hidden");
+                }
+            }
+        }, 300);
+    }
+}
+
 export function executeLoadStep(stepData) {
     currentArcanaEl.textContent = stepData.arcana;
-    
+
     // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
     let viewToLoad = stepData.view;
     if (viewToLoad === "chat") {
@@ -289,12 +345,12 @@ export function executeLoadStep(stepData) {
         });
         console.log("Parsed dialogue pages:", gameState.currentDialoguePages);
         gameState.currentDialoguePageIndex = 0;
-        
+
         showNextDialoguePage(stepData);
-    } 
+    }
     else if (gameState.currentView === "chat") {
         chatInteractiveZoneEl.innerHTML = "";
-        
+
         // 2周目 Step12 でのみ、チャット欄にモチーフボタンを直接表示して進行
         if (gameState.currentLoop === 2 && gameState.currentStep === 12) {
             pushChatMessage("The Journey", stepData.text, false, null, () => {
@@ -316,32 +372,32 @@ export function executeLoadStep(stepData) {
 
         const pages = stepData.text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(p => p.length > 0);
         let appStarted = false; // アプリ（カードやチャット）が本格起動したかどうかのフラグ
-        
+
         const showNextChatPage = (idx, currentSpeaker) => {
             if (idx >= pages.length) {
                 triggerNextPage();
                 return;
             }
-            
+
             const nextCallback = () => {
                 showNextChatPage(idx + 1, parsedResult.speaker);
             };
-            
+
             const parsedResult = processPageTags(pages[idx], currentSpeaker, nextCallback);
-            
+
             if (parsedResult.handled) {
                 appStarted = true; // カード等のアクションが発生したためアプリ起動
                 return; // Wait for modal action
             }
-            
+
             if (parsedResult.skip || !parsedResult.text) {
                 showNextChatPage(idx + 1, parsedResult.speaker);
                 return;
             }
-            
-            const isNarrative = parsedResult.speaker === "ナレーション" || 
-                                parsedResult.speaker === "" ||
-                                parsedResult.text.startsWith("（");
+
+            const isNarrative = parsedResult.speaker === "ナレーション" ||
+                parsedResult.speaker === "" ||
+                parsedResult.text.startsWith("（");
 
             if (!isNarrative) {
                 appStarted = true; // アプリやプレイヤーの発言が開始されたためアプリ起動
@@ -369,14 +425,14 @@ export function executeLoadStep(stepData) {
             } else {
                 // アプリ起動後は chat ビューで表示
                 showView("chat");
-                
+
                 let isSelf = false;
                 if (parsedResult.speaker === "プレイヤー") {
                     isSelf = true;
                 } else if (isNarrative) {
                     isSelf = "system"; // アプリ起動後のナレーションはシステムログ風
                 }
-                
+
                 pushChatMessage(parsedResult.speaker, parsedResult.text, isSelf, null, () => {
                     const nextHandler = (e) => {
                         if (e) e.stopPropagation();
@@ -385,7 +441,7 @@ export function executeLoadStep(stepData) {
                         nextCallback();
                     };
                     gameState.advanceChatPage = nextHandler;
-                    
+
                     const isLastPage = idx === pages.length - 1;
                     if (isLastPage && stepData.cards && stepData.cards.length > 0) {
                         gameState.advanceChatPage = null;
@@ -397,7 +453,7 @@ export function executeLoadStep(stepData) {
                 });
             }
         };
-        
+
         showNextChatPage(0, "The Journey");
     }
     else if (gameState.currentView === "celtic") {
@@ -425,13 +481,13 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
     });
 
     let index = 0;
+    let runningSpeaker = defaultSpeaker;
     promptEl.classList.add("hidden");
 
     function showPage() {
         promptEl.classList.add("hidden");
-        const currentSpeaker = defaultSpeaker;
-        
-        const result = processPageTags(pages[index], currentSpeaker, () => {
+
+        const result = processPageTags(pages[index], runningSpeaker, () => {
             if (index < pages.length - 1) {
                 index++;
                 showPage();
@@ -442,6 +498,8 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
                 onAllDone();
             }
         });
+
+        runningSpeaker = result.speaker;
 
         if (result.handled) return;
         if (result.skip) {
@@ -480,7 +538,7 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
                 promptEl.onclick = null;
                 textEl.parentElement.onclick = null;
                 gameState.advanceReadingResultPage = null;
-                
+
                 if (index < pages.length - 1) {
                     index++;
                     showPage();
@@ -520,11 +578,23 @@ export function showNextDialoguePage(stepData) {
     if (result.handled) return; // フォーカス等で処理済み
     if (result.skip) { goNext(); return; } // スキップ対象
 
-    updateSpeakerVisibility(talkSpeakerEl, talkTextEl, gameState.activeDialogueSpeaker);
+    let textToShow = result.text;
+    if (gameState.activeDialogueSpeaker && (gameState.activeDialogueSpeaker === "アプリ" || gameState.activeDialogueSpeaker.includes("アプリ"))) {
+        // アプリからのメッセージはバブルトーストで喋らせる
+        showAppNotificationToast(result.text);
+        // メインダイアログはナレーション定型文に書き換え
+        textToShow = "（スマートフォンが震えた。アプリからの通知だ...）";
+        // メインダイアログの話者名は「ナレーション」（非表示）にする（状態自体は「アプリ」を維持）
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "ナレーション");
+    } else {
+        // アプリ以外の発言に進んだ場合はトーストを即クリア
+        clearAppNotificationToast();
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, gameState.activeDialogueSpeaker);
+    }
 
     const pageId = `L${gameState.currentLoop}-S${gameState.currentStep}-P${gameState.currentDialoguePageIndex + 1}`;
-    console.log(`[Dialogue ID] ${pageId} | Length: ${result.text.length} | Content: ${result.text}`);
-    typeDialogueText(result.text, talkTextEl, () => {
+    console.log(`[Dialogue ID] ${pageId} | Length: ${textToShow.length} | Content: ${textToShow}`);
+    typeDialogueText(textToShow, talkTextEl, () => {
         if (gameState.currentDialoguePageIndex < gameState.currentDialoguePages.length - 1) {
             talkClickPrompt.classList.remove("hidden");
             const nextHandler = (e) => {
@@ -579,14 +649,14 @@ export function pushChatMessage(speaker, text, isSelf = false, cardData = null, 
     if (cardData && chatHistoryEl) {
         const cardDisplay = document.createElement("div");
         cardDisplay.className = "dialogue-card-display";
-        
+
         const cardImg = document.createElement("div");
         cardImg.className = "dialogue-card-image";
         cardImg.style.backgroundImage = `url('${TAROT_IMAGES[cardData.id]}')`;
         if (!cardData.upright) {
             cardImg.style.transform = "rotate(180deg)";
         }
-        
+
         cardDisplay.appendChild(cardImg);
         chatHistoryEl.appendChild(cardDisplay);
     }
@@ -629,7 +699,7 @@ export function pushChatMessage(speaker, text, isSelf = false, cardData = null, 
 // --- Render Cards with choice/no-choice Illusion ---
 export function renderChoiceCards(cardsList, container, isInChat = false) {
     container.innerHTML = "";
-    
+
     const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
     const isIllusion = stepData.choiceIllusion && cardsList.length > 0;
 
@@ -644,15 +714,15 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 
     if (isIllusion && cardsList.length === 1) {
         const cardObj = cardsList[0];
-        
+
         for (let i = 0; i < 3; i++) {
             const btn = document.createElement("button");
             btn.className = "quiz-choice-btn";
-            
+
             const textSpan = document.createElement("span");
             textSpan.className = "quiz-choice-text";
             textSpan.textContent = `カードを引く (カード #${i + 1} を選択)`;
-            
+
             btn.appendChild(textSpan);
             choicesContainer.appendChild(btn);
 
@@ -665,11 +735,11 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
         cardsList.forEach((card, index) => {
             const btn = document.createElement("button");
             btn.className = "quiz-choice-btn";
-            
+
             const textSpan = document.createElement("span");
             textSpan.className = "quiz-choice-text";
             textSpan.textContent = card.title;
-            
+
             btn.appendChild(textSpan);
             choicesContainer.appendChild(btn);
 
@@ -687,13 +757,15 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 export function handleQuizChoiceSelected(card, choiceText, isInChat) {
     gameState.isCardRevealed = true;
     gameState.selectedOptionDesc = card.desc;
-    
+
     // correct: false の選択肢を選んだ時に囁き演出
     if (card.correct === false || card.correct === "false") {
         showWrongChoiceWhisper();
         gameState.isCardRevealed = false;
         return; // 進行をブロックし、選択肢画面を維持する
     }
+
+    clearAppNotificationToast();
 
     if (card && card.id !== undefined) {
         discoverCard(card.id);
@@ -711,7 +783,7 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
     if (isInChat) {
         // Clear interactive zone instantly
         chatInteractiveZoneEl.innerHTML = "";
-        
+
         // Show player choice in dialogue box
         pushChatMessage("Player", `選択: ${choiceText}`, true, null, () => {
             setTimeout(() => {
@@ -735,13 +807,13 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Fallback for non-chat views (e.g., Sophia talk view)
         if (gameState.currentView === "talk") {
             talkCardsContainer.innerHTML = "";
-            
+
             // もし desc が空ならば、会話ページを生成せず自動的に次のステップへ遷移する
             if (!card.desc) {
                 advanceGame();
                 return;
             }
-            
+
             // celticビューへの移行が含まれている場合は、会話表示をスキップして直接ビュー切り替えをキックする
             if (card.desc.includes("[view: celtic]")) {
                 if (typeof window.triggerViewChange === "function") {
@@ -752,9 +824,9 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
             // 現在のステップのスピーカーを維持（narration-styleを回避）
             const stepSpeaker = SCENARIO[gameState.currentLoop][gameState.currentStep]?.speaker || "";
             updateSpeakerVisibility(talkSpeakerEl, talkTextEl, stepSpeaker);
-            
+
             const displayText = card.desc;
-            
+
             // Show result text（ページ送り対応）
             showPaginatedText(
                 displayText,
@@ -795,18 +867,18 @@ export function revealCard(cardElement, card, isInChat = false) {
             chatInteractiveZoneEl.innerHTML = `
                 <button class="action-btn" id="chat-choice-btn">${isLegacy ? "進む" : card.title}</button>
             `;
-            
+
             document.getElementById("chat-choice-btn").addEventListener("click", () => {
                 // Clear interactive zone
                 chatInteractiveZoneEl.innerHTML = "";
-                
+
                 // Show player choice bubble
                 pushChatMessage("Player", `選択: ${isLegacy ? "進む" : card.title}`, true);
-                
+
                 setTimeout(() => {
                     // Show result narrative (desc)
                     pushChatMessage("The Journey", desc);
-                    
+
                     // Show next button
                     chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
                     document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
@@ -817,7 +889,7 @@ export function revealCard(cardElement, card, isInChat = false) {
         } else {
             if (gameState.currentView === "talk") {
                 updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "");
-                
+
                 if (isLegacy) {
                     showPaginatedText(desc, talkTextEl, talkClickPrompt, () => {
                         talkClickPrompt.classList.remove("hidden");
@@ -825,12 +897,12 @@ export function revealCard(cardElement, card, isInChat = false) {
                 } else {
                     // Show simple text
                     typeDialogueText("カードを引きました。", talkTextEl);
-                    
+
                     // Create choice button in cards-area-talk (talkCardsContainer)
                     talkCardsContainer.innerHTML = `
                         <button class="action-btn" id="talk-choice-btn" style="margin-top: 15px;">${card.title}</button>
                     `;
-                    
+
                     document.getElementById("talk-choice-btn").addEventListener("click", () => {
                         talkCardsContainer.innerHTML = "";
                         showPaginatedText(desc, talkTextEl, talkClickPrompt, () => {
@@ -895,7 +967,7 @@ export function advanceGame() {
 // --- Lovers Bad End ---
 export function triggerLoversBadEnd() {
     glitchOverlay.classList.add("glitch-active");
-    
+
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
         endingTitle.textContent = "0 : THE FOOL (逆位置)";
@@ -982,7 +1054,7 @@ export function applyDynamicAdjustments() {
             }
         });
     }
-    
+
 }
 
 export function showStartScreen() {
@@ -999,7 +1071,7 @@ export function showStartScreen() {
 
     const savedLoop = localStorage.getItem("fools_journey_loop");
     const savedStep = localStorage.getItem("fools_journey_step");
-    
+
     if (startContinueBtn) {
         if (savedLoop !== null && savedStep !== null) {
             startContinueBtn.classList.remove("hidden");
@@ -1007,7 +1079,7 @@ export function showStartScreen() {
             startContinueBtn.classList.add("hidden");
         }
     }
-    
+
     startScreenEl.classList.remove("hidden");
     if (startCardTrigger) startCardTrigger.classList.remove("revealed");
     if (startInfoZone) startInfoZone.classList.add("hidden");
@@ -1115,16 +1187,16 @@ export function openCollectionModal() {
     for (let i = 0; i <= 21; i++) {
         const hasCard = gameState.discoveredCards.has(i);
         const cardMeta = SOUL_CARDS[i] || { name: `No. ${i}`, desc: "未知のカード" };
-        
+
         const item = document.createElement("div");
         item.className = `collection-grid-item ${hasCard ? "" : "locked"}`;
-        
+
         const img = document.createElement("div");
         img.className = "collection-card-img";
         if (hasCard) {
             img.style.backgroundImage = `url('${TAROT_IMAGES[i]}')`;
         }
-        
+
         const name = document.createElement("div");
         name.className = "collection-card-name";
         name.textContent = hasCard ? cardMeta.name : "???";
@@ -1138,7 +1210,7 @@ export function openCollectionModal() {
             item.addEventListener("click", () => {
                 collectionModal.classList.add("hidden"); // 図鑑を一旦隠す
                 focusTarotCard(i, true, TAROT_IMAGES[i]); // 正位置で拡大表示
-                
+
                 // 拡大表示が閉じられたら図鑑に戻るようにする
                 gameState.pendingStepLoad = () => {
                     gameState.pendingStepLoad = null;
@@ -1192,7 +1264,7 @@ document.addEventListener("click", (e) => {
     // 占い師対話シーン（talkビュー）でのクリック進行
     if (gameState.currentView === "talk") {
         const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
-        
+
         if (gameState.currentDialoguePageIndex < gameState.currentDialoguePages.length - 1) {
             gameState.currentDialoguePageIndex++;
             showNextDialoguePage(stepData);
