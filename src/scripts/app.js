@@ -165,7 +165,7 @@ export function showDayTransition(dayNum, onComplete) {
     }, 1800);
 }
 
-// --- 誤選択時の囁き演出 ---
+// --- 誤選択時の囁き演出（バーに警告表示）---
 export function showWrongChoiceWhisper() {
     const whisperMessages = [
         "……それは本当に、あなた自身の選択ですか？",
@@ -175,41 +175,23 @@ export function showWrongChoiceWhisper() {
     ];
     const msg = whisperMessages[Math.floor(Math.random() * whisperMessages.length)];
 
-    const bubble = document.getElementById("app-bubble");
-    const isBubbleVisible = bubble && !bubble.classList.contains("hidden");
+    const bar = document.getElementById("app-notification-bar");
+    if (bar && !bar.classList.contains("hidden")) {
+        // バーにWARNINGスタイルを適用し、テキストを書き換える
+        const barText = document.getElementById("app-bar-text");
+        const barTitle = bar.querySelector(".app-bar-title");
+        const originalText = barText ? barText.textContent : "";
+        const originalTitle = barTitle ? barTitle.textContent : "";
 
-    if (isBubbleVisible) {
-        // 既存のトーストがあれば削除
-        const oldToast = document.getElementById("app-bubble-toast");
-        if (oldToast) oldToast.remove();
+        bar.classList.add("notify-active");
+        if (barTitle) barTitle.textContent = "⚠️ SYSTEM WARNING";
+        if (barText) barText.textContent = msg;
 
-        const toast = document.createElement("div");
-        toast.id = "app-bubble-toast";
-        toast.className = "bubble-notification-toast";
-        toast.innerHTML = `
-            <div style="font-size:0.65rem; color:#ff4a4a; letter-spacing:0.1em; margin-bottom:4px; font-weight:bold; font-family:var(--font-mono)">⚠️ SYSTEM WARNING</div>
-            <div>${msg}</div>
-        `;
-
-        bubble.appendChild(toast);
-
-        // バブルを揺らす
-        bubble.classList.add("bubble-shake-warning");
+        // 4秒後に元に戻す
         setTimeout(() => {
-            bubble.classList.remove("bubble-shake-warning");
-        }, 500);
-
-        // フェードイン
-        requestAnimationFrame(() => {
-            toast.classList.add("show");
-        });
-
-        // 4秒後にフェードアウトして削除
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
+            bar.classList.remove("notify-active");
+            if (barTitle) barTitle.textContent = originalTitle;
+            if (barText) barText.textContent = originalText;
         }, 4000);
     } else {
         // フォールバック: 画面上部オーバーレイ表示
@@ -255,64 +237,66 @@ export function showWrongChoiceWhisper() {
     }
 }
 
-// --- アプリからの通知トースト演出 ---
+// --- アプリからの通知（バーのテキスト更新）---
 export function showAppNotificationToast(msg) {
-    const bubble = document.getElementById("app-bubble");
-    if (!bubble) return;
+    const bar = document.getElementById("app-notification-bar");
+    if (!bar) return;
 
-    // バブルが非表示の場合は、一時的に表示する
-    const wasHidden = bubble.classList.contains("hidden");
-    if (wasHidden) {
-        bubble.classList.remove("hidden");
-    }
+    // バーが非表示なら一時的に表示する
+    const wasHidden = bar.classList.contains("hidden");
+    if (wasHidden) bar.classList.remove("hidden");
 
-    // 既存のトーストがあれば削除
-    const oldToast = document.getElementById("app-bubble-toast");
-    if (oldToast) oldToast.remove();
+    const barText = document.getElementById("app-bar-text");
+    const barTitle = bar.querySelector(".app-bar-title");
 
-    const toast = document.createElement("div");
-    toast.id = "app-bubble-toast";
-    toast.className = "bubble-notification-toast app-info";
-    toast.innerHTML = `
-        <div style="font-size:0.65rem; color:var(--color-gold); letter-spacing:0.1em; margin-bottom:4px; font-weight:bold; font-family:var(--font-mono)">📱 APP NOTIFICATION</div>
-        <div style="font-size:0.85rem; color:#fffdec; line-height:1.6;">${msg}</div>
-    `;
+    // WARNINGを解除し、アプリメッセージ用スタイルを付与
+    bar.classList.remove("notify-active");
+    bar.classList.add("notify-message");
+    if (barTitle) barTitle.textContent = "THE JOURNEY";
+    if (barText) barText.textContent = msg;
 
-    bubble.appendChild(toast);
-
-    // バブルを軽くバウンドさせてアピールする
-    bubble.classList.add("bubble-shake-warning");
-    setTimeout(() => {
-        bubble.classList.remove("bubble-shake-warning");
-    }, 500);
-
-    // フェードイン
-    requestAnimationFrame(() => {
-        toast.classList.add("show");
-    });
+    // 「アプリ起動」ボタンのラベルを変更
+    const triggerBtn = document.getElementById("app-bar-trigger");
+    if (triggerBtn) triggerBtn.textContent = "確認する";
 }
 
-// --- アプリ通知トーストのクリア ---
+// --- アプリ通知テキストをデフォルトに戻す ---
 export function clearAppNotificationToast() {
-    const toast = document.getElementById("app-bubble-toast");
-    if (toast) {
-        toast.classList.remove("show");
-        setTimeout(() => {
-            if (toast.parentNode) toast.remove();
+    const bar = document.getElementById("app-notification-bar");
+    if (!bar) return;
 
-            // バブルの表示・非表示状態をゲーム状態に合わせて元に戻す
-            const bubble = document.getElementById("app-bubble");
-            if (bubble) {
-                if (gameState.currentStep < 4 && gameState.currentLoop < 2) {
-                    bubble.classList.add("hidden");
-                }
-            }
-        }, 300);
+    bar.classList.remove("notify-active");
+    bar.classList.remove("notify-message");
+
+    const barText = document.getElementById("app-bar-text");
+    const barTitle = bar.querySelector(".app-bar-title");
+    if (barTitle) barTitle.textContent = "THE JOURNEY";
+    // 現在のアルカナ名をバーに戻す
+    if (barText) {
+        const arcanaText = currentArcanaEl ? currentArcanaEl.textContent : "";
+        barText.textContent = arcanaText || "今日のカード";
+    }
+
+    const triggerBtn = document.getElementById("app-bar-trigger");
+    if (triggerBtn) triggerBtn.textContent = "アプリ起動";
+
+    // バーの表示・非表示をゲーム状態に合わせて元に戻す
+    if (gameState.currentStep < 4 && gameState.currentLoop < 2) {
+        bar.classList.add("hidden");
     }
 }
 
 export function executeLoadStep(stepData) {
     currentArcanaEl.textContent = stepData.arcana;
+
+    // バーにも現在のアルカナを表示（通知中でなければ）
+    const bar = document.getElementById("app-notification-bar");
+    if (bar && !bar.classList.contains("notify-active") && !bar.classList.contains("notify-message")) {
+        const barText = document.getElementById("app-bar-text");
+        if (barText && stepData.arcana) {
+            barText.textContent = stepData.arcana;
+        }
+    }
 
     // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
     let viewToLoad = stepData.view;
@@ -1225,7 +1209,7 @@ export function openCollectionModal() {
 
 // --- 画面全体タップでページ送り ---
 // ボタン・カード・モーダルなどインタラクティブ要素は除外
-const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay, input, label, .soul-card-form, .app-bubble, .app-device-content";
+const SKIP_SELECTORS = "button, a, .card-wrapper, .quiz-choice-btn, .symbolic-stone, #card-focus-modal, #card-draw-overlay, .start-screen-overlay, input, label, .soul-card-form, .app-notification-bar, .app-device-content";
 
 document.addEventListener("click", (e) => {
     // アプリビューが開いている間は全体クリック進行をブロック

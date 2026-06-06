@@ -2268,84 +2268,113 @@ body {
    App View & Floating Bubble Styles
    ========================================================================== */
 
-/* フローティングバブル用コンテナ（包含ブロック固定バグ対策） */
-.app-bubble-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none; /* 下の要素の操作を妨げない */
-    z-index: 9999; /* 常に最前面 */
-}
-
-.app-bubble {
-    position: absolute; /* 親コンテナの右下を基準とする */
-    bottom: calc(25px + env(safe-area-inset-bottom));
-    right: calc(25px + env(safe-area-inset-right));
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+/* アプリ通知＆連携用 ボトムバー */
+.app-notification-bar {
+    width: 100%;
+    margin-top: 10px;
     background: rgba(15, 10, 30, 0.85);
     border: 1.5px solid var(--color-gold);
-    box-shadow: 0 0 15px var(--color-gold-glow), inset 0 0 10px rgba(139, 92, 246, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(139, 92, 246, 0.15);
+    backdrop-filter: var(--blur-glass);
+    padding: 10px 16px;
+    z-index: 100;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    flex-shrink: 0; /* 高さが縮まないように固定 */
+}
+.app-notification-bar.hidden {
+    display: none !important;
+}
+.app-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.app-bar-icon {
+    font-size: 20px;
+    filter: drop-shadow(0 0 5px var(--color-gold-glow));
+    animation: barIconPulse 2s infinite ease-in-out;
+}
+@keyframes barIconPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+.app-bar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.app-bar-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-gold);
+    letter-spacing: 0.1em;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.app-bar-text {
+    font-size: 13px;
+    color: var(--color-text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    transition: font-size 0.3s ease;
+}
+.app-bar-btn {
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--color-gold);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    outline: none;
-    pointer-events: auto; /* バブル自体はクリック可能にする */
+    transition: var(--transition-smooth);
+    white-space: nowrap;
 }
-.app-bubble:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
-}
-@media (max-width: 768px) {
-    .app-bubble {
-        bottom: calc(15px + env(safe-area-inset-bottom)) !important;
-        right: calc(15px + env(safe-area-inset-right)) !important;
-        width: 50px !important;
-        height: 50px !important;
-    }
-    .bubble-icon {
-        font-size: 20px !important;
-    }
-}
-.app-bubble.hidden {
-    opacity: 0;
-    transform: scale(0.5) translateY(20px);
-    pointer-events: none;
-}
-.bubble-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.bubble-icon {
-    font-size: 24px;
-    filter: drop-shadow(0 0 4px var(--color-gold-glow));
-}
-.bubble-pulse {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 1px solid var(--color-gold);
-    opacity: 0.8;
-    animation: bubblePulseAnim 2s infinite ease-out;
-    pointer-events: none;
+.app-bar-btn:hover {
+    background: var(--color-gold);
+    color: var(--color-bg-dark);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
-@keyframes bubblePulseAnim {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.5); opacity: 0; }
+/* アプリからの通知受信時の警告・明滅アニメーション */
+.app-notification-bar.notify-active {
+    border-color: #ef4444;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.15);
+    animation: barNotifyGlow 1.5s infinite alternate;
+}
+.app-notification-bar.notify-active .app-bar-title {
+    color: #ef4444;
+}
+/* 通知時はテキストを大きく・折り返して全文表示 */
+.app-notification-bar.notify-active .app-bar-text {
+    font-size: 15px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.5;
+    color: #ffd6d6;
+}
+@keyframes barNotifyGlow {
+    0% { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+    100% { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
 }
 
-/* スマホデバイス風モーダルコンテンツ */
+
+/* アプリメッセージ通知時（ゴールド版）のテキスト拡大 */
+.app-notification-bar.notify-message .app-bar-text {
+    font-size: 15px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.5;
+    color: #fffdec;
+}
+
+
 .app-device-content {
     position: relative;
     width: 380px;

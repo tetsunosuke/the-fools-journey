@@ -25,7 +25,7 @@ export function initAppView() {
     if (isAppInitialized) return;
 
     // Cache elements
-    appBubble = document.getElementById("app-bubble");
+    appBubble = document.getElementById("app-notification-bar");
     appModal = document.getElementById("app-device-modal");
     closeAppBtn = document.getElementById("close-app-btn");
     appTabCollection = document.getElementById("app-tab-collection");
@@ -47,6 +47,14 @@ export function initAppView() {
         e.stopPropagation();
         toggleAppView();
     });
+
+    const triggerBtn = document.getElementById("app-bar-trigger");
+    if (triggerBtn) {
+        triggerBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleAppView();
+        });
+    }
 
     closeAppBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -120,16 +128,17 @@ function switchTab(tabName) {
 }
 
 export function updateAppView() {
-    // 起動バブルの表示非表示制御（Step 4 以降で表示）
-    const bubble = document.getElementById("app-bubble");
-    if (bubble) {
+    // 起動バーの表示非表示制御（Step 4 以降で表示）
+    const bar = document.getElementById("app-notification-bar");
+    if (bar) {
         if (gameState.currentStep >= 4 || gameState.currentLoop >= 2) {
-            bubble.classList.remove("hidden");
+            bar.classList.remove("hidden");
         } else {
-            bubble.classList.add("hidden");
+            bar.classList.add("hidden");
         }
     }
 }
+
 
 function renderCollectionGrid() {
     if (!appCollectionGrid) return;

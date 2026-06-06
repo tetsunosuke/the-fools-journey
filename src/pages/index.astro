@@ -516,21 +516,18 @@ allStories.forEach((story) => {
                     <div class="focus-card-tip">画面をタップして戻る</div>
                 </div>
             </div>
-
-        </div>
-
-        <!-- アプリ起動用フローティングバブル（fixedバグ対策のコンテナ付） -->
-        <div id="app-bubble-container" class="app-bubble-container">
-            <button
-                id="app-bubble"
-                class="app-bubble hidden"
-                title="アプリ The Journey を起動"
-            >
-                <div class="bubble-inner">
-                    <span class="bubble-icon">📱</span>
-                    <span class="bubble-pulse"></span>
+            <!-- アプリ通知＆連携用 常設ボトムバー -->
+            <div id="app-notification-bar" class="app-notification-bar hidden">
+                <div class="app-bar-inner">
+                    <span class="app-bar-icon">📱</span>
+                    <div class="app-bar-content">
+                        <span class="app-bar-title">THE JOURNEY</span>
+                        <div id="app-bar-text" class="app-bar-text"></div>
+                    </div>
+                    <button id="app-bar-trigger" class="app-bar-btn">アプリ起動</button>
                 </div>
-            </button>
+            </div>
+
         </div>
 
         <!-- 疑似スマートフォン型 アプリデバイス画面 -->
