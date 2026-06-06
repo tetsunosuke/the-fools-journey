@@ -16,6 +16,16 @@ function parseStoryBody(body, storyId) {
     let focusTitle = null;
     let transition = null;
 
+    const allowedMetaKeys = [
+        "view",
+        "arcana",
+        "speaker",
+        "choiceIllusion",
+        "focusImage",
+        "focusTitle",
+        "transition"
+    ];
+
     let currentLineIndex = 0;
     while (currentLineIndex < lines.length) {
         const line = lines[currentLineIndex].trim();
@@ -26,16 +36,22 @@ function parseStoryBody(body, storyId) {
                 const key = inner.slice(0, colonIndex).trim();
                 const val = inner.slice(colonIndex + 1).trim();
 
-                if (key === "view") view = val;
-                else if (key === "arcana") arcana = val;
-                else if (key === "speaker") speaker = val;
-                else if (key === "choiceIllusion")
-                    choiceIllusion = val === "true";
-                else if (key === "focusImage") focusImage = val;
-                else if (key === "focusTitle") focusTitle = val;
-                else if (key === "transition") transition = val;
+                if (allowedMetaKeys.includes(key)) {
+                    if (key === "view") view = val;
+                    else if (key === "arcana") arcana = val;
+                    else if (key === "speaker") speaker = val;
+                    else if (key === "choiceIllusion")
+                        choiceIllusion = val === "true";
+                    else if (key === "focusImage") focusImage = val;
+                    else if (key === "focusTitle") focusTitle = val;
+                    else if (key === "transition") transition = val;
+                    currentLineIndex++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
             }
-            currentLineIndex++;
         } else if (line === "") {
             currentLineIndex++;
         } else {
@@ -213,10 +229,11 @@ allStories.forEach((story) => {
                         <h2 class="game-subtitle-logo">
                             ― 運命をめぐる、あなたとタロットカードの旅 ―
                         </h2>
-                        <div class="start-button-group">
+                        <div class="start-button-group" style="display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%;">
                             <button id="start-new-btn" class="action-btn"
                                 >物語を紡ぐ (最初から)</button
                             >
+                            <a href="/about" class="about-link">📖 このアプリについて</a>
                         </div>
                     </div>
                 </div>

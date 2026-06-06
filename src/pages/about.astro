@@ -1,0 +1,304 @@
+---
+import "../styles/style.css";
+---
+
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ABOUT | THE TAROT JOURNEY</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&family=Share+Tech+Mono&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            html, body {
+                position: static !important;
+                width: auto !important;
+                height: auto !important;
+                overflow: auto !important;
+            }
+
+            .about-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                min-height: 100vh;
+                padding: 40px 20px;
+                color: var(--color-text-light, #f0f0f0);
+                font-family: 'Montserrat', sans-serif;
+                z-index: 10;
+                position: relative;
+                max-width: 680px;
+                margin: 0 auto;
+            }
+
+            .about-header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .about-title {
+                font-family: 'Cinzel', serif;
+                font-size: 2.5rem;
+                color: var(--color-gold);
+                text-shadow: 0 0 10px var(--color-gold-glow);
+                letter-spacing: 4px;
+                margin: 0;
+            }
+
+            .about-subtitle {
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+                color: var(--color-text-muted);
+                margin-top: 10px;
+                text-transform: uppercase;
+            }
+
+            .about-card {
+                background: rgba(15, 12, 28, 0.7);
+                border: var(--border-gold);
+                border-radius: 8px;
+                padding: 30px;
+                margin-bottom: 25px;
+                backdrop-filter: var(--blur-glass);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .about-section-title {
+                font-family: 'Cinzel', serif;
+                font-size: 1.4rem;
+                color: var(--color-gold);
+                border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+                padding-bottom: 10px;
+                margin-top: 0;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .about-text {
+                font-size: 0.95rem;
+                line-height: 1.8;
+                color: #e0e0e0;
+                margin-bottom: 15px;
+                text-align: justify;
+            }
+
+            .about-text strong {
+                color: var(--color-gold);
+                font-weight: 600;
+            }
+
+            /* インタラクティブな隠し要素 */
+            .hidden-trigger-wrapper {
+                margin: 40px 0 20px 0;
+                text-align: center;
+                width: 100%;
+            }
+
+            .hidden-trigger-btn {
+                background: transparent;
+                border: 1px dashed rgba(212, 175, 55, 0.4);
+                color: rgba(212, 175, 55, 0.7);
+                padding: 12px 24px;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.85rem;
+                cursor: pointer;
+                border-radius: 4px;
+                letter-spacing: 2px;
+                transition: all 0.3s ease;
+                text-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+            }
+
+            .hidden-trigger-btn:hover {
+                border-color: var(--color-gold);
+                color: #fffdec;
+                background: rgba(212, 175, 55, 0.05);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            }
+
+            .secret-section {
+                display: none;
+                width: 100%;
+                opacity: 0;
+                transition: opacity 1.2s ease;
+                margin-bottom: 30px;
+            }
+
+            .secret-card {
+                background: rgba(15, 12, 28, 0.85);
+                border: 1px solid rgba(212, 175, 55, 0.35);
+                border-radius: 8px;
+                padding: 30px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+                box-sizing: border-box;
+            }
+
+            .secret-title {
+                font-family: 'Cinzel', serif;
+                font-size: 1.25rem;
+                color: var(--color-gold);
+                border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+                padding-bottom: 10px;
+                margin-top: 0;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .secret-text {
+                font-size: 0.9rem;
+                line-height: 1.8;
+                color: #f5ebd5;
+            }
+
+            /* ゴールドの優しい明滅アニメーション */
+            .glow-flash {
+                animation: goldGlowFlash 0.4s ease-out;
+            }
+
+            @keyframes goldGlowFlash {
+                0% { background: rgba(212, 175, 55, 0.3); }
+                100% { background: transparent; }
+            }
+
+            .back-btn-wrapper {
+                margin-top: 20px;
+                margin-bottom: 40px;
+            }
+
+            .back-btn {
+                display: inline-block;
+                color: var(--color-gold);
+                text-decoration: none;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+                padding: 10px 24px;
+                border: 1px solid var(--color-gold);
+                border-radius: 4px;
+                background: rgba(12, 8, 24, 0.5);
+                transition: all 0.3s ease;
+                text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+            }
+
+            .back-btn:hover {
+                color: #fffdec;
+                background: rgba(212, 175, 55, 0.2);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body class="glitch-flash-container">
+        <!-- 神秘的な背景を流用 -->
+        <div class="scene-background" id="scene-bg" style="background-image: url('/images/tarot_room.png');"></div>
+        <div class="bg-glow"></div>
+
+        <div class="about-container">
+            <header class="about-header">
+                <h1 class="about-title">THE TAROT JOURNEY</h1>
+                <p class="about-subtitle">ABOUT THE APP</p>
+            </header>
+
+            <main style="width: 100%;">
+                <!-- セクション1: 愚者の旅 -->
+                <article class="about-card">
+                    <h2 class="about-section-title">
+                        <span>📖</span> 愚者の旅とタロットの学び
+                    </h2>
+                    <p class="about-text">
+                        『The Tarot Journey』は、大アルカナ22枚が内包する<strong>「愚者の旅（The Fool's Journey）」</strong>の壮大な物語を、あなた自身が体験しながらタロットの基礎と象徴を学べるアドベンチャーアプリです。
+                    </p>
+                    <p class="about-text">
+                        何者でもない「0:愚者」として始まり、世界の様々なステージ（アルカナ）の試練やキャラクターとの対話を通じ、タロットカードが持つそれぞれの意味を感覚的に理解していくことができます。
+                    </p>
+                </article>
+
+                <!-- セクション2: クリア後の内省 -->
+                <article class="about-card">
+                    <h2 class="about-section-title">
+                        <span>🔮</span> 日常を読み解く鏡として
+                    </h2>
+                    <p class="about-text">
+                        ゲーム本編のストーリーをクリアした後は、このアプリは<strong>「内省と自己対話のためのツール（Daily Tarot）」</strong>へと進化します。
+                    </p>
+                    <p class="about-text">
+                        今日引いたカードと、そのカードに含まれる象徴（モチーフ）を深く見つめ直すことで、自分自身の深層心理や、日々の選択に対する直感的な気づきを得るための強力なサポーターとして日常に寄り添い続けます。
+                    </p>
+                </article>
+
+                <!-- 隠し要素のトリガー -->
+                <div class="hidden-trigger-wrapper">
+                    <button id="decrypt-btn" class="hidden-trigger-btn">
+                        * 旅路の余白に：制作者からのメッセージ *
+                    </button>
+                </div>
+
+                <!-- 隠しセクション: 開発背景（依存） -->
+                <div id="secret-info" class="secret-section">
+                    <article class="secret-card">
+                        <h2 class="secret-title">
+                            <span>✍️</span> 制作者のノート：物語に込めた「手綱」の想い
+                        </h2>
+                        <div class="secret-text">
+                            <p class="about-text">
+                                本アプリの根底には、現代社会における<strong>「意思決定の外部委託（依存）」</strong>というテーマが存在しています。
+                            </p>
+                            <p class="about-text">
+                                スマートフォンが発する「指示」や「占い」に従うだけで進む道は、一時的な安心をもたらすかもしれません。しかし、自分の選択を完全にアプリに委ねてしまったとき、人は自らを制御する「手綱（自己規律）」を失い、暴走の果てに自滅へと向かうことになります。
+                            </p>
+                            <p class="about-text">
+                                物語の結末を超え、本来のタロットの意味に触れたとき、あなたは気づくはずです。真の救いとは、指示に従うことではなく、<strong>自らの手で手綱を握り直し、自分の意志で最初の一歩を踏み出すこと</strong>なのだと。
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </main>
+
+            <div class="back-btn-wrapper">
+                <a href="/" class="back-btn">旅の始まりに戻る</a>
+            </div>
+        </div>
+
+        <script is:inline>
+            const decryptBtn = document.getElementById("decrypt-btn");
+            const secretInfo = document.getElementById("secret-info");
+
+            if (decryptBtn && secretInfo) {
+                decryptBtn.addEventListener("click", () => {
+                    // 温かいゴールドの明滅エフェクトをbodyにかける
+                    document.body.classList.add("glow-flash");
+                    
+                    // ボタンのテキストとスタイルを優しく更新
+                    decryptBtn.textContent = "* 旅路の余白に：メッセージを開きました *";
+                    decryptBtn.style.color = "#fffdec";
+                    decryptBtn.style.borderColor = "var(--color-gold)";
+                    decryptBtn.style.boxShadow = "0 0 15px rgba(212, 175, 55, 0.3)";
+                    
+                    // 隠しセクションを表示
+                    secretInfo.style.display = "block";
+                    setTimeout(() => {
+                        secretInfo.style.opacity = "1";
+                    }, 50);
+
+                    // フラッシュクラスを除去
+                    setTimeout(() => {
+                        document.body.classList.remove("glow-flash");
+                    }, 400);
+                });
+            }
+        </script>
+    </body>
+</html>

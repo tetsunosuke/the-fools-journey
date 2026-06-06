@@ -2886,3 +2886,28 @@ body {
     30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
     40%, 60% { transform: translate3d(5px, 0, 0); }
 }
+
+/* About Link Styles */
+.about-link {
+    color: var(--color-gold);
+    font-size: 14px;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1.5px;
+    padding: 6px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 4px;
+    background: rgba(12, 8, 24, 0.4);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+}
+
+.about-link:hover {
+    color: #fffdec;
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    text-shadow: 0 0 8px var(--color-gold-glow);
+    transform: translateY(-1px);
+}
