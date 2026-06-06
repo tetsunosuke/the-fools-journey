@@ -1099,21 +1099,11 @@ export function triggerDevilLoopEnd() {
 }
 
 export function applyDynamicAdjustments() {
-    // SCENARIO text replacement: "あなた" -> "君", "ナレーション" -> ""
+    // SCENARIO text replacement: "ナレーション" -> ""
     for (let loopKey in SCENARIO) {
         SCENARIO[loopKey].forEach(step => {
             if (step.speaker === "ナレーション") {
                 step.speaker = "";
-            }
-            if (step.text) {
-                step.text = step.text.replace(/あなた/g, "君");
-            }
-            if (step.cards) {
-                step.cards.forEach(card => {
-                    if (card.desc) {
-                        card.desc = card.desc.replace(/あなた/g, "君");
-                    }
-                });
             }
         });
     }

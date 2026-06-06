@@ -101,21 +101,27 @@ export function updateGauges(stressChange, luckChange) {
 }
 
 export function updateBackgroundAndAesthetics() {
-    if (gameState.currentLoop === 1) {
-        if (gameState.currentStep === 0) {
-            sceneBgEl.style.backgroundImage = "url('/images/city_street.png')";
-        } else {
+    const isEarlyStep = (gameState.currentLoop === 1 && gameState.currentStep === 0) || 
+                        (gameState.currentLoop === 2 && gameState.currentStep < 3);
+
+    if (isEarlyStep) {
+        sceneBgEl.style.backgroundImage = "url('/images/city_street.png')";
+    } else {
+        if (gameState.currentLoop === 1 || gameState.currentLoop === 2) {
             sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
+        } else {
+            sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
         }
+    }
+
+    if (gameState.currentLoop === 1) {
         sceneBgEl.style.opacity = 0.35;
         talkPortraitEl.classList.remove("card-glitch-1", "card-glitch-2");
     } else if (gameState.currentLoop === 2) {
-        sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
         sceneBgEl.style.opacity = 0.25;
         talkPortraitEl.classList.add("card-glitch-1");
         talkPortraitEl.classList.remove("card-glitch-2");
     } else {
-        sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
         sceneBgEl.style.opacity = 0.55;
         talkPortraitEl.classList.add("card-glitch-2");
     }
@@ -123,7 +129,7 @@ export function updateBackgroundAndAesthetics() {
 
 export function changeBackground(bgName) {
     let url = "";
-    if (bgName === "tarot_room") url = "/images/tarot_room.png";
+    if (bgName === "tarot_room" || bgName === "tarot_room_philo") url = "/images/tarot_room.png";
     else if (bgName === "home_morning") url = "/images/home_morning.png";
     else if (bgName === "home_night") url = "/images/home_night.png";
     else if (bgName === "modern_office") url = "/images/modern_office.png";
