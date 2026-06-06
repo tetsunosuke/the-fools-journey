@@ -227,8 +227,8 @@ function startConsoleOutput() {
             `>> BIOMETRICS: HEART_RATE (${hr} bpm)`,
             stress > 80 ? ">> WARNING: STRESS LEVEL DANGEROUS" : ">> STRESS INDEX: WITHIN_PLAN_BOUNDS",
             ">> BRAIN_WAVE: SYNCHRONIZED_WITH_CARDS",
-            gameState.currentStep >= 14 ? ">> SYSTEM INTRUSION: 95% COMPLETE" : ">> OPTIMIZING SOUL COMPLIANCE...",
-            gameState.currentStep >= 14 ? ">> WARNING: THOUGHT_ROUTINE_DEPRECATED" : ">> CRITICAL_THINKS: STABLE",
+            gameState.currentStep >= 15 ? ">> SYSTEM INTRUSION: 95% COMPLETE" : ">> OPTIMIZING SOUL COMPLIANCE...",
+            gameState.currentStep >= 15 ? ">> WARNING: THOUGHT_ROUTINE_DEPRECATED" : ">> CRITICAL_THINKS: STABLE",
             ">> ALIGNMENT: SOFIA_DESTINY_LOADED",
             ">> status: ACTIVE_AND_DEPENDENT"
         );

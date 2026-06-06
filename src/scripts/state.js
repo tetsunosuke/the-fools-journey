@@ -12,8 +12,8 @@ export const gameState = {
     currentView: "talk",
     currentDialoguePages: [],
     currentDialoguePageIndex: 0,
-    currentCelticIndex: 0,
-    isCelticAnimating: false,
+    currentThreeCardIndex: 0,
+    isThreeCardAnimating: false,
     activeDialogueSpeaker: "",
     isTyping: false,
     skipTyping: null,
@@ -24,7 +24,7 @@ export const gameState = {
     // カード図鑑（一度引いたカードのIDを格納するセット）
     discoveredCards: new Set(),
     // 読了したスリーカードのセット
-    openedCelticCards: new Set(),
+    openedThreeCardCards: new Set(),
     // チュートリアルモーダルの表示完了フラグ
     hasSeenCollectionTutorial: false,
 

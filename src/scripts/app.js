@@ -9,10 +9,10 @@ import {
     updateSpeakerVisibility, focusTarotCard, scrollToBottom,
     sceneBgEl, loopCountEl, currentArcanaEl, glitchOverlay, goldFlashOverlay,
     endingOverlay, endingTitle, endingDesc, restartBtn, stressGaugeEl, luckGaugeEl,
-    psycheScanOverlay, gameContainer, viewTalk, viewChat, viewCeltic, viewPuzzle,
+    psycheScanOverlay, gameContainer, viewTalk, viewChat, viewThreeCard, viewPuzzle,
     talkPortraitEl, talkSpeakerEl, talkTextEl, talkClickPrompt, talkCardsContainer,
     chatHistoryEl, chatInteractiveZoneEl, cardDrawOverlay, cardDrawDeckContainer,
-    celticSpeakerEl, celticTextEl, celticClickPrompt, puzzleSpeakerEl, puzzleTextEl,
+    threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt, puzzleSpeakerEl, puzzleTextEl,
     puzzleClickPrompt, meditationContainer, drawMeditationBtn, meditationCardZone,
     meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons,
     resetMeditationBtn, startScreenEl, startNewBtn, startContinueBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
@@ -22,9 +22,9 @@ import {
 import { parseMarkdown, getSubHtml, typeDialogueText, autoSplitTextIntoPages, processPageTags } from "./utils.js";
 import { createCardElement } from "./cards.js";
 import {
-    renderSoulCardForm, showSoulCardResult, highlightSlotGuide, switchToCelticCrossView,
-    renderCelticCross, startAutomaticCelticSpread, drawNextCelticCardInline, completeCelticSpread,
-    showCelticCrossContract, renderMotifSelection, triggerPsycheScan, renderSymbolicDragPuzzle,
+    renderSoulCardForm, showSoulCardResult, highlightSlotGuide, switchToThreeCardView,
+    renderThreeCardSpread, startAutomaticThreeCardSpread, drawNextThreeCardInline, completeThreeCardSpread,
+    showThreeCardContract, renderMotifSelection, triggerPsycheScan, renderSymbolicDragPuzzle,
     setupStoneDrag, handlePuzzleChoice, loadMetaStarStep, setupCardDrag, triggerFateBrokenByDrag,
     triggerTrueEndingUnlock, showTrueEndingOverlay, initMeditationMode, drawMeditationCard, selectMeditationMotif
 } from "./puzzle.js";
@@ -37,13 +37,13 @@ export const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
 window.triggerViewChange = (viewName) => {
     console.log("Dynamically switching view to:", viewName);
     showView(viewName);
-    if (viewName === "celtic") {
-        renderCelticCross();
-        // 1周目の占い（step-12）の場合は、少しディレイを入れてカード自動展開を開始
-        if (gameState.currentLoop === 1 && gameState.currentStep === 12) {
-            setTimeout(startAutomaticCelticSpread, 600);
+    if (viewName === "threeCard" || viewName === "celtic") {
+        renderThreeCardSpread();
+        // 1周目の占い（step-13）の場合は、少しディレイを入れてカード自動展開を開始
+        if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
+            setTimeout(startAutomaticThreeCardSpread, 600);
         } else {
-            startAutomaticCelticSpread();
+            startAutomaticThreeCardSpread();
         }
     } else if (viewName === "puzzle") {
         renderSymbolicDragPuzzle();
@@ -114,10 +114,10 @@ export function loadStep() {
             talkSpeakerEl.textContent = "";
             talkSpeakerEl.classList.add("hidden");
         }
-        if (celticTextEl) celticTextEl.textContent = "";
-        if (celticSpeakerEl) {
-            celticSpeakerEl.textContent = "";
-            celticSpeakerEl.classList.add("hidden");
+        if (threeCardTextEl) threeCardTextEl.textContent = "";
+        if (threeCardSpeakerEl) {
+            threeCardSpeakerEl.textContent = "";
+            threeCardSpeakerEl.classList.add("hidden");
         }
         if (puzzleTextEl) puzzleTextEl.textContent = "";
         if (puzzleSpeakerEl) {
@@ -377,12 +377,12 @@ export function executeLoadStep(stepData) {
         }
     }
 
-    // ケルト十字 (Step 11) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
+    // 本契約 (Step 14) の開始時は、セリフ表示と演出を分けるため、まずは Talkビューとして表示する
     let viewToLoad = stepData.view;
     if (viewToLoad === "chat") {
         viewToLoad = "talk"; // チャット画面は廃止し、会話・ナレーション画面に統一
     }
-    if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
+    if (gameState.currentLoop === 1 && gameState.currentStep === 14) {
         viewToLoad = "talk";
     }
     showView(viewToLoad);
@@ -519,15 +519,15 @@ export function executeLoadStep(stepData) {
 
         showNextChatPage(0, "The Journey");
     }
-    else if (gameState.currentView === "celtic") {
-        if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
+    else if (gameState.currentView === "threeCard" || gameState.currentView === "celtic") {
+        if (gameState.currentLoop === 1 && gameState.currentStep === 14) {
             // 盤面を描画し、本契約UIを表示
-            renderCelticCross();
-            showCelticCrossContract();
+            renderThreeCardSpread();
+            showThreeCardContract();
         } else {
-            // 2周目、あるいは1周目step-12の自動開始用（通常遷移時など）
-            renderCelticCross();
-            startAutomaticCelticSpread();
+            // 2周目、あるいは1周目step-13の自動開始用（通常遷移時ね）
+            renderThreeCardSpread();
+            startAutomaticThreeCardSpread();
         }
     }
     else if (gameState.currentView === "puzzle") {
@@ -581,15 +581,15 @@ export function showPaginatedText(text, textEl, promptEl, onAllDone, defaultSpea
         // 話者名のUI表示を適用
         const talkSpeaker = document.getElementById("talk-speaker");
         const talkText = document.getElementById("talk-text");
-        const celticSpeaker = document.getElementById("celtic-speaker");
-        const celticText = document.getElementById("celtic-text");
+        const threeCardSpeaker = document.getElementById("three-card-speaker");
+        const threeCardText = document.getElementById("three-card-text");
         const puzzleSpeaker = document.getElementById("puzzle-speaker");
         const puzzleText = document.getElementById("puzzle-text");
 
         if (gameState.currentView === "talk" && talkSpeaker && talkText) {
             updateSpeakerVisibility(talkSpeaker, talkText, result.speaker);
-        } else if (gameState.currentView === "celtic" && celticSpeaker && celticText) {
-            updateSpeakerVisibility(celticSpeaker, celticText, result.speaker);
+        } else if ((gameState.currentView === "threeCard" || gameState.currentView === "celtic") && threeCardSpeaker && threeCardText) {
+            updateSpeakerVisibility(threeCardSpeaker, threeCardText, result.speaker);
         } else if (gameState.currentView === "puzzle" && puzzleSpeaker && puzzleText) {
             updateSpeakerVisibility(puzzleSpeaker, puzzleText, result.speaker);
         }
@@ -681,7 +681,7 @@ export function showNextDialoguePage(stepData) {
 }
 
 export function finishStepText(stepData) {
-    if (gameState.currentLoop === 1 && gameState.currentStep === 13) {
+    if (gameState.currentLoop === 1 && gameState.currentStep === 14) {
         renderSoulCardForm();
     } else if (gameState.currentLoop === 2 && gameState.currentStep === 2) {
         loadMetaStarStep();
@@ -877,10 +877,10 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
                 return;
             }
 
-            // celticビューへの移行が含まれている場合は、会話表示をスキップして直接ビュー切り替えをキックする
-            if (card.desc.includes("[view: celtic]")) {
+            // threeCardビューへの移行が含まれている場合は、会話表示をスキップして直接ビュー切り替えをキックする
+            if (card.desc.includes("[view: threeCard]") || card.desc.includes("[view: celtic]")) {
                 if (typeof window.triggerViewChange === "function") {
-                    window.triggerViewChange("celtic");
+                    window.triggerViewChange("threeCard");
                 }
                 return;
             }
@@ -973,10 +973,10 @@ export function revealCard(cardElement, card, isInChat = false) {
                         });
                     });
                 }
-            } else if (gameState.currentView === "celtic") {
-                updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "運命の託宣");
-                showPaginatedText(gameState.selectedOptionDesc, celticTextEl, celticClickPrompt, () => {
-                    celticClickPrompt.classList.remove("hidden");
+            } else if (gameState.currentView === "threeCard" || gameState.currentView === "celtic") {
+                updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "運命の託宣");
+                showPaginatedText(gameState.selectedOptionDesc, threeCardTextEl, threeCardClickPrompt, () => {
+                    threeCardClickPrompt.classList.remove("hidden");
                 });
             } else if (gameState.currentView === "puzzle") {
                 updateSpeakerVisibility(puzzleSpeakerEl, puzzleTextEl, "運命の託宣");
@@ -991,8 +991,8 @@ export function revealCard(cardElement, card, isInChat = false) {
 export function advanceGame() {
     const currentScenarioLength = SCENARIO[gameState.currentLoop].length;
 
-    // Bad End branch at Step 11 (Chariot)
-    if (gameState.currentLoop === 1 && gameState.currentStep === 11) {
+    // Bad End branch at Step 12 (Chariot Bad End / Trial Expired)
+    if (gameState.currentLoop === 1 && gameState.currentStep === 12) {
         if (gameState.selectedOptionDesc.includes("逆位置の『愚者』")) {
             gameState.stressVal = 100;
             gameState.luckVal = 0;
@@ -1040,9 +1040,9 @@ export function triggerLoversBadEnd() {
             しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独が君を包みます。<br><br>
             <span style="color: var(--color-accent-red);">「君は導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
         `;
-        restartBtn.textContent = "8日目をやり直す";
+        restartBtn.textContent = "9日目をやり直す";
         restartBtn.onclick = () => {
-            gameState.currentStep = 11;
+            gameState.currentStep = 12;
             saveState();
             initGame();
         };
@@ -1299,8 +1299,8 @@ document.addEventListener("click", (e) => {
         return;
     }
 
-    // ケルト十字ビューの場合は、手動カード確認（クリック）以外の「画面全体タップによる進行」を透過させます。
-    if (gameState.currentView === "celtic" && !gameState.isCelticAnimating) {
+    // スリーカードビューの場合は、手動カード確認（クリック）以外の「画面全体タップによる進行」を透過させます。
+    if ((gameState.currentView === "threeCard" || gameState.currentView === "celtic") && !gameState.isThreeCardAnimating) {
         // カードをクリックした場合はstopPropagationされるためここには来ず、
         // 盤面上のその他やデッキの上のタップでも進行を発生させます。
     } else {
@@ -1345,9 +1345,9 @@ document.addEventListener("click", (e) => {
             advanceGame();
         }
     }
-    // ケルト十字ビューでのクリック進行（全て配り終えてソフィアのトーク表示時など）
-    else if (gameState.currentView === "celtic") {
-        if (gameState.isCardRevealed && !gameState.isCelticAnimating) {
+    // スリーカードビューでのクリック進行（全て配り終えてソフィアのトーク表示時など）
+    else if (gameState.currentView === "threeCard" || gameState.currentView === "celtic") {
+        if (gameState.isCardRevealed && !gameState.isThreeCardAnimating) {
             advanceGame();
         }
     }

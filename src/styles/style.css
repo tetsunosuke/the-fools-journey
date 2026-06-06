@@ -635,8 +635,8 @@ body {
     outline: none;
 }
 
-/* Celtic Cross Layout Styles */
-.celtic-cross-container {
+/* Three Card Layout Styles */
+.three-card-container {
     position: relative;
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -647,7 +647,7 @@ body {
     padding: 10px;
     overflow-y: auto;
 }
-.celtic-cross-layout {
+.three-card-layout {
     display: grid;
     grid-template-areas:
         "past present future";
@@ -658,37 +658,37 @@ body {
     position: relative;
     min-height: 250px;
 }
-.celtic-cross-layout .card-wrapper {
+.three-card-layout .card-wrapper {
     width: 75px;
     height: 125px;
     transition: transform 0.4s ease;
 }
-.celtic-cross-layout .card-wrapper .card-image-slot {
+.three-card-layout .card-wrapper .card-image-slot {
     height: 70px;
 }
-.celtic-cross-layout .card-wrapper .card-title {
+.three-card-layout .card-wrapper .card-title {
     font-size: 8px;
     margin-top: 2px;
 }
-.celtic-cross-layout .card-wrapper .card-orientation {
+.three-card-layout .card-wrapper .card-orientation {
     font-size: 7px;
 }
-.celtic-cross-layout .card-wrapper:hover {
+.three-card-layout .card-wrapper:hover {
     transform: scale(1.1);
     z-index: 10;
 }
-.celtic-cross-layout .celtic-1 { grid-area: past; }
-.celtic-cross-layout .celtic-2 { grid-area: present; }
-.celtic-cross-layout .celtic-3 { grid-area: future; }
+.three-card-layout .three-card-1 { grid-area: past; }
+.three-card-layout .three-card-2 { grid-area: present; }
+.three-card-layout .three-card-3 { grid-area: future; }
 
-.celtic-staff-layout {
+.three-card-staff-layout {
     display: flex;
     flex-direction: column-reverse;
     gap: 10px;
     justify-content: center;
     align-items: center;
 }
-.celtic-staff-layout .card-wrapper {
+.three-card-staff-layout .card-wrapper {
     width: 75px;
     height: 125px;
 }
@@ -787,22 +787,22 @@ body {
 
 /* Responsive adjust for Celtic cross */
 @media (max-width: 768px) {
-    .celtic-cross-container {
+    .three-card-container {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto;
         overflow-y: auto;
         max-height: 52vh;
     }
-    .celtic-staff-layout {
+    .three-card-staff-layout {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
     }
-    .celtic-cross-layout .card-wrapper, .celtic-staff-layout .card-wrapper {
+    .three-card-layout .card-wrapper, .three-card-staff-layout .card-wrapper {
         width: 60px;
         height: 100px;
     }
-    .celtic-cross-layout .card-wrapper .card-image-slot, .celtic-staff-layout .card-wrapper .card-image-slot {
+    .three-card-layout .card-wrapper .card-image-slot, .three-card-staff-layout .card-wrapper .card-image-slot {
         height: 50px;
     }
 }
@@ -910,8 +910,8 @@ body {
     font-weight: bold;
 }
 
-/* Celtic cross Slot deck and slot guides */
-.celtic-deck {
+/* Three Card Slot deck and slot guides */
+.three-card-deck {
     border: 1px dashed var(--color-gold);
     background: rgba(212, 175, 55, 0.05);
     display: flex;
@@ -922,7 +922,7 @@ body {
     cursor: pointer;
     box-shadow: 0 0 10px var(--color-gold-glow);
 }
-.celtic-deck::after {
+.three-card-deck::after {
     content: 'DECK';
     font-family: var(--font-mono);
     color: var(--color-gold);
@@ -1227,8 +1227,8 @@ body {
     min-height: 80px;
 }
 
-/* Scene 3: Celtic Dialogue and Scene 4 Dialogue */
-.dialogue-container-celtic, .dialogue-container-puzzle {
+/* Scene 3: Three Card Dialogue and Scene 4 Dialogue */
+.dialogue-container-three-card, .dialogue-container-puzzle {
     background: var(--color-bg-panel);
     backdrop-filter: var(--blur-glass);
     border: var(--border-gold);
@@ -1241,7 +1241,7 @@ body {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
-.dialogue-container-celtic::-webkit-scrollbar, .dialogue-container-puzzle::-webkit-scrollbar {
+.dialogue-container-three-card::-webkit-scrollbar, .dialogue-container-puzzle::-webkit-scrollbar {
     display: none;
 }
 
@@ -1256,7 +1256,7 @@ body {
     .chat-bubble {
         max-width: 90%;
     }
-    .dialogue-container-celtic, .dialogue-container-puzzle, .dialogue-container-talk {
+    .dialogue-container-three-card, .dialogue-container-puzzle, .dialogue-container-talk {
         padding: 12px 18px;
         min-height: 120px;
     }
@@ -2325,8 +2325,8 @@ body {
     transition: none;
 }
 
-/* ケルト十字自動配置イージング最適化 */
-.celtic-cross-container .card-wrapper.revealed {
+/* スリーカード自動配置イージング最適化 */
+.three-card-container .card-wrapper.revealed {
     transition: left 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
                 top 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
                 transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),

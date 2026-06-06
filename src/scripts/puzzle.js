@@ -7,7 +7,7 @@ import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_MOTIFS, THREE_CARDS_DATA } from ".
 import {
     showView, focusTarotCard, updateSpeakerVisibility, updateBackgroundAndAesthetics, scrollToBottom,
     talkCardsContainer, talkSpeakerEl, talkTextEl, talkClickPrompt, currentArcanaEl,
-    celticSpeakerEl, celticTextEl, celticClickPrompt,
+    threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt,
     puzzleSpeakerEl, puzzleTextEl, puzzleClickPrompt,
     endingOverlay, endingTitle, endingDesc, restartBtn,
     meditationContainer, meditationCardZone, meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons, resetMeditationBtn,
@@ -293,9 +293,9 @@ ${cardInfo.desc}
 
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     showPaginatedText(gameState.selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
-        showView("celtic");
-        renderCelticCross();
-        showCelticCrossContract();
+        showView("threeCard");
+        renderThreeCardSpread();
+        showThreeCardContract();
     });
 }
 
@@ -304,69 +304,64 @@ export function highlightSlotGuide(slotNum) {
     document.querySelectorAll(".cross-slot-guide").forEach(el => {
         el.classList.remove("active-slot");
     });
-    let targetSlotGuide;
-    if (slotNum <= 6) {
-        targetSlotGuide = document.querySelector(`.celtic-cross-layout [data-slot-num="${slotNum}"]`);
-    } else {
-        targetSlotGuide = document.getElementById(`slot-${slotNum}`);
-    }
+    let targetSlotGuide = document.querySelector(`.three-card-layout [data-slot-num="${slotNum}"]`);
     if (targetSlotGuide) {
         targetSlotGuide.classList.add("active-slot");
     }
 }
 
-// --- Celtic Cross View Switcher (Talk → Celtic, then auto-deal) ---
-export function switchToCelticCrossView() {
-    showView("celtic");
-    renderCelticCross();
+// --- Three Card View Switcher (Talk → ThreeCard, then auto-deal) ---
+export function switchToThreeCardView() {
+    showView("threeCard");
+    renderThreeCardSpread();
 
     // ダイアログを表示してプレイヤーを促す
-    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
-    celticTextEl.textContent = "「さあ、画面をタップして。君のために完璧に配された『ケルト十字』のスプレッドを展開しましょう」";
-    celticClickPrompt.classList.remove("hidden");
+    updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
+    threeCardTextEl.textContent = "「さあ、画面をタップして。君のために完璧に配された『三枚引き』のスプレッドを展開しましょう」";
+    threeCardClickPrompt.classList.remove("hidden");
 
-    celticClickPrompt.onclick = () => {
-        celticClickPrompt.onclick = null; // タップされたら進行
-        startAutomaticCelticSpread();
+    threeCardClickPrompt.onclick = () => {
+        threeCardClickPrompt.onclick = null; // タップされたら進行
+        startAutomaticThreeCardSpread();
     };
 }
 
-export function renderCelticCross() {
+export function renderThreeCardSpread() {
     gameState.isCardRevealed = false;
-    gameState.currentCelticIndex = 0;
-    gameState.isCelticAnimating = false;
-    gameState.openedCelticCards.clear();
+    gameState.currentThreeCardIndex = 0;
+    gameState.isThreeCardAnimating = false;
+    gameState.openedThreeCardCards.clear();
 
-    const crossGrid = document.getElementById("celtic-cross-grid");
+    const crossGrid = document.getElementById("three-card-grid");
 
     // Clear and restore original guides
     crossGrid.innerHTML = `
-        <div class="cross-slot-guide celtic-1" data-slot-num="1" style="grid-area: past;"></div>
-        <div class="cross-slot-guide celtic-2" data-slot-num="2" style="grid-area: present;"></div>
-        <div class="cross-slot-guide celtic-3" data-slot-num="3" style="grid-area: future;"></div>
-        <div class="card-wrapper celtic-deck" id="celtic-cross-deck"></div>
+        <div class="cross-slot-guide three-card-1" data-slot-num="1" style="grid-area: past;"></div>
+        <div class="cross-slot-guide three-card-2" data-slot-num="2" style="grid-area: present;"></div>
+        <div class="cross-slot-guide three-card-3" data-slot-num="3" style="grid-area: future;"></div>
+        <div class="card-wrapper three-card-deck" id="three-card-deck"></div>
     `;
 
     highlightSlotGuide(1);
 }
 
-export function startAutomaticCelticSpread() {
-    gameState.isCelticAnimating = true;
-    celticClickPrompt.classList.add("hidden");
+export function startAutomaticThreeCardSpread() {
+    gameState.isThreeCardAnimating = true;
+    threeCardClickPrompt.classList.add("hidden");
 
     let i = 0;
     const interval = setInterval(() => {
         if (i < 3) {
-            drawNextCelticCardInline(i);
+            drawNextThreeCardInline(i);
             i++;
         } else {
             clearInterval(interval);
-            setTimeout(completeCelticSpread, 800);
+            setTimeout(completeThreeCardSpread, 800);
         }
     }, 450);
 }
 
-export function drawNextCelticCardInline(index) {
+export function drawNextThreeCardInline(index) {
     const cardData = THREE_CARDS_DATA[index] || { pos: `位置 ${index + 1}`, name: `カード #${index}`, img: `/images/cards/${index}.jpg`, desc: "カードの託宣" };
     const cardNum = index + 1;
 
@@ -403,18 +398,13 @@ export function drawNextCelticCardInline(index) {
     cardWrapper.style.transform = "translate(-50%, -50%) scale(0.5)";
     cardWrapper.style.zIndex = "50";
 
-    document.querySelector(".celtic-cross-container").appendChild(cardWrapper);
+    document.querySelector(".three-card-container").appendChild(cardWrapper);
 
     setTimeout(() => {
-        let targetSlotGuide;
-        if (cardNum <= 6) {
-            targetSlotGuide = document.querySelector(`.celtic-cross-layout [data-slot-num="${cardNum}"]`);
-        } else {
-            targetSlotGuide = document.getElementById(`slot-${cardNum}`);
-        }
+        let targetSlotGuide = document.querySelector(`.three-card-layout [data-slot-num="${cardNum}"]`);
 
         const targetRect = targetSlotGuide.getBoundingClientRect();
-        const containerRect = document.querySelector(".celtic-cross-container").getBoundingClientRect();
+        const containerRect = document.querySelector(".three-card-container").getBoundingClientRect();
 
         const targetX = targetRect.left - containerRect.left + (targetRect.width / 2);
         const targetY = targetRect.top - containerRect.top + (targetRect.height / 2);
@@ -454,67 +444,67 @@ export function drawNextCelticCardInline(index) {
         }
 
         focusTarotCard(cardData.name, !cardData.rotate, cardData.img);
-        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, cardData.pos);
+        updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, cardData.pos);
         const posMeaning = cardData.pos.includes(". ") ? cardData.pos.split(". ")[1] : cardData.pos;
-        typeDialogueText(`この位置は「${posMeaning}」を表します。ここに配された【${cardData.name}】は、${cardData.desc}`, celticTextEl);
+        typeDialogueText(`この位置は「${posMeaning}」を表します。ここに配された【${cardData.name}】は、${cardData.desc}`, threeCardTextEl);
 
         // 読了したカードを追跡
-        gameState.openedCelticCards.add(index);
+        gameState.openedThreeCardCards.add(index);
 
         // もし3枚すべてを読み終えたら、進行可能にする
-        if (gameState.openedCelticCards.size >= 3) {
+        if (gameState.openedThreeCardCards.size >= 3) {
             gameState.isCardRevealed = true;
-            celticClickPrompt.classList.remove("hidden");
+            threeCardClickPrompt.classList.remove("hidden");
 
             const nextHandler = (e) => {
                 e.stopPropagation();
                 advanceGame();
             };
-            celticClickPrompt.onclick = nextHandler;
-            celticTextEl.parentElement.onclick = nextHandler;
+            threeCardClickPrompt.onclick = nextHandler;
+            threeCardTextEl.parentElement.onclick = nextHandler;
         }
     });
 
-    gameState.currentCelticIndex = cardNum;
+    gameState.currentThreeCardIndex = cardNum;
 
-    if (gameState.currentCelticIndex < 3) {
-        highlightSlotGuide(gameState.currentCelticIndex + 1);
+    if (gameState.currentThreeCardIndex < 3) {
+        highlightSlotGuide(gameState.currentThreeCardIndex + 1);
     } else {
-        const deck = document.getElementById("celtic-cross-deck");
+        const deck = document.getElementById("three-card-deck");
         if (deck) deck.remove();
     }
 }
 
-export function completeCelticSpread() {
-    gameState.isCelticAnimating = false;
+export function completeThreeCardSpread() {
+    gameState.isThreeCardAnimating = false;
 
     // ダイアログを再表示
-    const celticDialogContainer = document.querySelector(".dialogue-container-celtic");
-    if (celticDialogContainer) {
-        celticDialogContainer.classList.remove("hidden");
+    const threeCardDialogContainer = document.querySelector(".dialogue-container-three-card");
+    if (threeCardDialogContainer) {
+        threeCardDialogContainer.classList.remove("hidden");
     }
 
-    // スプレッド完成後のセリフ (選択肢のdescから [view: celtic] などのタグを除去して使用)
-    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
+    // スプレッド完成後のセリフ (選択肢のdescから [view: threeCard] などのタグを除去して使用)
+    updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
     let summaryText = "「カードが展開されたわ。配置された3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）が示す真実をのぞいてみてちょうだい」";
     if (gameState.selectedOptionDesc) {
         summaryText = gameState.selectedOptionDesc.replace(/\[[^\]]+\]/g, "").trim();
     }
 
     // ▼プロンプトを非表示化し、クリック待ちを解除
-    celticClickPrompt.classList.add("hidden");
-    celticClickPrompt.onclick = null;
-    celticTextEl.parentElement.onclick = null;
+    threeCardClickPrompt.classList.add("hidden");
+    threeCardClickPrompt.onclick = null;
+    threeCardTextEl.parentElement.onclick = null;
 
     // テキスト表示のみを行い、カードタップを促す
-    typeDialogueText(summaryText, celticTextEl, () => {
+    typeDialogueText(summaryText, threeCardTextEl, () => {
         gameState.isCardRevealed = false;
-        celticClickPrompt.classList.add("hidden");
+        threeCardClickPrompt.classList.add("hidden");
     });
 }
 
-export function showCelticCrossContract() {
-    document.querySelector(".celtic-cross-container").innerHTML = `
+export function showThreeCardContract() {
+    document.querySelector(".three-card-container").innerHTML = `
         <div class="soul-card-form" style="max-width: 500px; margin: 40px auto 0;">
             <label>【本契約の決済条件】</label>
             <p style="font-size:13px; color:var(--color-text-light); text-align:center; line-height:1.6;">
@@ -526,25 +516,25 @@ export function showCelticCrossContract() {
     `;
 
     // ソフィアからの契約を促すセリフを表示
-    updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
+    updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
     const contractPromptText = "さあ、これが「本契約」の決済条件よ。提示された条件をよく読んで、そのスマートフォンからすべてを委ねる誓いを立ててちょうだい";
 
     // プロンプトを非表示化し、クリック待ちを解除
-    celticClickPrompt.classList.add("hidden");
-    celticClickPrompt.onclick = null;
-    celticTextEl.parentElement.onclick = null;
+    threeCardClickPrompt.classList.add("hidden");
+    threeCardClickPrompt.onclick = null;
+    threeCardTextEl.parentElement.onclick = null;
 
-    typeDialogueText(contractPromptText, celticTextEl);
+    typeDialogueText(contractPromptText, threeCardTextEl);
 
     document.getElementById("contract-btn").addEventListener("click", (e) => {
         e.stopPropagation();
         gameState.isCardRevealed = true;
         gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は、コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
-        const form = document.querySelector(".celtic-cross-container .soul-card-form");
+        const form = document.querySelector(".three-card-container .soul-card-form");
         if (form) form.remove();
-        updateSpeakerVisibility(celticSpeakerEl, celticTextEl, "ソフィア");
-        typeDialogueText(gameState.selectedOptionDesc, celticTextEl);
-        celticClickPrompt.classList.remove("hidden");
+        updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
+        typeDialogueText(gameState.selectedOptionDesc, threeCardTextEl);
+        threeCardClickPrompt.classList.remove("hidden");
     });
 }
 

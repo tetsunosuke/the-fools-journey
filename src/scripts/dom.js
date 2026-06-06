@@ -21,7 +21,7 @@ export const psycheScanOverlay = document.getElementById("psyche-scan-overlay");
 export const gameContainer = document.getElementById("game-container");
 export const viewTalk = document.getElementById("view-talk");
 export const viewChat = document.getElementById("view-chat");
-export const viewCeltic = document.getElementById("view-celtic");
+export const viewThreeCard = document.getElementById("view-three-card");
 export const viewPuzzle = document.getElementById("view-puzzle");
 export const talkPortraitEl = document.getElementById("talk-portrait");
 export const talkSpeakerEl = document.getElementById("talk-speaker");
@@ -32,9 +32,9 @@ export const chatHistoryEl = document.getElementById("chat-history");
 export const chatInteractiveZoneEl = document.getElementById("chat-interactive-zone");
 export const cardDrawOverlay = document.getElementById("card-draw-overlay");
 export const cardDrawDeckContainer = document.getElementById("card-draw-deck-container");
-export const celticSpeakerEl = document.getElementById("celtic-speaker");
-export const celticTextEl = document.getElementById("celtic-text");
-export const celticClickPrompt = document.getElementById("celtic-click-prompt");
+export const threeCardSpeakerEl = document.getElementById("three-card-speaker");
+export const threeCardTextEl = document.getElementById("three-card-text");
+export const threeCardClickPrompt = document.getElementById("three-card-click-prompt");
 export const puzzleSpeakerEl = document.getElementById("puzzle-speaker");
 export const puzzleTextEl = document.getElementById("puzzle-text");
 export const puzzleClickPrompt = document.getElementById("puzzle-click-prompt");
@@ -68,12 +68,12 @@ export const tabTrueDesc = document.getElementById("tab-true-desc");
 export function showView(viewName) {
     viewTalk.classList.add("hidden");
     viewChat.classList.add("hidden");
-    viewCeltic.classList.add("hidden");
+    viewThreeCard.classList.add("hidden");
     viewPuzzle.classList.add("hidden");
 
     if (viewName === "talk") viewTalk.classList.remove("hidden");
     if (viewName === "chat") viewChat.classList.remove("hidden");
-    if (viewName === "celtic") viewCeltic.classList.remove("hidden");
+    if (viewName === "threeCard" || viewName === "celtic") viewThreeCard.classList.remove("hidden");
     if (viewName === "puzzle") viewPuzzle.classList.remove("hidden");
 
     gameState.currentView = viewName;
