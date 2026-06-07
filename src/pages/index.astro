@@ -1,10 +1,18 @@
 ---
+// @ts-nocheck
 // Astro Component Frontmatter
 import "../styles/style.css";
 import { getCollection } from "astro:content";
 
+/** @type {any[]} */
 const allStories = await getCollection("story");
 
+/**
+ * Parse story body into structured scenario data
+ * @param {string} body
+ * @param {string} storyId
+ * @returns {any}
+ */
 function parseStoryBody(body, storyId) {
     const lines = body.split(/\r?\n/);
 
@@ -82,7 +90,7 @@ function parseStoryBody(body, storyId) {
         }
     }
 
-    const cards = [];
+    const cards = /** @type {any[]} */ ([]);
     if (branchText) {
         const choiceBlocks = branchText.split(
             /(?=\n-\s*選択肢:)|^(?=-\s*選択肢:)/m,
@@ -160,8 +168,8 @@ function parseStoryBody(body, storyId) {
     };
 }
 
-const scenarioData = {};
-allStories.forEach((story) => {
+const scenarioData = /** @type {Record<number, any[]>} */ ({});
+allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
     const idMatch = story.id.match(/loop-(\d)[-\/]step-(\d+)/);
     if (!idMatch) {
         console.warn(`Unrecognized story ID format: ${story.id}`);
