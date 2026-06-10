@@ -121,7 +121,8 @@ function parseStoryBody(body, storyId) {
                         .map((o) => o.trim());
                     optionsList.forEach((opt) => {
                         if (opt.startsWith("id=")) {
-                            id = parseInt(opt.split("=")[1], 10);
+                            const val = opt.split("=")[1];
+                            id = isNaN(parseInt(val, 10)) ? val.trim() : parseInt(val, 10);
                         } else if (opt === "upright") {
                             upright = true;
                         } else if (opt === "correct") {
@@ -428,7 +429,7 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
                     <p
                         style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;"
                     >
-                        ここは君の内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。
+                    ここはあなたの内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。
                     </p>
                 </header>
                 <div class="meditation-card-display">

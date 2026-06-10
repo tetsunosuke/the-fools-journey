@@ -683,8 +683,6 @@ export function showNextDialoguePage(stepData) {
 export function finishStepText(stepData) {
     if (gameState.currentLoop === 1 && gameState.currentStep === 14) {
         renderSoulCardForm();
-    } else if (gameState.currentLoop === 2 && gameState.currentStep === 2) {
-        loadMetaStarStep();
     } else {
         if (stepData.cards && stepData.cards.length > 0) {
             gameState.isCardRevealed = false;
@@ -771,6 +769,50 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
         cardDrawOverlay.classList.add("hidden");
     }
 
+    // 文字列IDが含まれる場合は、画像で選択させる
+    const isCardImageChoice = cardsList.some(card => typeof card.id === "string");
+
+    if (isCardImageChoice) {
+        const cardChoicesContainer = document.createElement("div");
+        cardChoicesContainer.className = "card-image-choices-container";
+
+        cardsList.forEach((card) => {
+            const cardWrapper = document.createElement("div");
+            cardWrapper.className = "choice-card-wrapper";
+
+            const cardFace = document.createElement("div");
+            cardFace.className = "choice-card-face";
+            
+            let imgUrl = "";
+            if (typeof card.id === "string") {
+                imgUrl = `/images/cards/${card.id}.jpg`;
+            } else if (typeof card.id === "number") {
+                imgUrl = TAROT_IMAGES[card.id] || "";
+            }
+
+            cardFace.style.backgroundImage = `url('${imgUrl}')`;
+            if (!card.upright) {
+                cardFace.style.transform = "rotate(180deg)";
+            }
+
+            const label = document.createElement("div");
+            label.className = "choice-card-label";
+            label.textContent = card.title;
+
+            cardWrapper.appendChild(cardFace);
+            cardWrapper.appendChild(label);
+            cardChoicesContainer.appendChild(cardWrapper);
+
+            cardWrapper.addEventListener("click", () => {
+                handleQuizChoiceSelected(card, card.title, isInChat);
+            });
+        });
+
+        container.appendChild(cardChoicesContainer);
+        scrollToBottom();
+        return;
+    }
+
     // Build Quiz style choices container
     const choicesContainer = document.createElement("div");
     choicesContainer.className = "quiz-choices-container";
@@ -812,6 +854,23 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
         });
     }
 
+    // モチーフ選択時（崖の縁など）は、選択肢の上部に「愚者（0）」のカード画像を表示して、絵を見ながら選べるようにする
+    if (cardsList.some(c => c.title.includes("崖の縁") || c.title.includes("薔薇") || c.title.includes("犬"))) {
+        const cardDisplay = document.createElement("div");
+        cardDisplay.className = "dialogue-card-display";
+        cardDisplay.style.marginBottom = "12px";
+        cardDisplay.style.marginTop = "8px";
+
+        const cardImg = document.createElement("div");
+        cardImg.className = "dialogue-card-image";
+        cardImg.style.backgroundImage = `url('${TAROT_IMAGES[0]}')`; // 0 : THE FOOL
+        cardImg.style.width = "100px";
+        cardImg.style.height = "167px";
+
+        cardDisplay.appendChild(cardImg);
+        container.insertBefore(cardDisplay, container.firstChild);
+    }
+
     container.appendChild(choicesContainer);
     scrollToBottom();
 }
@@ -839,8 +898,14 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
 
     // skipFocus: true の選択肢はカードポップアップをスキップする
     if (!card.skipFocus) {
+        let imgUrl = "";
+        if (typeof card.id === "string") {
+            imgUrl = `/images/cards/${card.id}.jpg`;
+        } else if (typeof card.id === "number") {
+            imgUrl = TAROT_IMAGES[card.id] || "";
+        }
         // カードを全画面表示する
-        focusTarotCard(card.id, card.upright, TAROT_IMAGES[card.id], gameState.currentLoop === 1);
+        focusTarotCard(card.id, card.upright, imgUrl, gameState.currentLoop === 1);
     }
 
     if (isInChat) {
@@ -1008,17 +1073,12 @@ export function advanceGame() {
         }
     }
 
-    // Fail Meta-Puzzle click check
-    if (gameState.currentLoop === 2 && gameState.currentStep === 2 && gameState.isFateControlled && gameState.isCardRevealed) {
-        triggerDevilLoopEnd();
-        return;
-    }
-
     if (gameState.currentStep >= currentScenarioLength - 1) {
         if (gameState.currentLoop === 1) {
             triggerTowerBadEnd();
         } else {
-            triggerDevilLoopEnd();
+            // 2周目の最終ステップをクリアした場合は、直接トゥルーエンドへ進行
+            triggerTrueEndingUnlock();
         }
         return;
     }
@@ -1036,9 +1096,9 @@ export function triggerLoversBadEnd() {
         endingTitle.textContent = "0 : THE FOOL (逆位置)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            君は自由を選んだつもりでした。<br>
-            しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独が君を包みます。<br><br>
-            <span style="color: var(--color-accent-red);">「君は導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
+            あなたは自由を選んだつもりでした。<br>
+            しかし、ナビゲーションを失った日常はあっけなく崩壊し、孤独があなたを包みます。<br><br>
+            <span style="color: var(--color-accent-red);">「あなたは導きを失い、ただの本当の馬鹿（逆位置）になったのだ」</span>
         `;
         restartBtn.textContent = "9日目をやり直す";
         restartBtn.onclick = () => {
@@ -1058,9 +1118,9 @@ export function triggerTowerBadEnd() {
         endingTitle.textContent = "XVI : THE TOWER (崩壊)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            完璧だったはずのシステムは、君を贄として崩壊しました。<br>
+            完璧だったはずのシステムは、あなたを贄として崩壊しました。<br>
             自分で考えることを放棄し、誰かが用意した「運命」を盲信した結末です。<br><br>
-            <span style="color: var(--color-gold);">「本当にこれが, 君の望んだ世界ですか？」</span>
+            <span style="color: var(--color-gold);">「本当にこれが, あなたの望んだ世界ですか？」</span>
         `;
         restartBtn.textContent = "2周目を開始する (違和感の獲得)";
         restartBtn.onclick = () => {
@@ -1083,7 +1143,7 @@ export function triggerDevilLoopEnd() {
         endingTitle.textContent = "XV : THE DEVIL (盲信ループ)";
         endingTitle.style.color = "var(--color-accent-red)";
         endingDesc.innerHTML = `
-            君は再び、提示された運命をめくってしまいました。<br>
+            あなたは再び、提示された運命をめくってしまいました。<br>
             用意された選択肢から選ぶという行為自体が、すでに依存と囚われの檻です。<br><br>
             <span style="color: var(--color-gold);">システムに抗うのです。カードそのものをドラッグして「破棄」し、<br>
             運命の糸を物理的に切り離しなさい。</span>
@@ -1091,7 +1151,7 @@ export function triggerDevilLoopEnd() {
         restartBtn.textContent = "もう一度運命に抗う";
         restartBtn.onclick = () => {
             gameState.currentLoop = 2;
-            gameState.currentStep = 2;
+            gameState.currentStep = 7;
             saveState();
             initGame();
         };

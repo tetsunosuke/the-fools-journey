@@ -289,7 +289,7 @@ export function showSoulCardResult(cardNum) {
 
 ${cardInfo.desc}
 
-ソフィアは妖しく微笑む。「だからこそ、君には今の試練が与えられたの。このコミュニティとアプリが、君の傷ついた魂を救う唯一のシェルターなのよ」`;
+ソフィアは妖しく微笑む。「だからこそ、あなたには今の試練が与えられたの。このコミュニティとアプリが、あなたの傷ついた魂を救う唯一のシェルターなのよ」`;
 
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の託宣");
     showPaginatedText(gameState.selectedOptionDesc, talkTextEl, talkClickPrompt, () => {
@@ -317,7 +317,7 @@ export function switchToThreeCardView() {
 
     // ダイアログを表示してプレイヤーを促す
     updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
-    threeCardTextEl.textContent = "「さあ、画面をタップして。君のために完璧に配された『三枚引き』のスプレッドを展開しましょう」";
+    threeCardTextEl.textContent = "「さあ、画面をタップして。あなたのために完璧に配された『三枚引き』のスプレッドを展開しましょう」";
     threeCardClickPrompt.classList.remove("hidden");
 
     threeCardClickPrompt.onclick = () => {
@@ -486,7 +486,7 @@ export function completeThreeCardSpread() {
 
     // スプレッド完成後のセリフ (選択肢のdescから [view: threeCard] などのタグを除去して使用)
     updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
-    let summaryText = "「カードが展開されたわ。配置された3枚のカードをそれぞれタップして、君の旅路（過去・現在・未来）が示す真実をのぞいてみてちょうだい」";
+    let summaryText = "「カードが展開されたわ。配置された3枚のカードをそれぞれタップして、あなたの旅路（過去・現在・未来）が示す真実をのぞいてみてちょうだい」";
     if (gameState.selectedOptionDesc) {
         summaryText = gameState.selectedOptionDesc.replace(/\[[^\]]+\]/g, "").trim();
     }
@@ -529,7 +529,7 @@ export function showThreeCardContract() {
     document.getElementById("contract-btn").addEventListener("click", (e) => {
         e.stopPropagation();
         gameState.isCardRevealed = true;
-        gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これで君の運命は、コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
+        gameState.selectedOptionDesc = "契約は完了しました。おめでとう。これであなたの運命は、コミュニティの完璧な計画線へと固定されました。もう、何も思い悩む必要はありません。";
         const form = document.querySelector(".three-card-container .soul-card-form");
         if (form) form.remove();
         updateSpeakerVisibility(threeCardSpeakerEl, threeCardTextEl, "ソフィア");
@@ -734,9 +734,9 @@ export function handlePuzzleChoice(type, stoneEl) {
     gameState.isCardRevealed = true;
 
     if (type === "self") {
-        gameState.selectedOptionDesc = "【自律ルート】君は気づいた。冷酷になっているのは相手ではなく、対話を拒絶している自分自身の心の影（投影）ではないか。君は上司と誠実に対話することを選択した。運命の歯車が初めて本来の軌道から外れた！";
+        gameState.selectedOptionDesc = "【自律ルート】あなたは気づいた。冷酷になっているのは相手ではなく、対話を拒絶している自分自身の心の影（投影）ではないか。あなたは上司と誠実に対話することを選択した。運命の歯車が初めて本来の軌道から外れた！";
     } else {
-        gameState.selectedOptionDesc = "【盲従ルート】君はカードの言葉を『相手の冷酷さ』と解釈し、冷たい沈黙で相手を拒絶した。しかしそれは君の「相手を拒絶する心」を映した鏡だった。関係はさらに悪化し、再び『悪魔』の依存と『塔』の崩壊バッドエンドへ向かう。";
+        gameState.selectedOptionDesc = "【盲従ルート】あなたはカードの言葉を『相手の冷酷さ』と解釈し、冷たい沈黙で相手を拒絶した。しかしそれはあなたの「相手を拒絶する心」を映した鏡だった。関係はさらに悪化し、再び『悪魔』の依存と『塔』の崩壊バッドエンドへ向かう。";
     }
 
     setTimeout(() => {
@@ -884,6 +884,11 @@ export function triggerFateBrokenByDrag(card, dropzone) {
 
 // --- True Ending Unlock ---
 export function triggerTrueEndingUnlock() {
+    // 既存の進行用イベントリスナーをクリアして無限ループを防止
+    talkClickPrompt.onclick = null;
+    talkClickPrompt.classList.add("hidden");
+    talkTextEl.parentElement.onclick = null;
+
     sceneBgEl.style.opacity = 0.15;
 
     showView("talk"); // Bring player back to shop for ending dialog
@@ -892,7 +897,7 @@ export function triggerTrueEndingUnlock() {
     document.querySelector(".visual-area-talk").style.display = "flex";
 
     updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "ソフィア");
-    typeDialogueText("……運命の糸が……完全に千切れました。君は提示されたすべての檻を拒絶し、システムを超越しました。これが君の真の意志ですね……。", talkTextEl);
+    typeDialogueText("……運命の糸が……完全に千切れました。あなたは提示されたすべての檻を拒絶し、システムを超越しました。これがあなたの真の意志ですね……。", talkTextEl);
 
     setTimeout(() => {
         currentArcanaEl.textContent = "XXI : THE WORLD (自己実現)";
@@ -929,7 +934,7 @@ export function triggerTrueEndingUnlock() {
 
         worldCard.addEventListener("click", () => {
             if (gameState.isCardRevealed) return;
-            revealCard(worldCard, "【トゥルーエンド】運命の超越。君はシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
+            revealCard(worldCard, "【トゥルーエンド】運命の超越。あなたはシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
 
             setTimeout(() => {
                 talkClickPrompt.classList.remove("hidden");
@@ -945,10 +950,10 @@ export function showTrueEndingOverlay() {
     endingTitle.textContent = "XXI : THE WORLD (自己実現)";
     endingTitle.style.color = "var(--color-gold)";
     endingDesc.innerHTML = `
-        おめでとう。君は「運命のアプリ」という盲信のシステムを完全に脱却しました。<br>
+        おめでとう。あなたは「運命のアプリ」という盲信のシステムを完全に脱却しました。<br>
         大アルカナの旅路は、与えられた指示に生きることではありません。<br>
         無垢な「愚者」が葛藤を経て、自律意思に基づいて自己（Self）を生きる力こそが、真の「世界」です。<br><br>
-        <span style="color: var(--color-gold); font-size: 18px; font-weight: bold;">「これより先、君の道を決めるのは君自身です」</span>
+        <span style="color: var(--color-gold); font-size: 18px; font-weight: bold;">「これより先、あなたの道を決めるのはあなた自身です」</span>
     `;
     restartBtn.textContent = "対話鑑賞モードをアンロックする";
     restartBtn.onclick = () => {
@@ -1016,7 +1021,7 @@ export function drawMeditationCard() {
         meditationMotifs.classList.remove("hidden");
         resetMeditationBtn.classList.remove("hidden");
 
-        typeDialogueText(`今日の君のカードは『${metadata.title}』です。カードの絵柄から、今君の心が最も惹かれるモチーフを選んでください。`, meditationText);
+        typeDialogueText(`今日のあなたのカードは『${metadata.title}』です。カードの絵柄から、今あなたの心が最も惹かれるモチーフを選んでください。`, meditationText);
     }, 500);
 }
 

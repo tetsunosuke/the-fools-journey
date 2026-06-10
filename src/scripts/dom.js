@@ -107,7 +107,9 @@ export function updateBackgroundAndAesthetics() {
     if (isEarlyStep) {
         sceneBgEl.style.backgroundImage = "url('/images/city_street.png')";
     } else {
-        if (gameState.currentLoop === 1 || gameState.currentLoop === 2) {
+        if (gameState.currentLoop === 2 && gameState.currentStep >= 3) {
+            sceneBgEl.style.backgroundImage = "url('/images/tarot_room_philo.png')";
+        } else if (gameState.currentLoop === 1 || gameState.currentLoop === 2) {
             sceneBgEl.style.backgroundImage = "url('/images/tarot_room.png')";
         } else {
             sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
@@ -129,7 +131,8 @@ export function updateBackgroundAndAesthetics() {
 
 export function changeBackground(bgName) {
     let url = "";
-    if (bgName === "tarot_room" || bgName === "tarot_room_philo") url = "/images/tarot_room.png";
+    if (bgName === "tarot_room") url = "/images/tarot_room.png";
+    else if (bgName === "tarot_room_philo") url = "/images/tarot_room_philo.png";
     else if (bgName === "home_morning") url = "/images/home_morning.png";
     else if (bgName === "home_night") url = "/images/home_night.png";
     else if (bgName === "modern_office") url = "/images/modern_office.png";
@@ -198,35 +201,9 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
     if (focusCardDesc) {
         if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc) {
             const cardMeta = SOUL_CARDS[cardIdOrName];
-            focusCardTabs.classList.remove("hidden");
+            focusCardTabs.classList.add("hidden");
             focusCardDesc.style.display = "block";
-            
-            // Set Game tab active handler
-            tabGameDesc.onclick = (e) => {
-                e.stopPropagation();
-                tabGameDesc.style.background = "rgba(255,255,255,0.1)";
-                tabGameDesc.style.border = "1px solid var(--color-gold)";
-                tabGameDesc.style.color = "var(--color-gold)";
-                tabTrueDesc.style.background = "transparent";
-                tabTrueDesc.style.border = "1px solid rgba(255,255,255,0.2)";
-                tabTrueDesc.style.color = "var(--color-text-light)";
-                focusCardDesc.innerHTML = cardMeta.desc;
-            };
-            
-            // Set True tab active handler
-            tabTrueDesc.onclick = (e) => {
-                e.stopPropagation();
-                tabTrueDesc.style.background = "rgba(255,255,255,0.1)";
-                tabTrueDesc.style.border = "1px solid var(--color-gold)";
-                tabTrueDesc.style.color = "var(--color-gold)";
-                tabGameDesc.style.background = "transparent";
-                tabGameDesc.style.border = "1px solid rgba(255,255,255,0.2)";
-                tabGameDesc.style.color = "var(--color-text-light)";
-                focusCardDesc.innerHTML = `<strong>【本来の意味（ポジティブな側面）】</strong><br>${cardMeta.trueDesc}`;
-            };
-            
-            // Default to Game description
-            tabGameDesc.click();
+            focusCardDesc.innerHTML = `<strong>【本来の意味】</strong><br>${cardMeta.trueDesc}`;
         } else {
             focusCardTabs.classList.add("hidden");
             if (descText) {
