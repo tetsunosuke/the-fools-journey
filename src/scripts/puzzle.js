@@ -878,7 +878,7 @@ export function triggerFateBrokenByDrag(card, dropzone) {
 
     setTimeout(() => {
         card.remove();
-        triggerTrueEndingUnlock();
+        advanceGame();
     }, 600);
 }
 
@@ -888,6 +888,8 @@ export function triggerTrueEndingUnlock() {
     talkClickPrompt.onclick = null;
     talkClickPrompt.classList.add("hidden");
     talkTextEl.parentElement.onclick = null;
+
+    gameState.isCardRevealed = false; // カードめくりフラグをリセット
 
     sceneBgEl.style.opacity = 0.15;
 
@@ -934,13 +936,32 @@ export function triggerTrueEndingUnlock() {
 
         worldCard.addEventListener("click", () => {
             if (gameState.isCardRevealed) return;
-            revealCard(worldCard, "【トゥルーエンド】運命の超越。あなたはシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。");
+            
+            // 循環インポートによるエラーを防ぐため、インラインでカードオープン処理を実行
+            gameState.isCardRevealed = true;
+            worldCard.classList.add("revealed");
+            
+            const endingText = "【トゥルーエンド】運命の超越。あなたはシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。";
+            gameState.selectedOptionDesc = endingText;
+            discoverCard(21); // 世界 (XXI) を図鑑に登録
+            focusTarotCard(21, true, TAROT_IMAGES[21], false);
 
-            setTimeout(() => {
-                talkClickPrompt.classList.remove("hidden");
-                talkClickPrompt.onclick = showTrueEndingOverlay;
-                talkTextEl.parentElement.onclick = showTrueEndingOverlay;
-            }, 1000);
+            // ポップアップが閉じられた後に、解説テキストのタイピングを開始する
+            gameState.pendingStepLoad = () => {
+                gameState.pendingStepLoad = null;
+                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の超越");
+                typeDialogueText(endingText, talkTextEl, () => {
+                    talkClickPrompt.classList.remove("hidden");
+                    const nextHandler = (e) => {
+                        if (e) e.stopPropagation();
+                        talkClickPrompt.onclick = null;
+                        talkTextEl.parentElement.onclick = null;
+                        showTrueEndingOverlay();
+                    };
+                    talkClickPrompt.onclick = nextHandler;
+                    talkTextEl.parentElement.onclick = nextHandler;
+                });
+            };
         });
     }, 2500);
 }
@@ -950,10 +971,15 @@ export function showTrueEndingOverlay() {
     endingTitle.textContent = "XXI : THE WORLD (自己実現)";
     endingTitle.style.color = "var(--color-gold)";
     endingDesc.innerHTML = `
-        おめでとう。あなたは「運命のアプリ」という盲信のシステムを完全に脱却しました。<br>
-        大アルカナの旅路は、与えられた指示に生きることではありません。<br>
-        無垢な「愚者」が葛藤を経て、自律意思に基づいて自己（Self）を生きる力こそが、真の「世界」です。<br><br>
-        <span style="color: var(--color-gold); font-size: 18px; font-weight: bold;">「これより先、あなたの道を決めるのはあなた自身です」</span>
+        <div style="text-align: left; line-height: 1.8; font-size: 14px; color: var(--color-text-light); max-width: 500px; margin: 0 auto;">
+            プレイヤーとともに学ぶタロットの旅はどうでしたか。<br><br>
+            占い師という「人の心に問いかける」存在は、盲信して従うべき「運命の支配者」ではありません。<br>
+            時に迷い立ち止まったあなたの心へ、そっと鏡のようにアドバイスを映し出してくれるだけの存在です。<br><br>
+            大切なのは、そのアドバイスを受け取ったうえで、<br>
+            <span style="color: var(--color-gold); font-weight: bold;">「自らの意志で選択し、行動するのは自分自身だ」</span>ということに気づくこと。<br><br>
+            そのことに気づけたあなたなら、これからの現実の旅路も、自分の足で力強く歩んでいけるはずです。<br><br>
+            あなたのこれからの旅に、本物の祝福がありますように。
+        </div>
     `;
     restartBtn.textContent = "対話鑑賞モードをアンロックする";
     restartBtn.onclick = () => {

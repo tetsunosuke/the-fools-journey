@@ -849,7 +849,12 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
             choicesContainer.appendChild(btn);
 
             btn.addEventListener("click", () => {
-                handleQuizChoiceSelected(card, card.title, isInChat);
+                const isMotifStep = (gameState.currentLoop === 2 && [7, 9, 11, 12].includes(gameState.currentStep));
+                if (isMotifStep) {
+                    handleMotifSelected(card, choicesContainer);
+                } else {
+                    handleQuizChoiceSelected(card, card.title, isInChat);
+                }
             });
         });
     }
@@ -873,6 +878,28 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 
     container.appendChild(choicesContainer);
     scrollToBottom();
+}
+
+export function handleMotifSelected(card, choicesContainer) {
+    talkTextEl.textContent = "";
+    typeDialogueText(`【${card.title}の象徴】\n${card.desc}`, talkTextEl);
+
+    let confirmBtn = document.getElementById("motif-confirm-btn");
+    if (!confirmBtn) {
+        confirmBtn = document.createElement("button");
+        confirmBtn.id = "motif-confirm-btn";
+        confirmBtn.className = "quiz-choice-btn";
+        confirmBtn.style.marginTop = "12px";
+        confirmBtn.style.border = "1px solid var(--color-gold)";
+        confirmBtn.style.background = "rgba(212,175,55,0.15)";
+        confirmBtn.innerHTML = `<span class="quiz-choice-text" style="color:var(--color-gold); font-weight:bold;">このカードの教えを理解し、決断して進む</span>`;
+        choicesContainer.appendChild(confirmBtn);
+        confirmBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            advanceGame();
+        });
+        scrollToBottom();
+    }
 }
 
 // --- Handle Quiz-Style Selection Event ---
