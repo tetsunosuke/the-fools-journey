@@ -3,7 +3,6 @@ const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/about/index.html',
-  '/styles/style.css',
   '/images/tarot_room.png',
   '/images/tarot_room_philo.png',
   '/images/sophia_portrait.png',
