@@ -204,11 +204,11 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
     if (focusCardDesc) {
         if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc) {
             const cardMeta = SOUL_CARDS[cardIdOrName];
-            focusCardTabs.classList.add("hidden");
+            if (focusCardTabs) focusCardTabs.classList.add("hidden");
             focusCardDesc.style.display = "block";
             focusCardDesc.innerHTML = `<strong>【本来の意味】</strong><br>${cardMeta.trueDesc}`;
         } else {
-            focusCardTabs.classList.add("hidden");
+            if (focusCardTabs) focusCardTabs.classList.add("hidden");
             if (descText) {
                 focusCardDesc.innerHTML = descText;
                 focusCardDesc.style.display = "block";
