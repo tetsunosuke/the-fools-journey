@@ -5,6 +5,8 @@
 import { gameState } from "./state.js";
 import { SOUL_CARDS, TAROT_IMAGES } from "./constants.js";
 
+
+
 // --- DOM Elements ---
 export const sceneBgEl = document.getElementById("scene-bg");
 export const loopCountEl = document.getElementById("loop-count");
@@ -238,6 +240,9 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
 
     focusCardImg.style.backgroundImage = `url('${imageSrc}')`;
     cardFocusModal.classList.remove("hidden");
+    if (window.gameAudio) {
+        window.gameAudio.playSE("cardFlip");
+    }
 }
 
 export function scrollToBottom() {

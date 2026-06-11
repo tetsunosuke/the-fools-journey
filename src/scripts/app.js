@@ -29,6 +29,8 @@ import {
     triggerTrueEndingUnlock, showTrueEndingOverlay, initMeditationMode, drawMeditationCard, selectMeditationMotif
 } from "./puzzle.js";
 import { initAppView, updateAppView, toggleAppView } from "./app_view.js";
+import "./audio.js";
+
 
 // --- Multi-Scene Game Scenario (with View flags) ---
 export const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
@@ -172,6 +174,7 @@ function findCardIndexFromText(text) {
 
 // --- Day Transition eye-catch animation ---
 export function showDayTransition(dayNum, onComplete) {
+    window.gameAudio.playSE("dayTransition");
     let dayOverlay = document.getElementById("day-transition-overlay");
     if (!dayOverlay) {
         dayOverlay = document.createElement("div");
@@ -366,6 +369,15 @@ export function clearAppNotificationToast() {
 }
 
 export function executeLoadStep(stepData) {
+    // Play appropriate BGM based on state
+    if (glitchOverlay && glitchOverlay.classList.contains("glitch-active")) {
+        window.gameAudio.playBGM("glitch");
+    } else if (gameState.currentLoop === 2) {
+        window.gameAudio.playBGM("philo");
+    } else {
+        window.gameAudio.playBGM("sophia");
+    }
+
     currentArcanaEl.textContent = stepData.arcana;
 
     // バーにも現在のアルカナを表示（通知中でなければ）
@@ -1020,6 +1032,7 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
 export function revealCard(cardElement, card, isInChat = false) {
     gameState.isCardRevealed = true;
     cardElement.classList.add("revealed");
+    window.gameAudio.playSE("cardFlip");
 
     // Support legacy string parameter
     const isLegacy = typeof card === "string";
@@ -1139,6 +1152,8 @@ export function advanceGame() {
 // --- Lovers Bad End ---
 export function triggerLoversBadEnd() {
     glitchOverlay.classList.add("glitch-active");
+    window.gameAudio.playSE("glitch");
+    window.gameAudio.playBGM("glitch");
 
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
@@ -1161,6 +1176,8 @@ export function triggerLoversBadEnd() {
 // --- Tower Bad End (End of Loop 1) ---
 export function triggerTowerBadEnd() {
     glitchOverlay.classList.add("glitch-active");
+    window.gameAudio.playSE("glitch");
+    window.gameAudio.playBGM("glitch");
 
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
@@ -1184,6 +1201,8 @@ export function triggerTowerBadEnd() {
 // --- Devil Loop End (Loop Fail) ---
 export function triggerDevilLoopEnd() {
     glitchOverlay.classList.add("glitch-active");
+    window.gameAudio.playSE("glitch");
+    window.gameAudio.playBGM("glitch");
     sceneBgEl.style.backgroundImage = "url('/images/glitch_matrix.png')";
     sceneBgEl.style.opacity = 0.85;
 
@@ -1263,9 +1282,21 @@ export function showStartScreen() {
 }
 
 export function setupEventListeners() {
+    // Enable and update sound button
+    window.gameAudio.updateButtonUI();
+    const soundBtn = document.getElementById("sound-btn");
+    if (soundBtn) {
+        soundBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.gameAudio.toggleMute();
+            window.gameAudio.playSE("click");
+        });
+    }
+
     if (startCardTrigger) {
         startCardTrigger.addEventListener("click", () => {
             if (!startCardTrigger.classList.contains("revealed")) {
+                window.gameAudio.playSE("cardFlip");
                 startCardTrigger.classList.add("revealed");
                 setTimeout(() => {
                     if (startInfoZone) {
@@ -1278,6 +1309,7 @@ export function setupEventListeners() {
 
     if (startNewBtn) {
         startNewBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             localStorage.clear();
             gameState.currentLoop = 1;
             gameState.currentStep = 0;
@@ -1291,6 +1323,7 @@ export function setupEventListeners() {
 
     if (startContinueBtn) {
         startContinueBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             startScreenEl.classList.add("hidden");
             initGame();
         });
@@ -1298,6 +1331,7 @@ export function setupEventListeners() {
 
     if (startMeditationBtn) {
         startMeditationBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             if (constructionModal) {
                 constructionModal.classList.remove("hidden");
             }
@@ -1306,6 +1340,7 @@ export function setupEventListeners() {
 
     if (closeConstructionBtn) {
         closeConstructionBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             if (constructionModal) {
                 constructionModal.classList.add("hidden");
             }
@@ -1315,6 +1350,7 @@ export function setupEventListeners() {
         const overlay = constructionModal.querySelector(".custom-modal-overlay");
         if (overlay) {
             overlay.addEventListener("click", () => {
+                window.gameAudio.playSE("click");
                 constructionModal.classList.add("hidden");
             });
         }
@@ -1322,12 +1358,14 @@ export function setupEventListeners() {
 
     if (showInstructionsBtn) {
         showInstructionsBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             instructionsModal.classList.remove("hidden");
         });
     }
 
     if (closeInstructionsBtn) {
         closeInstructionsBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
             instructionsModal.classList.add("hidden");
         });
     }

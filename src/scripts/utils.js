@@ -81,6 +81,12 @@ export function typeDialogueText(text, container, onComplete = null) {
         if (!isCurrentTyping) return;
         if (visibleCount <= totalVisibleChars) {
             container.innerHTML = getSubHtml(htmlText, visibleCount);
+            
+            // Play typing SE every 3rd character to keep sound smooth and not too fast
+            if (visibleCount % 3 === 0 && window.gameAudio) {
+                window.gameAudio.playSE("type");
+            }
+            
             visibleCount++;
             scrollToBottom();
             setTimeout(type, speed);
