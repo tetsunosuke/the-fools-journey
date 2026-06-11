@@ -266,6 +266,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 }
 
 .speaker-name {
@@ -297,8 +298,11 @@ body {
     right: 20px;
     bottom: 15px;
     color: var(--color-gold);
-    font-size: 12px;
+    font-size: 16px;
     animation: bouncePrompt 1s infinite alternate;
+    cursor: pointer;
+    text-shadow: 0 0 8px var(--color-gold-glow);
+    user-select: none;
 }
 
 @keyframes bouncePrompt {
@@ -983,7 +987,7 @@ body {
     content: attr(data-slot-num);
     font-family: var(--font-mono);
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.4);
 }
 .cross-slot-guide.active-slot::after {
     color: var(--color-gold);
@@ -1113,6 +1117,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 160px;
+    cursor: default;
 }
 
 /* Scene 2: Chat View styling */
@@ -1531,6 +1536,13 @@ body {
     perspective: 1000px;
     cursor: pointer;
     animation: floatingCard 4s ease-in-out infinite alternate;
+    transition: filter 0.4s ease;
+}
+.start-card-wrapper:hover {
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.5));
+}
+.start-card-wrapper:hover .start-card-inner {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.35), 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 .start-card-inner {
     position: relative;
@@ -1591,10 +1603,11 @@ body {
     position: absolute;
     bottom: 25px;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 2px;
     color: var(--color-gold);
     animation: tapPulse 2s infinite ease-in-out;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
 }
 
 /* カードの表面（タップ後） */
@@ -2631,7 +2644,7 @@ body {
     bottom: 0; left: 0; right: 0;
     background: rgba(10, 8, 22, 0.85);
     font-family: var(--font-serif);
-    font-size: 8px;
+    font-size: 10px;
     text-align: center;
     padding: 3px 0;
     color: var(--color-gold);
@@ -2826,7 +2839,7 @@ body {
     bottom: 0; left: 0; right: 0;
     background: rgba(10, 8, 22, 0.85);
     font-family: var(--font-serif);
-    font-size: 8px;
+    font-size: 10px;
     text-align: center;
     padding: 3px 0;
     color: var(--color-gold);
