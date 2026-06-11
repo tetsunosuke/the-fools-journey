@@ -3,7 +3,7 @@
  */
 
 import { gameState } from "./state.js";
-import { SOUL_CARDS, TAROT_IMAGES } from "./constants.js";
+import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_MOTIFS } from "./constants.js";
 
 
 
@@ -48,12 +48,14 @@ export const meditationText = document.getElementById("meditation-text");
 export const meditationMotifs = document.getElementById("meditation-motifs");
 export const meditationMotifButtons = document.getElementById("meditation-motif-buttons");
 export const resetMeditationBtn = document.getElementById("reset-meditation-btn");
+export const exitMeditationBtn = document.getElementById("exit-meditation-btn");
 export const startScreenEl = document.getElementById("start-screen");
 export const startNewBtn = document.getElementById("start-new-btn");
 export const startMeditationBtn = document.getElementById("start-meditation-btn");
 export const constructionModal = document.getElementById("construction-modal");
 export const closeConstructionBtn = document.getElementById("close-construction-btn");
-export const startContinueBtn = document.getElementById("start-continue-btn");
+export const startSlotsBtn = document.getElementById("start-slots-btn");
+export const startChaptersBtn = document.getElementById("start-chapters-btn");
 export const startCardTrigger = document.getElementById("start-card-trigger");
 export const startInfoZone = document.getElementById("start-info-zone");
 export const showInstructionsBtn = document.getElementById("show-instructions-btn");
@@ -106,6 +108,12 @@ export function updateGauges(stressChange, luckChange) {
 }
 
 export function updateBackgroundAndAesthetics() {
+    if (gameState.currentLoop === 2) {
+        document.body.classList.add("loop-2");
+    } else {
+        document.body.classList.remove("loop-2");
+    }
+
     const isEarlyStep = (gameState.currentLoop === 1 && gameState.currentStep === 0) || 
                         (gameState.currentLoop === 2 && gameState.currentStep < 3);
 
@@ -204,20 +212,122 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
     }
 
     if (focusCardDesc) {
-        if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc) {
+        if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && !forceHideTrueDesc && (gameState.currentLoop === 2 || gameState.trueEndCleared)) {
             const cardMeta = SOUL_CARDS[cardIdOrName];
-            if (focusCardTabs) focusCardTabs.classList.add("hidden");
-            focusCardDesc.style.display = "block";
+            // 2周目以降で両方の解釈がある場合はタブを表示して切り替え可能にする
+            if (focusCardTabs) {
+                focusCardTabs.classList.remove("hidden");
+                // デフォルトは「本来の意味」タブをアクティブにする（2周目のため）
+                const tabGame = document.getElementById("tab-game-desc");
+                const tabTrue = document.getElementById("tab-true-desc");
+                if (tabGame && tabTrue) {
+                    tabGame.classList.remove("active");
+                    tabTrue.classList.add("active");
+                }
+            }
+            focusCardDesc.dataset.desc = descText;
+            focusCardDesc.dataset.trueDesc = cardMeta.trueDesc;
             focusCardDesc.innerHTML = `<strong>【本来の意味】</strong><br>${cardMeta.trueDesc}`;
+            focusCardDesc.style.display = "block";
         } else {
             if (focusCardTabs) focusCardTabs.classList.add("hidden");
-            if (descText) {
-                focusCardDesc.innerHTML = descText;
+            // 1周目の場合、もしくは trueDesc がない場合は通常の desc のみ表示
+            let contentText = descText;
+            // 2周目で trueDesc はあるがタブを出さない（forceHideTrueDesc）場合は本来の意味を表示
+            if (typeof cardIdOrName === "number" && SOUL_CARDS[cardIdOrName] && SOUL_CARDS[cardIdOrName].trueDesc && forceHideTrueDesc) {
+                contentText = `<strong>【本来の意味】</strong><br>${SOUL_CARDS[cardIdOrName].trueDesc}`;
+            }
+            
+            if (contentText) {
+                focusCardDesc.innerHTML = contentText;
                 focusCardDesc.style.display = "block";
             } else {
                 focusCardDesc.innerHTML = "";
                 focusCardDesc.style.display = "none";
             }
+        }
+    }
+
+    // --- 注目モチーフの表示セクションとズーム・ハイライト制御の初期化 ---
+    const motifsSection = document.getElementById("focus-card-motifs-section");
+    const motifButtonsContainer = document.getElementById("focus-card-motif-buttons");
+    const motifExplanation = document.getElementById("focus-card-motif-explanation");
+    const highlightBox = document.getElementById("focus-card-highlight-box");
+
+    if (highlightBox) {
+        highlightBox.classList.add("hidden");
+        highlightBox.style.top = "0";
+        highlightBox.style.left = "0";
+        highlightBox.style.width = "0";
+        highlightBox.style.height = "0";
+    }
+    if (motifsSection) motifsSection.classList.add("hidden");
+
+    if (typeof cardIdOrName === "number" && MEDITATION_MOTIFS[cardIdOrName] && (gameState.currentLoop === 2 || gameState.trueEndCleared)) {
+        const motifData = MEDITATION_MOTIFS[cardIdOrName];
+        if (motifsSection && motifButtonsContainer && motifExplanation) {
+            motifsSection.classList.remove("hidden");
+            motifButtonsContainer.innerHTML = "";
+            motifExplanation.classList.add("hidden");
+            motifExplanation.textContent = "";
+
+            motifData.motifs.forEach((motif) => {
+                const btn = document.createElement("button");
+                btn.className = "focus-motif-btn";
+                btn.textContent = motif.name;
+
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation(); // モーダルを閉じない
+                    if (window.gameAudio) window.gameAudio.playSE("click");
+
+                    const activeBtn = motifButtonsContainer.querySelector(".focus-motif-btn.active");
+                    if (activeBtn) {
+                        activeBtn.classList.remove("active");
+                        if (activeBtn === btn) {
+                            focusCardImg.style.transform = (typeof upright === "boolean" && !upright) ? "rotate(180deg) scale(1)" : "scale(1)";
+                            if (highlightBox) highlightBox.classList.add("hidden");
+                            motifExplanation.classList.add("hidden");
+                            return;
+                        }
+                    }
+                    btn.classList.add("active");
+
+                    motifExplanation.textContent = motif.text;
+                    motifExplanation.classList.remove("hidden");
+
+                    if (motif.rect) {
+                        if (highlightBox) {
+                            highlightBox.style.top = motif.rect.top;
+                            highlightBox.style.left = motif.rect.left;
+                            highlightBox.style.width = motif.rect.width;
+                            highlightBox.style.height = motif.rect.height;
+                            highlightBox.classList.remove("hidden");
+                        }
+
+                        const leftPercent = parseFloat(motif.rect.left);
+                        const topPercent = parseFloat(motif.rect.top);
+                        const widthPercent = parseFloat(motif.rect.width);
+                        const heightPercent = parseFloat(motif.rect.height);
+
+                        const centerX = leftPercent + widthPercent / 2;
+                        const centerY = topPercent + heightPercent / 2;
+
+                        const transX = (50 - centerX) * 1.5;
+                        const transY = (50 - centerY) * 1.5;
+
+                        let transformStr = `scale(1.8) translate(${transX}%, ${transY}%)`;
+                        if (typeof upright === "boolean" && !upright) {
+                            transformStr = `rotate(180deg) scale(1.8) translate(${-transX}%, ${-transY}%)`;
+                        }
+                        focusCardImg.style.transform = transformStr;
+                    } else {
+                        focusCardImg.style.transform = (typeof upright === "boolean" && !upright) ? "rotate(180deg) scale(1.3)" : "scale(1.3)";
+                        if (highlightBox) highlightBox.classList.add("hidden");
+                    }
+                });
+
+                motifButtonsContainer.appendChild(btn);
+            });
         }
     }
 
@@ -242,6 +352,14 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
     cardFocusModal.classList.remove("hidden");
     if (window.gameAudio) {
         window.gameAudio.playSE("cardFlip");
+    }
+
+    if (gameState.isSkipActive) {
+        setTimeout(() => {
+            if (cardFocusModal && !cardFocusModal.classList.contains("hidden")) {
+                cardFocusModal.click();
+            }
+        }, 500);
     }
 }
 

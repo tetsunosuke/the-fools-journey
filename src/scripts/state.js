@@ -30,7 +30,12 @@ export const gameState = {
 
     // Gauge values
     stressVal: 80,
-    luckVal: 15
+    luckVal: 15,
+
+    // Backlog, Skip & Auto
+    backlog: [],
+    isSkipActive: false,
+    isAutoActive: false
 };
 
 export function loadSaveState() {
@@ -82,6 +87,51 @@ export function saveState() {
     url.searchParams.set('loop', gameState.currentLoop);
     url.searchParams.set('step', gameState.currentStep);
     window.history.replaceState({}, '', url.toString());
+}
+
+export function saveStateToSlot(slotId) {
+    const prefix = `fools_journey_slot_${slotId}_`;
+    localStorage.setItem(prefix + "loop", gameState.currentLoop);
+    localStorage.setItem(prefix + "step", gameState.currentStep);
+    localStorage.setItem(prefix + "cleared", gameState.trueEndCleared);
+    localStorage.setItem(prefix + "timestamp", new Date().toLocaleString("ja-JP"));
+    
+    // 発見カードなどの図鑑はグローバルで共有する
+    localStorage.setItem("fools_journey_discovered_cards", JSON.stringify(Array.from(gameState.discoveredCards)));
+}
+
+export function loadStateFromSlot(slotId) {
+    const prefix = `fools_journey_slot_${slotId}_`;
+    const savedLoop = localStorage.getItem(prefix + "loop");
+    const savedStep = localStorage.getItem(prefix + "step");
+    const isCleared = localStorage.getItem(prefix + "cleared");
+
+    if (savedLoop) {
+        gameState.currentLoop = parseInt(savedLoop, 10);
+    }
+    if (savedStep) {
+        gameState.currentStep = parseInt(savedStep, 10);
+    }
+    if (isCleared === "true") {
+        gameState.trueEndCleared = true;
+    }
+
+    // ロードした状態を現在のメインセーブデータとして同期
+    saveState();
+}
+
+export function getSlotInfo(slotId) {
+    const prefix = `fools_journey_slot_${slotId}_`;
+    const loop = localStorage.getItem(prefix + "loop");
+    const step = localStorage.getItem(prefix + "step");
+    const timestamp = localStorage.getItem(prefix + "timestamp");
+
+    if (!loop) return null;
+    return {
+        loop: parseInt(loop, 10),
+        step: parseInt(step, 10),
+        timestamp: timestamp || "日付不明"
+    };
 }
 
 export function discoverCard(cardId) {

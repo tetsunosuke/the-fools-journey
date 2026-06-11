@@ -54,7 +54,23 @@ export function typeDialogueText(text, container, onComplete = null) {
         gameState.skipTyping();
     }
 
+    // Add to backlog
+    const currentSpeaker = gameState.activeDialogueSpeaker || "ナレーション";
+    const lastEntry = gameState.backlog[gameState.backlog.length - 1];
+    if (!lastEntry || lastEntry.text !== text || lastEntry.speaker !== currentSpeaker) {
+        gameState.backlog.push({ speaker: currentSpeaker, text: text });
+    }
+
     const htmlText = parseMarkdown(text);
+
+    // If skip mode is active, render instantly and complete
+    if (gameState.isSkipActive) {
+        container.innerHTML = htmlText;
+        scrollToBottom();
+        if (onComplete) onComplete();
+        return;
+    }
+
     container.innerHTML = "";
     
     // Calculate total visible characters by parsing html

@@ -15,7 +15,7 @@ import {
     threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt, puzzleSpeakerEl, puzzleTextEl,
     puzzleClickPrompt, meditationContainer, drawMeditationBtn, meditationCardZone,
     meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons,
-    resetMeditationBtn, startScreenEl, startNewBtn, startMeditationBtn, constructionModal, closeConstructionBtn, startContinueBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
+    resetMeditationBtn, exitMeditationBtn, startScreenEl, startNewBtn, startMeditationBtn, constructionModal, closeConstructionBtn, startSlotsBtn, startChaptersBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
     instructionsModal, closeInstructionsBtn, cardFocusModal, focusCardImg, focusCardName,
     focusCardDirection, focusCardDesc, focusCardTabs, tabGameDesc, tabTrueDesc
 } from "./dom.js";
@@ -38,6 +38,9 @@ export const SCENARIO = window.SCENARIO_DATA || { 1: [], 2: [] };
 // --- Dynamic View Switch Hook ---
 window.triggerViewChange = (viewName) => {
     console.log("Dynamically switching view to:", viewName);
+    if (gameState.isAutoActive) {
+        toggleAutoMode();
+    }
     showView(viewName);
     if (viewName === "threeCard" || viewName === "celtic") {
         renderThreeCardSpread();
@@ -673,7 +676,7 @@ export function showNextDialoguePage(stepData) {
         if (gameState.currentDialoguePageIndex < gameState.currentDialoguePages.length - 1) {
             talkClickPrompt.classList.remove("hidden");
             const nextHandler = (e) => {
-                e.stopPropagation();
+                if (e && typeof e.stopPropagation === "function") e.stopPropagation();
                 goNext();
             };
             talkClickPrompt.onclick = nextHandler;
@@ -683,11 +686,19 @@ export function showNextDialoguePage(stepData) {
             talkTextEl.parentElement.onclick = null;
             // 最後のページ: stepData.focusImage があれば表示
             if (stepData.focusImage) {
-                gameState.pendingStepLoad = () => { gameState.pendingStepLoad = null; finishStepText(stepData); };
+                gameState.pendingStepLoad = () => {
+                    gameState.pendingStepLoad = null;
+                    finishStepText(stepData);
+                    if (gameState.isSkipActive) checkAutoSkipProgress();
+                };
                 setTimeout(() => { if (gameState.pendingStepLoad) focusTarotCard(stepData.focusTitle || "", undefined, stepData.focusImage); }, 500);
             } else {
                 finishStepText(stepData);
             }
+        }
+
+        if (gameState.isSkipActive) {
+            checkAutoSkipProgress();
         }
     });
 }
@@ -703,11 +714,15 @@ export function finishStepText(stepData) {
             gameState.isCardRevealed = true;
             talkClickPrompt.classList.remove("hidden");
             const nextHandler = (e) => {
-                e.stopPropagation();
+                if (e && typeof e.stopPropagation === "function") e.stopPropagation();
                 advanceGame();
             };
             talkClickPrompt.onclick = nextHandler;
             talkTextEl.parentElement.onclick = nextHandler;
+
+            if (gameState.isSkipActive) {
+                checkAutoSkipProgress();
+            }
         }
     }
 }
@@ -771,6 +786,9 @@ export function pushChatMessage(speaker, text, isSelf = false, cardData = null, 
 
 // --- Render Cards with choice/no-choice Illusion ---
 export function renderChoiceCards(cardsList, container, isInChat = false) {
+    if (gameState.isAutoActive) {
+        toggleAutoMode();
+    }
     container.innerHTML = "";
 
     const stepData = SCENARIO[gameState.currentLoop][gameState.currentStep];
@@ -1176,8 +1194,38 @@ export function triggerLoversBadEnd() {
 // --- Tower Bad End (End of Loop 1) ---
 export function triggerTowerBadEnd() {
     glitchOverlay.classList.add("glitch-active");
-    window.gameAudio.playSE("glitch");
-    window.gameAudio.playBGM("glitch");
+    if (window.gameAudio) {
+        window.gameAudio.playSE("glitch");
+        window.gameAudio.playBGM("glitch");
+    }
+
+    // Print critical diagnostic error lines in the diagnostics console
+    const consoleLog = document.getElementById("vital-console-log");
+    if (consoleLog) {
+        consoleLog.innerHTML = "";
+        const errorLines = [
+            "CRITICAL EXCEPTION: SOUL_ALIGNMENT_FAILURE",
+            "FATAL: STRESS VALUE OVERFLOW (100%)",
+            "WARNING: SYSTEM INTEGRITY COMPROMISED",
+            "DECAY IN PROGRESS: LOOP_1_TIMELINE_COLLAPSE",
+            "ATTEMPTING EMERGENCY SAVESTATE CORRUPTION...",
+            "FORCE REBOOTING PHYLOSOFIA SYSTEM...",
+            "SYSTEM OF DEPENDENCE: OFFLINE."
+        ];
+        errorLines.forEach((line, index) => {
+            setTimeout(() => {
+                const div = document.createElement("div");
+                div.style.color = "var(--color-accent-red)";
+                div.style.fontFamily = "var(--font-mono)";
+                div.style.fontSize = "11px";
+                div.style.marginBottom = "4px";
+                div.textContent = `[!] ${line}`;
+                consoleLog.appendChild(div);
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+                if (window.gameAudio) window.gameAudio.playSE("glitch");
+            }, index * 180);
+        });
+    }
 
     setTimeout(() => {
         endingOverlay.classList.remove("hidden");
@@ -1195,7 +1243,7 @@ export function triggerTowerBadEnd() {
             saveState();
             initGame();
         };
-    }, 1500);
+    }, 1800);
 }
 
 // --- Devil Loop End (Loop Fail) ---
@@ -1258,13 +1306,9 @@ export function showStartScreen() {
         gameState.trueEndCleared = true;
     }
 
-    if (startContinueBtn) {
-        if (savedLoop !== null && savedStep !== null) {
-            startContinueBtn.classList.remove("hidden");
-        } else {
-            startContinueBtn.classList.add("hidden");
-        }
-    }
+    // セーブデータ選択やチャプターセレクトは常に表示
+    if (startSlotsBtn) startSlotsBtn.classList.remove("hidden");
+    if (startChaptersBtn) startChaptersBtn.classList.remove("hidden");
 
     if (startMeditationBtn) {
         if (gameState.trueEndCleared) {
@@ -1281,6 +1325,137 @@ export function showStartScreen() {
     meditationContainer.classList.add("hidden");
 }
 
+export function openBacklogModal() {
+    const backlogModal = document.getElementById("backlog-modal");
+    const backlogList = document.getElementById("backlog-list");
+    if (!backlogModal || !backlogList) return;
+
+    backlogList.innerHTML = gameState.backlog.map(item => {
+        const speakerClass = `speaker-${item.speaker.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '')}`;
+        return `
+            <div class="backlog-item ${speakerClass}">
+                <div class="backlog-speaker">${item.speaker}</div>
+                <div class="backlog-text">${parseMarkdown(item.text)}</div>
+            </div>
+        `;
+    }).join("");
+
+    backlogModal.classList.remove("hidden");
+
+    // Scroll to bottom
+    setTimeout(() => {
+        backlogList.scrollTop = backlogList.scrollHeight;
+    }, 50);
+}
+
+export function toggleSkipMode() {
+    const skipBtn = document.getElementById("skip-btn");
+    gameState.isSkipActive = !gameState.isSkipActive;
+
+    if (gameState.isSkipActive) {
+        if (skipBtn) {
+            skipBtn.classList.add("active-skip");
+            skipBtn.title = "スキップ中 (クリックで解除)";
+        }
+        if (gameState.isTyping && typeof gameState.skipTyping === "function") {
+            gameState.skipTyping();
+        } else {
+            checkAutoSkipProgress();
+        }
+    } else {
+        if (skipBtn) {
+            skipBtn.classList.remove("active-skip");
+            skipBtn.title = "スキップ (早送り)";
+        }
+    }
+}
+
+export function checkAutoSkipProgress() {
+    if (!gameState.isSkipActive) return;
+
+    setTimeout(() => {
+        if (!gameState.isSkipActive) return;
+
+        // Choice cards visible -> stop skip
+        if (talkCardsContainer && talkCardsContainer.innerHTML !== "") {
+            toggleSkipMode();
+            return;
+        }
+
+        // Focus modal active -> let auto-close handle it
+        if (cardFocusModal && !cardFocusModal.classList.contains("hidden")) {
+            return;
+        }
+
+        if (gameState.currentView === "talk" && talkClickPrompt && !talkClickPrompt.classList.contains("hidden")) {
+            const handler = talkClickPrompt.onclick;
+            if (handler) {
+                handler({ stopPropagation: () => {} });
+            }
+        }
+    }, 120);
+}
+
+let autoTimer = null;
+
+export function toggleAutoMode() {
+    const autoBtn = document.getElementById("auto-btn");
+    gameState.isAutoActive = !gameState.isAutoActive;
+
+    if (gameState.isAutoActive) {
+        if (gameState.isSkipActive) {
+            toggleSkipMode();
+        }
+        if (autoBtn) {
+            autoBtn.classList.add("active-auto");
+            autoBtn.title = "オート中 (クリックで解除)";
+        }
+        if (talkClickPrompt && !talkClickPrompt.classList.contains("hidden")) {
+            triggerAutoProgress();
+        }
+    } else {
+        if (autoBtn) {
+            autoBtn.classList.remove("active-auto");
+            autoBtn.title = "オート (自動送り)";
+        }
+        if (autoTimer) {
+            clearTimeout(autoTimer);
+            autoTimer = null;
+        }
+    }
+}
+
+export function triggerAutoProgress(textLength = 20) {
+    if (!gameState.isAutoActive) return;
+
+    if (autoTimer) {
+        clearTimeout(autoTimer);
+    }
+
+    const delay = Math.max(1200, 1500 + textLength * 40);
+
+    autoTimer = setTimeout(() => {
+        if (!gameState.isAutoActive) return;
+
+        if (talkCardsContainer && talkCardsContainer.innerHTML !== "") {
+            toggleAutoMode();
+            return;
+        }
+
+        if (cardFocusModal && !cardFocusModal.classList.contains("hidden")) {
+            return;
+        }
+
+        if (gameState.currentView === "talk" && talkClickPrompt && !talkClickPrompt.classList.contains("hidden")) {
+            const handler = talkClickPrompt.onclick;
+            if (handler) {
+                handler({ stopPropagation: () => {} });
+            }
+        }
+    }, delay);
+}
+
+
 export function setupEventListeners() {
     // Enable and update sound button
     window.gameAudio.updateButtonUI();
@@ -1290,6 +1465,49 @@ export function setupEventListeners() {
             e.stopPropagation();
             window.gameAudio.toggleMute();
             window.gameAudio.playSE("click");
+        });
+    }
+
+    // Backlog & Skip Event Listeners
+    const logBtn = document.getElementById("log-btn");
+    const backlogModal = document.getElementById("backlog-modal");
+    const closeBacklogBtn = document.getElementById("close-backlog-btn");
+    const backlogOverlay = document.getElementById("backlog-modal-overlay");
+    const skipBtn = document.getElementById("skip-btn");
+    const autoBtn = document.getElementById("auto-btn");
+
+    if (logBtn) {
+        logBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            openBacklogModal();
+        });
+    }
+    if (closeBacklogBtn) {
+        closeBacklogBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            if (backlogModal) backlogModal.classList.add("hidden");
+        });
+    }
+    if (backlogOverlay) {
+        backlogOverlay.addEventListener("click", () => {
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            if (backlogModal) backlogModal.classList.add("hidden");
+        });
+    }
+    if (skipBtn) {
+        skipBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            toggleSkipMode();
+        });
+    }
+    if (autoBtn) {
+        autoBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            toggleAutoMode();
         });
     }
 
@@ -1321,19 +1539,188 @@ export function setupEventListeners() {
         });
     }
 
-    if (startContinueBtn) {
-        startContinueBtn.addEventListener("click", () => {
+    // --- セーブ/ロード及びチャプターセレクトのイベントリスナー ---
+    const slotsModal = document.getElementById("slots-modal");
+    const closeSlotsBtn = document.getElementById("close-slots-btn");
+    const slotsOverlay = document.getElementById("slots-modal-overlay");
+    const slotsMenuBtn = document.getElementById("slots-menu-btn");
+    const slotsContainer = document.getElementById("slots-container");
+
+    const chaptersModal = document.getElementById("chapters-modal");
+    const closeChaptersBtn = document.getElementById("close-chapters-btn");
+    const chaptersOverlay = document.getElementById("chapters-modal-overlay");
+
+    // セーブスロット表示関数
+    function renderSaveSlots() {
+        if (!slotsContainer) return;
+        slotsContainer.innerHTML = "";
+        
+        // 1〜3のスロットを表示
+        for (let i = 1; i <= 3; i++) {
+            const info = getSlotInfo(i);
+            const slotDiv = document.createElement("div");
+            slotDiv.style.border = "1px solid rgba(212, 175, 55, 0.3)";
+            slotDiv.style.padding = "12px";
+            slotDiv.style.borderRadius = "6px";
+            slotDiv.style.background = "rgba(10, 8, 22, 0.6)";
+            slotDiv.style.display = "flex";
+            slotDiv.style.justifyContent = "space-between";
+            slotDiv.style.alignItems = "center";
+            slotDiv.style.gap = "10px";
+
+            const infoDiv = document.createElement("div");
+            if (info) {
+                infoDiv.innerHTML = `
+                    <div style="font-weight: bold; color: var(--color-gold);">スロット ${i}</div>
+                    <div style="font-size: 12px; color: var(--color-text-light);">LOOP ${info.loop} / STEP ${info.step}</div>
+                    <div style="font-size: 11px; color: var(--color-text-muted);">${info.timestamp}</div>
+                `;
+            } else {
+                infoDiv.innerHTML = `
+                    <div style="font-weight: bold; color: var(--color-text-muted);">スロット ${i} (データなし)</div>
+                `;
+            }
+
+            const btnDiv = document.createElement("div");
+            btnDiv.style.display = "flex";
+            btnDiv.style.gap = "8px";
+
+            // ロードボタン（セーブデータがある場合のみ）
+            if (info) {
+                const loadBtn = document.createElement("button");
+                loadBtn.className = "action-btn";
+                loadBtn.style.padding = "6px 12px";
+                loadBtn.style.fontSize = "12px";
+                loadBtn.textContent = "ロード";
+                loadBtn.addEventListener("click", () => {
+                    window.gameAudio.playSE("click");
+                    loadStateFromSlot(i);
+                    slotsModal.classList.add("hidden");
+                    startScreenEl.classList.add("hidden");
+                    initGame(true); // メインデータにロードされたのでskipLoad=trueで初期化
+                });
+                btnDiv.appendChild(loadBtn);
+            }
+
+            // セーブボタン（タイトル画面以外、つまりゲームプレイ中のみ表示可能にする）
+            const isPlaying = !startScreenEl.classList.contains("hidden");
+            if (isPlaying) {
+                const saveBtn = document.createElement("button");
+                saveBtn.className = "action-btn";
+                saveBtn.style.padding = "6px 12px";
+                saveBtn.style.fontSize = "12px";
+                saveBtn.textContent = "セーブ";
+                saveBtn.addEventListener("click", () => {
+                    window.gameAudio.playSE("click");
+                    saveStateToSlot(i);
+                    renderSaveSlots(); // 再描画
+                });
+                btnDiv.appendChild(saveBtn);
+            }
+
+            slotDiv.appendChild(infoDiv);
+            slotDiv.appendChild(btnDiv);
+            slotsContainer.appendChild(slotDiv);
+        }
+    }
+
+    if (startSlotsBtn) {
+        startSlotsBtn.addEventListener("click", () => {
             window.gameAudio.playSE("click");
-            startScreenEl.classList.add("hidden");
-            initGame();
+            renderSaveSlots();
+            if (slotsModal) slotsModal.classList.remove("hidden");
         });
     }
+
+    if (slotsMenuBtn) {
+        slotsMenuBtn.removeAttribute("disabled"); // ヘッダーボタンを有効にする
+        slotsMenuBtn.style.cursor = "pointer";
+        slotsMenuBtn.style.opacity = "0.8";
+        slotsMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.gameAudio.playSE("click");
+            renderSaveSlots();
+            if (slotsModal) slotsModal.classList.remove("hidden");
+        });
+    }
+
+    if (closeSlotsBtn) {
+        closeSlotsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.gameAudio.playSE("click");
+            if (slotsModal) slotsModal.classList.add("hidden");
+        });
+    }
+
+    if (slotsOverlay) {
+        slotsOverlay.addEventListener("click", () => {
+            if (slotsModal) slotsModal.classList.add("hidden");
+        });
+    }
+
+    if (startChaptersBtn) {
+        startChaptersBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
+            if (chaptersModal) chaptersModal.classList.remove("hidden");
+        });
+    }
+
+    if (closeChaptersBtn) {
+        closeChaptersBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.gameAudio.playSE("click");
+            if (chaptersModal) chaptersModal.classList.add("hidden");
+        });
+    }
+
+    if (chaptersOverlay) {
+        chaptersOverlay.addEventListener("click", () => {
+            if (chaptersModal) chaptersModal.classList.add("hidden");
+        });
+    }
+
+    // チャプターセレクトボタン
+    const chapterButtons = document.querySelectorAll(".chapter-select-btn");
+    chapterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
+            const loopVal = parseInt(btn.getAttribute("data-loop"), 10);
+            const stepVal = parseInt(btn.getAttribute("data-step"), 10);
+
+            gameState.currentLoop = loopVal;
+            gameState.currentStep = stepVal;
+            gameState.trueEndCleared = false;
+            saveState(); // メインデータに即保存
+
+            if (chaptersModal) chaptersModal.classList.add("hidden");
+            startScreenEl.classList.add("hidden");
+            initGame(true); // skipLoad=trueで初期化
+        });
+    });
 
     if (startMeditationBtn) {
         startMeditationBtn.addEventListener("click", () => {
             window.gameAudio.playSE("click");
-            if (constructionModal) {
-                constructionModal.classList.remove("hidden");
+            if (startScreenEl) startScreenEl.classList.add("hidden");
+            initMeditationMode();
+        });
+    }
+
+    if (resetMeditationBtn) {
+        resetMeditationBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
+            initMeditationMode();
+        });
+    }
+
+    if (exitMeditationBtn) {
+        exitMeditationBtn.addEventListener("click", () => {
+            window.gameAudio.playSE("click");
+            if (meditationContainer) {
+                meditationContainer.classList.add("hidden");
+            }
+            if (startScreenEl) {
+                startScreenEl.classList.remove("hidden");
             }
         });
     }
@@ -1383,6 +1770,34 @@ export function setupEventListeners() {
             cardFocusModal.classList.add("hidden");
             if (gameState.pendingStepLoad) {
                 gameState.pendingStepLoad();
+            }
+        });
+    }
+
+    const tabGameDesc = document.getElementById("tab-game-desc");
+    const tabTrueDesc = document.getElementById("tab-true-desc");
+    const focusCardDesc = document.getElementById("focus-card-desc");
+
+    if (tabGameDesc) {
+        tabGameDesc.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            tabGameDesc.classList.add("active");
+            if (tabTrueDesc) tabTrueDesc.classList.remove("active");
+            if (focusCardDesc && focusCardDesc.dataset.desc) {
+                focusCardDesc.innerHTML = `<strong>【歪んだ解釈】</strong><br>${focusCardDesc.dataset.desc}`;
+            }
+        });
+    }
+
+    if (tabTrueDesc) {
+        tabTrueDesc.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (window.gameAudio) window.gameAudio.playSE("click");
+            tabTrueDesc.classList.add("active");
+            if (tabGameDesc) tabGameDesc.classList.remove("active");
+            if (focusCardDesc && focusCardDesc.dataset.trueDesc) {
+                focusCardDesc.innerHTML = `<strong>【本来の意味】</strong><br>${focusCardDesc.dataset.trueDesc}`;
             }
         });
     }

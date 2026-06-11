@@ -920,14 +920,37 @@ export function showTrueEndingOverlay() {
 
     endingTitle.textContent = "0 : THE FOOL (新たなはじまり)";
     endingTitle.style.color = "var(--color-gold)";
+
+    // Generate cards retrospection flow (走馬灯)
+    const cardsArray = Array.from(gameState.discoveredCards).slice(0, 10); // Limit to 10 for clean look
+    const cardFlowHtml = `
+        <style>
+            @keyframes endingFadeInUp {
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+        <div style="margin: 15px 0; text-align: center;">
+            <div style="font-size: 11px; color: var(--color-gold); letter-spacing: 2px; margin-bottom: 8px; font-family: var(--font-serif);">DISCOVERED PATHWAY</div>
+            <div class="ending-card-flow" style="display: flex; gap: 8px; justify-content: center; overflow-x: auto; padding: 10px 5px; width: 100%; max-width: 450px; margin: 0 auto; scrollbar-width: none; -ms-overflow-style: none;">
+                ${cardsArray.map((cardId, index) => {
+                    const imgUrl = `/images/cards/${cardId}.jpg`;
+                    return `
+                        <div style="flex: 0 0 42px; height: 70px; border: 1px solid var(--color-gold); border-radius: 3px; background-image: url('${imgUrl}'); background-size: cover; background-position: center; box-shadow: 0 4px 8px rgba(0,0,0,0.4); opacity: 0; transform: translateY(8px); animation: endingFadeInUp 0.5s ease forwards; animation-delay: ${index * 150}ms;"></div>
+                    `;
+                }).join("")}
+            </div>
+        </div>
+    `;
+
     endingDesc.innerHTML = `
+        ${cardFlowHtml}
         <div style="text-align: left; line-height: 1.8; font-size: 14px; color: var(--color-text-light); max-width: 500px; margin: 0 auto;">
             プレイヤーとともに学ぶタロットの旅はどうでしたか。<br><br>
             占い師という「人の心に問いかける」存在は、盲信して従うべき「運命の支配者」ではありません。<br>
             時に迷い立ち止まったあなたの心へ、そっと鏡のようにアドバイスを映し出してくれるだけの存在です。<br><br>
             大切なのは、そのアドバイスを受け取ったうえで、<br>
             <span style="color: var(--color-gold); font-weight: bold;">「自らの意志で選択し、行動するのは自分自身だ」</span>ということに気づくこと。<br><br>
-            そのことに気づけたあなたなら、これからの現実の旅路も、自分の足で力強く歩んでいけるはずです。<br><br>
+            そのことに気づできたあなたなら、これからの現実の旅路も、自分の足で力強く歩んでいけるはずです。<br><br>
             あなたのこれからの旅に、本物の祝福がありますように。
         </div>
     `;
