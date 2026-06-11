@@ -197,7 +197,7 @@ export function showDayTransition(dayNum, onComplete) {
             displayText = `${dayNum.trim()}日目`;
         }
         document.getElementById("day-overlay-text").textContent = `― ${displayText} ―`;
-        document.getElementById("day-overlay-sub").textContent = "THE TAROT JOURNEY";
+        document.getElementById("day-overlay-sub").textContent = "PhiloSofia's Journey";
     }
 
     const artEl = document.getElementById("day-overlay-art");
