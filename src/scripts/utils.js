@@ -49,6 +49,11 @@ export function getSubHtml(html, visibleCount) {
 
 // --- Typing Effect ---
 export function typeDialogueText(text, container, onComplete = null) {
+    // 既存のタイピング処理があれば即座に完了（スキップ）させてクリアする
+    if (gameState.isTyping && typeof gameState.skipTyping === "function") {
+        gameState.skipTyping();
+    }
+
     const htmlText = parseMarkdown(text);
     container.innerHTML = "";
     
@@ -59,9 +64,12 @@ export function typeDialogueText(text, container, onComplete = null) {
     
     let visibleCount = 0;
     const speed = 15;
+    let isCurrentTyping = true;
     gameState.isTyping = true;
     
     gameState.skipTyping = () => {
+        if (!isCurrentTyping) return;
+        isCurrentTyping = false;
         gameState.isTyping = false;
         gameState.skipTyping = null;
         container.innerHTML = htmlText;
@@ -70,13 +78,14 @@ export function typeDialogueText(text, container, onComplete = null) {
     };
 
     function type() {
-        if (!gameState.isTyping) return;
+        if (!isCurrentTyping) return;
         if (visibleCount <= totalVisibleChars) {
             container.innerHTML = getSubHtml(htmlText, visibleCount);
             visibleCount++;
             scrollToBottom();
             setTimeout(type, speed);
         } else {
+            isCurrentTyping = false;
             gameState.isTyping = false;
             gameState.skipTyping = null;
             scrollToBottom();

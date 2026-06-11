@@ -245,9 +245,28 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
                             <button id="start-new-btn" class="action-btn"
                                 >物語を紡ぐ (最初から)</button
                             >
+                            <button id="start-meditation-btn" class="action-btn hidden"
+                                >対話鑑賞モード</button
+                            >
                             <a href="/about" class="about-link">📖 このアプリについて</a>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- 対話鑑賞モード工事中モーダル -->
+            <div id="construction-modal" class="custom-modal hidden">
+                <div class="custom-modal-overlay"></div>
+                <div class="custom-modal-content" style="text-align: center; padding: 40px 20px;">
+                    <button
+                        id="close-construction-btn"
+                        class="custom-modal-close"
+                        style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: var(--color-text-muted); font-size: 24px; cursor: pointer;"
+                    >&times;</button
+                    >
+                    <h3 style="font-family: var(--font-serif); color: var(--color-gold); font-size: 24px; margin-bottom: 15px;">UNDER CONSTRUCTION</h3>
+                    <p style="color: var(--color-text-light); font-size: 16px; margin-bottom: 10px;">対話鑑賞モードは現在工事中です。</p>
+                    <p style="color: var(--color-text-muted); font-size: 14px;">今後のアップデートをお楽しみに！</p>
                 </div>
             </div>
 

@@ -15,7 +15,7 @@ import {
     threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt, puzzleSpeakerEl, puzzleTextEl,
     puzzleClickPrompt, meditationContainer, drawMeditationBtn, meditationCardZone,
     meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons,
-    resetMeditationBtn, startScreenEl, startNewBtn, startContinueBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
+    resetMeditationBtn, startScreenEl, startNewBtn, startMeditationBtn, constructionModal, closeConstructionBtn, startContinueBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
     instructionsModal, closeInstructionsBtn, cardFocusModal, focusCardImg, focusCardName,
     focusCardDirection, focusCardDesc, focusCardTabs, tabGameDesc, tabTrueDesc
 } from "./dom.js";
@@ -882,6 +882,14 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 }
 
 export function handleMotifSelected(card, choicesContainer) {
+    // 他のすべてのモチーフ選択ボタンを非活性にする
+    const allButtons = choicesContainer.querySelectorAll(".quiz-choice-btn");
+    allButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+    });
+
     talkTextEl.textContent = "";
     
     // タグ（[speaker:...]等）を解析して除去し、話者を更新
@@ -891,24 +899,27 @@ export function handleMotifSelected(card, choicesContainer) {
     }
     gameState.activeDialogueSpeaker = result.speaker;
 
-    typeDialogueText(`【${card.title}の象徴】\n${result.text}`, talkTextEl);
+    typeDialogueText(`【${card.title}の象徴】\n${result.text}`, talkTextEl, () => {
+        // タイピング完了後、元の選択ボタンをすべて削除してすっきりさせる
+        allButtons.forEach(btn => btn.remove());
 
-    let confirmBtn = document.getElementById("motif-confirm-btn");
-    if (!confirmBtn) {
-        confirmBtn = document.createElement("button");
-        confirmBtn.id = "motif-confirm-btn";
-        confirmBtn.className = "quiz-choice-btn";
-        confirmBtn.style.marginTop = "12px";
-        confirmBtn.style.border = "1px solid var(--color-gold)";
-        confirmBtn.style.background = "rgba(212,175,55,0.15)";
-        confirmBtn.innerHTML = `<span class="quiz-choice-text" style="color:var(--color-gold); font-weight:bold;">このカードの教えを理解し、決断して進む</span>`;
-        choicesContainer.appendChild(confirmBtn);
-        confirmBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            advanceGame();
-        });
-        scrollToBottom();
-    }
+        let confirmBtn = document.getElementById("motif-confirm-btn");
+        if (!confirmBtn) {
+            confirmBtn = document.createElement("button");
+            confirmBtn.id = "motif-confirm-btn";
+            confirmBtn.className = "quiz-choice-btn";
+            confirmBtn.style.marginTop = "12px";
+            confirmBtn.style.border = "1px solid var(--color-gold)";
+            confirmBtn.style.background = "rgba(212,175,55,0.15)";
+            confirmBtn.innerHTML = `<span class="quiz-choice-text" style="color:var(--color-gold); font-weight:bold;">進む</span>`;
+            choicesContainer.appendChild(confirmBtn);
+            confirmBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                advanceGame();
+            });
+            scrollToBottom();
+        }
+    });
 }
 
 // --- Handle Quiz-Style Selection Event ---
@@ -951,19 +962,21 @@ export function handleQuizChoiceSelected(card, choiceText, isInChat) {
         // Show player choice in dialogue box
         pushChatMessage("Player", `選択: ${choiceText}`, true, null, () => {
             setTimeout(() => {
-                // もし desc が空ならば、チャット応答を生成せず自動的に次のステップへ遷移する
-                if (!card.desc) {
-                    advanceGame();
-                    return;
-                }
-
-                // Show result text with tarot card preview image embedded in bubble
+                // Show result text with pagination if it contains double newlines or is too long
                 const narrativeText = card.desc;
-                pushChatMessage("The Journey", narrativeText, false, card.skipFocus ? null : card, () => {
-                    // Generate Next Button after typing finishes
-                    chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
-                    document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
-                    scrollToBottom();
+                pushChatMessage("The Journey", "", false, card.skipFocus ? null : card, () => {
+                    const bubbleTextNode = chatHistoryEl.querySelector(".msg-other:last-child .bubble-text-node");
+                    if (bubbleTextNode) {
+                        showPaginatedText(narrativeText, bubbleTextNode, document.createElement("div"), () => {
+                            // Generate Next Button after all pages are read
+                            chatInteractiveZoneEl.innerHTML = `<button class="action-btn" id="chat-next-btn">トークを進める</button>`;
+                            document.getElementById("chat-next-btn").addEventListener("click", advanceGame);
+                            scrollToBottom();
+                        }, "The Journey");
+                    } else {
+                        // Fallback
+                        advanceGame();
+                    }
                 });
             }, 1000);
         });
@@ -1220,12 +1233,25 @@ export function showStartScreen() {
 
     const savedLoop = localStorage.getItem("fools_journey_loop");
     const savedStep = localStorage.getItem("fools_journey_step");
+    const isCleared = localStorage.getItem("fools_journey_cleared");
+
+    if (isCleared === "true") {
+        gameState.trueEndCleared = true;
+    }
 
     if (startContinueBtn) {
         if (savedLoop !== null && savedStep !== null) {
             startContinueBtn.classList.remove("hidden");
         } else {
             startContinueBtn.classList.add("hidden");
+        }
+    }
+
+    if (startMeditationBtn) {
+        if (gameState.trueEndCleared) {
+            startMeditationBtn.classList.remove("hidden");
+        } else {
+            startMeditationBtn.classList.add("hidden");
         }
     }
 
@@ -1268,6 +1294,30 @@ export function setupEventListeners() {
             startScreenEl.classList.add("hidden");
             initGame();
         });
+    }
+
+    if (startMeditationBtn) {
+        startMeditationBtn.addEventListener("click", () => {
+            if (constructionModal) {
+                constructionModal.classList.remove("hidden");
+            }
+        });
+    }
+
+    if (closeConstructionBtn) {
+        closeConstructionBtn.addEventListener("click", () => {
+            if (constructionModal) {
+                constructionModal.classList.add("hidden");
+            }
+        });
+    }
+    if (constructionModal) {
+        const overlay = constructionModal.querySelector(".custom-modal-overlay");
+        if (overlay) {
+            overlay.addEventListener("click", () => {
+                constructionModal.classList.add("hidden");
+            });
+        }
     }
 
     if (showInstructionsBtn) {
