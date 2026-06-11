@@ -133,6 +133,24 @@ export function updateAppView() {
     if (bar) {
         if (gameState.currentStep >= 4 || gameState.currentLoop >= 2) {
             bar.classList.remove("hidden");
+            
+            const icon = bar.querySelector(".app-bar-icon");
+            const title = bar.querySelector(".app-bar-title");
+            const modalTitle = document.querySelector(".app-main-title");
+            const statusBar = document.querySelector(".app-status-bar");
+            
+            // Loop 2, Step 8以降はアプリをアンインストールしたため「タロット図鑑（ノート）」として扱う
+            if (gameState.currentLoop === 2 && gameState.currentStep >= 8) {
+                if (icon) icon.textContent = "📖";
+                if (title) title.textContent = "TAROT JOURNAL";
+                if (modalTitle) modalTitle.textContent = "TAROT JOURNAL";
+                if (statusBar) statusBar.style.display = "none";
+            } else {
+                if (icon) icon.textContent = "📱";
+                if (title) title.textContent = "THE JOURNEY";
+                if (modalTitle) modalTitle.textContent = "THE JOURNEY";
+                if (statusBar) statusBar.style.display = "flex";
+            }
         } else {
             bar.classList.add("hidden");
         }

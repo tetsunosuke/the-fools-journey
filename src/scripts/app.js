@@ -849,8 +849,7 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
             choicesContainer.appendChild(btn);
 
             btn.addEventListener("click", () => {
-                const isMotifStep = (gameState.currentLoop === 2 && [7, 9, 11, 12].includes(gameState.currentStep));
-                if (isMotifStep) {
+                if (card.isMotif) {
                     handleMotifSelected(card, choicesContainer);
                 } else {
                     handleQuizChoiceSelected(card, card.title, isInChat);
@@ -859,8 +858,10 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
         });
     }
 
-    // モチーフ選択時（崖の縁など）は、選択肢の上部に「愚者（0）」のカード画像を表示して、絵を見ながら選べるようにする
-    if (cardsList.some(c => c.title.includes("崖の縁") || c.title.includes("薔薇") || c.title.includes("犬"))) {
+    // モチーフ選択時は、選択肢の上部に対象のカード画像を表示して、絵を見ながら選べるようにする
+    const hasMotif = cardsList.some(c => c.isMotif);
+    if (hasMotif && cardsList.length > 0 && typeof cardsList[0].id === "number") {
+        const motifCardId = cardsList[0].id;
         const cardDisplay = document.createElement("div");
         cardDisplay.className = "dialogue-card-display";
         cardDisplay.style.marginBottom = "12px";
@@ -868,7 +869,7 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 
         const cardImg = document.createElement("div");
         cardImg.className = "dialogue-card-image";
-        cardImg.style.backgroundImage = `url('${TAROT_IMAGES[0]}')`; // 0 : THE FOOL
+        cardImg.style.backgroundImage = `url('${TAROT_IMAGES[motifCardId]}')`;
         cardImg.style.width = "100px";
         cardImg.style.height = "167px";
 
@@ -882,7 +883,15 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 
 export function handleMotifSelected(card, choicesContainer) {
     talkTextEl.textContent = "";
-    typeDialogueText(`【${card.title}の象徴】\n${card.desc}`, talkTextEl);
+    
+    // タグ（[speaker:...]等）を解析して除去し、話者を更新
+    const result = processPageTags(card.desc, gameState.activeDialogueSpeaker, () => {});
+    if (talkSpeakerEl && talkTextEl) {
+        updateSpeakerVisibility(talkSpeakerEl, talkTextEl, result.speaker);
+    }
+    gameState.activeDialogueSpeaker = result.speaker;
+
+    typeDialogueText(`【${card.title}の象徴】\n${result.text}`, talkTextEl);
 
     let confirmBtn = document.getElementById("motif-confirm-btn");
     if (!confirmBtn) {

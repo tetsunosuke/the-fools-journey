@@ -93,7 +93,7 @@ function parseStoryBody(body, storyId) {
     const cards = /** @type {any[]} */ ([]);
     if (branchText) {
         const choiceBlocks = branchText.split(
-            /(?=\n-\s*選択肢:)|^(?=-\s*選択肢:)/m,
+            /(?=\n-\s*(?:選択肢|モチーフ選択):)|^(?=-\s*(?:選択肢|モチーフ選択):)/m,
         );
         choiceBlocks.forEach((block) => {
             const trimmedBlock = block.trim();
@@ -101,10 +101,11 @@ function parseStoryBody(body, storyId) {
 
             const blockLines = trimmedBlock.split("\n");
             const titleLine = blockLines[0];
-            const titleMatch = titleLine.match(/^-\s*選択肢:\s*(.*)$/);
+            const titleMatch = titleLine.match(/^-\s*(選択肢|モチーフ選択):\s*(.*)$/);
             if (!titleMatch) return;
 
-            const title = titleMatch[1].trim();
+            const isMotif = titleMatch[1] === "モチーフ選択";
+            const title = titleMatch[2].trim();
             let upright = false;
             let correct = undefined;
             let skipFocus = false;
@@ -151,6 +152,7 @@ function parseStoryBody(body, storyId) {
                 upright,
                 correct,
                 skipFocus,
+                isMotif,
                 desc,
             });
         });
@@ -479,6 +481,7 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
 
             <!-- エンディング/オーバーレイ画面 -->
             <div id="ending-overlay" class="hidden">
+                <div id="ending-particles"></div>
                 <div class="ending-content">
                     <h1 id="ending-title">THE END</h1>
                     <p id="ending-desc">あなたは運命に敗北しました。</p>

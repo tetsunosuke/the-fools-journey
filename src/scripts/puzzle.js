@@ -893,82 +893,32 @@ export function triggerTrueEndingUnlock() {
 
     sceneBgEl.style.opacity = 0.15;
 
-    showView("talk"); // Bring player back to shop for ending dialog
-    talkPortraitEl.style.backgroundImage = "url('/images/sophia_portrait.png')";
-    talkPortraitEl.style.opacity = "1";
-    document.querySelector(".visual-area-talk").style.display = "flex";
-
-    updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "ソフィア");
-    typeDialogueText("……運命の糸が……完全に千切れました。あなたは提示されたすべての檻を拒絶し、システムを超越しました。これがあなたの真の意志ですね……。", talkTextEl);
-
-    setTimeout(() => {
-        currentArcanaEl.textContent = "XXI : THE WORLD (自己実現)";
-        talkCardsContainer.innerHTML = "";
-
-        const worldCard = document.createElement("div");
-        worldCard.className = "card-wrapper";
-        worldCard.id = "world-card";
-
-        const back = document.createElement("div");
-        back.className = "card-face card-back";
-        const front = document.createElement("div");
-        front.className = "card-face card-front";
-
-        const imgSlot = document.createElement("div");
-        imgSlot.className = "card-image-slot";
-        imgSlot.style.backgroundImage = `url('${TAROT_IMAGES[21]}')`; // The World
-
-        const title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = "XXI : 世界";
-
-        const orient = document.createElement("div");
-        orient.className = "card-orientation orientation-upright";
-        orient.textContent = "正位置";
-
-        front.appendChild(imgSlot);
-        front.appendChild(title);
-        front.appendChild(orient);
-        worldCard.appendChild(back);
-        worldCard.appendChild(front);
-
-        talkCardsContainer.appendChild(worldCard);
-
-        worldCard.addEventListener("click", () => {
-            if (gameState.isCardRevealed) return;
-            
-            // 循環インポートによるエラーを防ぐため、インラインでカードオープン処理を実行
-            gameState.isCardRevealed = true;
-            worldCard.classList.add("revealed");
-            
-            const endingText = "【トゥルーエンド】運命の超越。あなたはシステムを破壊し、自分で考え、決断する責任を取り戻しました。本当の『世界（自己実現）』の獲得です。愚者の旅は終わります。";
-            gameState.selectedOptionDesc = endingText;
-            discoverCard(21); // 世界 (XXI) を図鑑に登録
-            focusTarotCard(21, true, TAROT_IMAGES[21], false);
-
-            // ポップアップが閉じられた後に、解説テキストのタイピングを開始する
-            gameState.pendingStepLoad = () => {
-                gameState.pendingStepLoad = null;
-                updateSpeakerVisibility(talkSpeakerEl, talkTextEl, "運命の超越");
-                typeDialogueText(endingText, talkTextEl, () => {
-                    talkClickPrompt.classList.remove("hidden");
-                    const nextHandler = (e) => {
-                        if (e) e.stopPropagation();
-                        talkClickPrompt.onclick = null;
-                        talkTextEl.parentElement.onclick = null;
-                        showTrueEndingOverlay();
-                    };
-                    talkClickPrompt.onclick = nextHandler;
-                    talkTextEl.parentElement.onclick = nextHandler;
-                });
-            };
-        });
-    }, 2500);
+    // step-30 で最終カード（愚者）を引き終わっているので、すぐにエンディングオーバーレイを表示する
+    showTrueEndingOverlay();
 }
 
 export function showTrueEndingOverlay() {
     endingOverlay.classList.remove("hidden");
-    endingTitle.textContent = "XXI : THE WORLD (自己実現)";
+    
+    // パーティクル生成
+    const particlesContainer = document.getElementById("ending-particles");
+    if (particlesContainer) {
+        particlesContainer.innerHTML = "";
+        for (let i = 0; i < 60; i++) {
+            const particle = document.createElement("div");
+            particle.className = "gold-particle";
+            particle.style.left = Math.random() * 100 + "vw";
+            const size = Math.random() * 5 + 2;
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+            particle.style.animationDuration = (Math.random() * 4 + 3) + "s";
+            // マイナスのディレイを設定することで、アニメーションが既に進行している状態から開始し、最初から画面全体にパーティクルが存在するようにする
+            particle.style.animationDelay = "-" + (Math.random() * 5) + "s";
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    endingTitle.textContent = "0 : THE FOOL (新たなはじまり)";
     endingTitle.style.color = "var(--color-gold)";
     endingDesc.innerHTML = `
         <div style="text-align: left; line-height: 1.8; font-size: 14px; color: var(--color-text-light); max-width: 500px; margin: 0 auto;">
