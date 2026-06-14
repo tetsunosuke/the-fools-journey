@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    PROJECT FOOL - Core Design System & Stylesheet (Astro Version)
    ========================================================================== */
 
@@ -752,8 +752,8 @@ body {
     height: 125px;
 }
 
-/* Motif Selection UI */
-.motif-container {
+/* symbol Selection UI */
+.symbol-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -761,19 +761,19 @@ body {
     margin-top: 15px;
     width: 100%;
 }
-.motif-title {
+.symbol-title {
     font-size: 14px;
     color: var(--color-text-muted);
     font-family: var(--font-serif);
     letter-spacing: 1px;
 }
-.motif-buttons {
+.symbol-buttons {
     display: flex;
     gap: 15px;
     justify-content: center;
     width: 100%;
 }
-.motif-btn {
+.symbol-btn {
     background: rgba(16, 12, 34, 0.6);
     border: 1px solid rgba(212, 175, 55, 0.4);
     color: var(--color-gold);
@@ -784,7 +784,7 @@ body {
     font-family: var(--font-sans);
     transition: var(--transition-smooth);
 }
-.motif-btn:hover {
+.symbol-btn:hover {
     background: var(--color-gold);
     color: var(--color-bg-dark);
     box-shadow: 0 0 10px var(--color-gold-glow);
@@ -1905,7 +1905,7 @@ body {
     box-shadow: 0 0 10px var(--color-gold-glow);
 }
 
-/* Motif Highlight Overlay inside Card Focus */
+/* symbol Highlight Overlay inside Card Focus */
 .focus-card-image-container {
     position: relative;
     overflow: hidden;
@@ -1927,8 +1927,8 @@ body {
     display: none !important;
 }
 
-/* Motif Section in Info */
-.focus-card-motifs-section {
+/* symbol Section in Info */
+.focus-card-symbols-section {
     margin-top: 15px;
     padding-top: 12px;
     border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -1937,10 +1937,10 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-.focus-card-motifs-section.hidden {
+.focus-card-symbols-section.hidden {
     display: none !important;
 }
-.focus-motifs-title {
+.focus-symbols-title {
     font-size: 13px;
     color: var(--color-gold);
     margin-bottom: 8px;
@@ -1948,14 +1948,14 @@ body {
     letter-spacing: 1px;
     text-align: center;
 }
-.focus-motif-buttons {
+.focus-symbol-buttons {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 10px;
 }
-.focus-motif-btn {
+.focus-symbol-btn {
     background: rgba(16, 12, 34, 0.8);
     border: 1px solid rgba(212, 175, 55, 0.3);
     color: var(--color-text-muted);
@@ -1966,19 +1966,19 @@ body {
     transition: all 0.2s ease;
     font-family: var(--font-sans);
 }
-.focus-motif-btn:hover {
+.focus-symbol-btn:hover {
     background: rgba(212, 175, 55, 0.1);
     border-color: var(--color-gold);
     color: var(--color-gold);
 }
-.focus-motif-btn.active {
+.focus-symbol-btn.active {
     background: var(--color-gold);
     color: #100c22;
     font-weight: bold;
     border-color: var(--color-gold);
     box-shadow: 0 0 8px var(--color-gold-glow);
 }
-.focus-card-motif-explanation {
+.focus-card-symbol-explanation {
     font-size: 12px;
     color: var(--color-text-light);
     background: rgba(16, 12, 34, 0.9);
@@ -1991,7 +1991,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     font-family: var(--font-sans);
 }
-.focus-card-motif-explanation.hidden {
+.focus-card-symbol-explanation.hidden {
     display: none !important;
 }
 

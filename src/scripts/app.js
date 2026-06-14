@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PROJECT FOOL - Rebuilt Game Engine with Multi-Scene UI & Chatbot Mechanics
  */
 
@@ -14,7 +14,7 @@ import {
     chatHistoryEl, chatInteractiveZoneEl, cardDrawOverlay, cardDrawDeckContainer,
     threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt, puzzleSpeakerEl, puzzleTextEl,
     puzzleClickPrompt, meditationContainer, drawMeditationBtn, meditationCardZone,
-    meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons,
+    meditationDialogue, meditationText, meditationSymbols, meditationSymbolButtons,
     resetMeditationBtn, exitMeditationBtn, startScreenEl, startNewBtn, startMeditationBtn, constructionModal, closeConstructionBtn, startSlotsBtn, startChaptersBtn, startCardTrigger, startInfoZone, showInstructionsBtn,
     instructionsModal, closeInstructionsBtn, cardFocusModal, focusCardImg, focusCardName,
     focusCardDirection, focusCardDesc, focusCardTabs, tabGameDesc, tabTrueDesc
@@ -24,9 +24,9 @@ import { createCardElement } from "./cards.js";
 import {
     renderSoulCardForm, showSoulCardResult, highlightSlotGuide, switchToThreeCardView,
     renderThreeCardSpread, startAutomaticThreeCardSpread, drawNextThreeCardInline, completeThreeCardSpread,
-    showThreeCardContract, renderMotifSelection, triggerPsycheScan, renderSymbolicDragPuzzle,
+    showThreeCardContract, renderSymbolSelection, triggerPsycheScan, renderSymbolicDragPuzzle,
     setupStoneDrag, handlePuzzleChoice, loadMetaStarStep, setupCardDrag, triggerFateBrokenByDrag,
-    triggerTrueEndingUnlock, showTrueEndingOverlay, initMeditationMode, drawMeditationCard, selectMeditationMotif
+    triggerTrueEndingUnlock, showTrueEndingOverlay, initMeditationMode, drawMeditationCard, selectMeditationSymbol
 } from "./puzzle.js";
 import { initAppView, updateAppView, toggleAppView } from "./app_view.js";
 import "./audio.js";
@@ -429,10 +429,10 @@ export function executeLoadStep(stepData) {
     else if (gameState.currentView === "chat") {
         chatInteractiveZoneEl.innerHTML = "";
 
-        // 2周目 Step12 でのみ、チャット欄にモチーフボタンを直接表示して進行
+        // 2周目 Step12 でのみ、チャット欄にシンボルボタンを直接表示して進行
         if (gameState.currentLoop === 2 && gameState.currentStep === 12) {
             pushChatMessage("The Journey", stepData.text, false, null, () => {
-                renderMotifSelection(12);
+                renderSymbolSelection(12);
             });
             return;
         }
@@ -879,8 +879,8 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
             choicesContainer.appendChild(btn);
 
             btn.addEventListener("click", () => {
-                if (card.isMotif) {
-                    handleMotifSelected(card, choicesContainer);
+                if (card.isSymbol) {
+                    handleSymbolSelected(card, choicesContainer);
                 } else {
                     handleQuizChoiceSelected(card, card.title, isInChat);
                 }
@@ -888,10 +888,10 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
         });
     }
 
-    // モチーフ選択時は、選択肢の上部に対象のカード画像を表示して、絵を見ながら選べるようにする
-    const hasMotif = cardsList.some(c => c.isMotif);
-    if (hasMotif && cardsList.length > 0 && typeof cardsList[0].id === "number") {
-        const motifCardId = cardsList[0].id;
+    // シンボル選択時は、選択肢の上部に対象のカード画像を表示して、絵を見ながら選べるようにする
+    const hasSymbol = cardsList.some(c => c.isSymbol);
+    if (hasSymbol && cardsList.length > 0 && typeof cardsList[0].id === "number") {
+        const symbolCardId = cardsList[0].id;
         const cardDisplay = document.createElement("div");
         cardDisplay.className = "dialogue-card-display";
         cardDisplay.style.marginBottom = "12px";
@@ -899,7 +899,7 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
 
         const cardImg = document.createElement("div");
         cardImg.className = "dialogue-card-image";
-        cardImg.style.backgroundImage = `url('${TAROT_IMAGES[motifCardId]}')`;
+        cardImg.style.backgroundImage = `url('${TAROT_IMAGES[symbolCardId]}')`;
         cardImg.style.width = "100px";
         cardImg.style.height = "167px";
 
@@ -911,8 +911,8 @@ export function renderChoiceCards(cardsList, container, isInChat = false) {
     scrollToBottom();
 }
 
-export function handleMotifSelected(card, choicesContainer) {
-    // 他のすべてのモチーフ選択ボタンを非活性にする
+export function handleSymbolSelected(card, choicesContainer) {
+    // 他のすべてのシンボル選択ボタンを非活性にする
     const allButtons = choicesContainer.querySelectorAll(".quiz-choice-btn");
     allButtons.forEach(btn => {
         btn.disabled = true;
@@ -933,10 +933,10 @@ export function handleMotifSelected(card, choicesContainer) {
         // タイピング完了後、元の選択ボタンをすべて削除してすっきりさせる
         allButtons.forEach(btn => btn.remove());
 
-        let confirmBtn = document.getElementById("motif-confirm-btn");
+        let confirmBtn = document.getElementById("symbol-confirm-btn");
         if (!confirmBtn) {
             confirmBtn = document.createElement("button");
-            confirmBtn.id = "motif-confirm-btn";
+            confirmBtn.id = "symbol-confirm-btn";
             confirmBtn.className = "quiz-choice-btn";
             confirmBtn.style.marginTop = "12px";
             confirmBtn.style.border = "1px solid var(--color-gold)";

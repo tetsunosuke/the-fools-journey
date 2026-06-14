@@ -3,7 +3,7 @@
  */
 
 import { gameState } from "./state.js";
-import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_MOTIFS } from "./constants.js";
+import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_SYMBOLS } from "./constants.js";
 
 
 
@@ -45,8 +45,8 @@ export const drawMeditationBtn = document.getElementById("draw-meditation-btn");
 export const meditationCardZone = document.getElementById("meditation-card-zone");
 export const meditationDialogue = document.getElementById("meditation-dialogue");
 export const meditationText = document.getElementById("meditation-text");
-export const meditationMotifs = document.getElementById("meditation-motifs");
-export const meditationMotifButtons = document.getElementById("meditation-motif-buttons");
+export const meditationSymbols = document.getElementById("meditation-symbols");
+export const meditationSymbolButtons = document.getElementById("meditation-symbol-buttons");
 export const resetMeditationBtn = document.getElementById("reset-meditation-btn");
 export const exitMeditationBtn = document.getElementById("exit-meditation-btn");
 export const startScreenEl = document.getElementById("start-screen");
@@ -248,10 +248,10 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
         }
     }
 
-    // --- 注目モチーフの表示セクションとズーム・ハイライト制御の初期化 ---
-    const motifsSection = document.getElementById("focus-card-motifs-section");
-    const motifButtonsContainer = document.getElementById("focus-card-motif-buttons");
-    const motifExplanation = document.getElementById("focus-card-motif-explanation");
+    // --- 注目シンボルの表示セクションとズーム・ハイライト制御の初期化 ---
+    const symbolsSection = document.getElementById("focus-card-symbols-section");
+    const symbolButtonsContainer = document.getElementById("focus-card-symbol-buttons");
+    const symbolExplanation = document.getElementById("focus-card-symbol-explanation");
     const highlightBox = document.getElementById("focus-card-highlight-box");
 
     if (highlightBox) {
@@ -261,53 +261,53 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
         highlightBox.style.width = "0";
         highlightBox.style.height = "0";
     }
-    if (motifsSection) motifsSection.classList.add("hidden");
+    if (symbolsSection) symbolsSection.classList.add("hidden");
 
-    if (typeof cardIdOrName === "number" && MEDITATION_MOTIFS[cardIdOrName] && (gameState.currentLoop === 2 || gameState.trueEndCleared)) {
-        const motifData = MEDITATION_MOTIFS[cardIdOrName];
-        if (motifsSection && motifButtonsContainer && motifExplanation) {
-            motifsSection.classList.remove("hidden");
-            motifButtonsContainer.innerHTML = "";
-            motifExplanation.classList.add("hidden");
-            motifExplanation.textContent = "";
+    if (typeof cardIdOrName === "number" && MEDITATION_SYMBOLS[cardIdOrName] && (gameState.currentLoop === 2 || gameState.trueEndCleared)) {
+        const symbolData = MEDITATION_SYMBOLS[cardIdOrName];
+        if (symbolsSection && symbolButtonsContainer && symbolExplanation) {
+            symbolsSection.classList.remove("hidden");
+            symbolButtonsContainer.innerHTML = "";
+            symbolExplanation.classList.add("hidden");
+            symbolExplanation.textContent = "";
 
-            motifData.motifs.forEach((motif) => {
+            symbolData.symbols.forEach((symbol) => {
                 const btn = document.createElement("button");
-                btn.className = "focus-motif-btn";
-                btn.textContent = motif.name;
+                btn.className = "focus-symbol-btn";
+                btn.textContent = symbol.name;
 
                 btn.addEventListener("click", (e) => {
                     e.stopPropagation(); // モーダルを閉じない
                     if (window.gameAudio) window.gameAudio.playSE("click");
 
-                    const activeBtn = motifButtonsContainer.querySelector(".focus-motif-btn.active");
+                    const activeBtn = symbolButtonsContainer.querySelector(".focus-symbol-btn.active");
                     if (activeBtn) {
                         activeBtn.classList.remove("active");
                         if (activeBtn === btn) {
                             focusCardImg.style.transform = (typeof upright === "boolean" && !upright) ? "rotate(180deg) scale(1)" : "scale(1)";
                             if (highlightBox) highlightBox.classList.add("hidden");
-                            motifExplanation.classList.add("hidden");
+                            symbolExplanation.classList.add("hidden");
                             return;
                         }
                     }
                     btn.classList.add("active");
 
-                    motifExplanation.textContent = motif.text;
-                    motifExplanation.classList.remove("hidden");
+                    symbolExplanation.textContent = symbol.text;
+                    symbolExplanation.classList.remove("hidden");
 
-                    if (motif.rect) {
+                    if (symbol.rect) {
                         if (highlightBox) {
-                            highlightBox.style.top = motif.rect.top;
-                            highlightBox.style.left = motif.rect.left;
-                            highlightBox.style.width = motif.rect.width;
-                            highlightBox.style.height = motif.rect.height;
+                            highlightBox.style.top = symbol.rect.top;
+                            highlightBox.style.left = symbol.rect.left;
+                            highlightBox.style.width = symbol.rect.width;
+                            highlightBox.style.height = symbol.rect.height;
                             highlightBox.classList.remove("hidden");
                         }
 
-                        const leftPercent = parseFloat(motif.rect.left);
-                        const topPercent = parseFloat(motif.rect.top);
-                        const widthPercent = parseFloat(motif.rect.width);
-                        const heightPercent = parseFloat(motif.rect.height);
+                        const leftPercent = parseFloat(symbol.rect.left);
+                        const topPercent = parseFloat(symbol.rect.top);
+                        const widthPercent = parseFloat(symbol.rect.width);
+                        const heightPercent = parseFloat(symbol.rect.height);
 
                         const centerX = leftPercent + widthPercent / 2;
                         const centerY = topPercent + heightPercent / 2;
@@ -326,7 +326,7 @@ export function focusTarotCard(cardIdOrName, upright, imgUrl, forceHideTrueDesc 
                     }
                 });
 
-                motifButtonsContainer.appendChild(btn);
+                symbolButtonsContainer.appendChild(btn);
             });
         }
     }

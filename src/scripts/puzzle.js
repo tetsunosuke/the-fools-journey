@@ -3,14 +3,14 @@
  */
 
 import { gameState, discoverCard, saveState } from "./state.js";
-import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_MOTIFS, THREE_CARDS_DATA } from "./constants.js";
+import { SOUL_CARDS, TAROT_IMAGES, MEDITATION_SYMBOLS, THREE_CARDS_DATA } from "./constants.js";
 import {
     showView, focusTarotCard, updateSpeakerVisibility, updateBackgroundAndAesthetics, scrollToBottom,
     talkCardsContainer, talkSpeakerEl, talkTextEl, talkClickPrompt, currentArcanaEl,
     threeCardSpeakerEl, threeCardTextEl, threeCardClickPrompt,
     puzzleSpeakerEl, puzzleTextEl, puzzleClickPrompt,
     endingOverlay, endingTitle, endingDesc, restartBtn,
-    meditationContainer, meditationCardZone, meditationDialogue, meditationText, meditationMotifs, meditationMotifButtons, resetMeditationBtn,
+    meditationContainer, meditationCardZone, meditationDialogue, meditationText, meditationSymbols, meditationSymbolButtons, resetMeditationBtn,
     sceneBgEl, loopCountEl, goldFlashOverlay, gameContainer, talkPortraitEl
 } from "./dom.js";
 import { typeDialogueText } from "./utils.js";
@@ -538,22 +538,22 @@ export function showThreeCardContract() {
     });
 }
 
-// --- Motif Selection (In Chat View) ---
-export function renderMotifSelection(step) {
+// --- symbol Selection (In Chat View) ---
+export function renderSymbolSelection(step) {
     const chatInteractiveZoneEl = document.getElementById("chat-interactive-zone");
     chatInteractiveZoneEl.innerHTML = "";
 
-    // Show motifs buttons dynamically in chat bottom
-    const motifContainer = document.createElement("div");
-    motifContainer.className = "motif-container";
-    motifContainer.style.marginTop = "0";
+    // Show symbols buttons dynamically in chat bottom
+    const symbolContainer = document.createElement("div");
+    symbolContainer.className = "symbol-container";
+    symbolContainer.style.marginTop = "0";
 
     const btnWrapper = document.createElement("div");
-    btnWrapper.className = "motif-buttons";
+    btnWrapper.className = "symbol-buttons";
 
     if (step === 11) {
         const scaleBtn = document.createElement("button");
-        scaleBtn.className = "motif-btn";
+        scaleBtn.className = "symbol-btn";
         scaleBtn.textContent = "天秤（因果応報）";
         scaleBtn.addEventListener("click", () => {
             pushChatMessage("Player", "天秤を選択する", true);
@@ -561,7 +561,7 @@ export function renderMotifSelection(step) {
         });
 
         const swordBtn = document.createElement("button");
-        swordBtn.className = "motif-btn";
+        swordBtn.className = "symbol-btn";
         swordBtn.textContent = "剣（感情の排除）";
         swordBtn.addEventListener("click", () => {
             pushChatMessage("Player", "剣を選択する", true);
@@ -572,7 +572,7 @@ export function renderMotifSelection(step) {
         btnWrapper.appendChild(swordBtn);
     } else {
         const chainsBtn = document.createElement("button");
-        chainsBtn.className = "motif-btn";
+        chainsBtn.className = "symbol-btn";
         chainsBtn.textContent = "緩い首輪の鎖（依存）";
         chainsBtn.addEventListener("click", () => {
             pushChatMessage("Player", "緩い首輪の鎖を選択する", true);
@@ -581,8 +581,8 @@ export function renderMotifSelection(step) {
         btnWrapper.appendChild(chainsBtn);
     }
 
-    motifContainer.appendChild(btnWrapper);
-    chatInteractiveZoneEl.appendChild(motifContainer);
+    symbolContainer.appendChild(btnWrapper);
+    chatInteractiveZoneEl.appendChild(symbolContainer);
     scrollToBottom();
 }
 
@@ -631,11 +631,11 @@ export function triggerPsycheScan(choice) {
 
         let desc = "";
         if (choice === "scale") {
-            desc = "【天秤のモチーフを選択】 「因果応報」の背景が脳内に流し込まれる。同僚の不正を徹底的に暴き、相手を吊るし上げるべきとの指示。➔ 勝利しましたが、冷酷な告発者として職場内での孤立が始まりました。";
+            desc = "【天秤のシンボルを選択】 「因果応報」の背景が脳内に流し込まれる。同僚の不正を徹底的に暴き、相手を吊るし上げるべきとの指示。➔ 勝利しましたが、冷酷な告発者として職場内での孤立が始まりました。";
         } else if (choice === "sword") {
-            desc = "【剣のモチーフを選択】 「感情の排除と決別」の哲学を学ぶ。裏で上層部に冷徹に根回しを行い、同僚を静かに排除する指示。➔ 目的は達成しましたが、冷酷な手段に心に罪悪感が残りました。";
+            desc = "【剣のシンボルを選択】 「感情の排除と決別」の哲学を学ぶ。裏で上層部に冷徹に根回しを行い、同僚を静かに排除する指示。➔ 目的は達成しましたが、冷酷な手段に心に罪悪感が残りました。";
         } else if (choice === "chains") {
-            desc = "【緩い鎖のモチーフを選択】 「彼らは自分の意志で囚われ続けている」という逆説を学ぶ。『今のままでいいの。考えるのをやめて、この甘い檻に身を委ねなさい』 ➔ 完全な思考停止の完成。";
+            desc = "【緩い鎖のシンボルを選択】 「彼らは自分の意志で囚われ続けている」という逆説を学ぶ。『今のままでいいの。考えるのをやめて、この甘い檻に身を委ねなさい』 ➔ 完全な思考停止の完成。";
         }
 
         gameState.isCardRevealed = true;
@@ -977,15 +977,15 @@ export function initMeditationMode() {
 
     meditationCardZone.innerHTML = `<button id="draw-meditation-btn" class="action-btn">カードを1枚引く</button>`;
     meditationDialogue.classList.add("hidden");
-    meditationMotifs.classList.add("hidden");
+    meditationSymbols.classList.add("hidden");
     resetMeditationBtn.classList.add("hidden");
 
     document.getElementById("draw-meditation-btn").addEventListener("click", drawMeditationCard);
 }
 
 export function drawMeditationCard() {
-    // プレイヤーが発見した（discoveredCardsに含まれる）カードのうち、瞑想モチーフが定義されているものだけを対象にする
-    let availableKeys = Array.from(gameState.discoveredCards).filter(key => MEDITATION_MOTIFS[key] !== undefined);
+    // プレイヤーが発見した（discoveredCardsに含まれる）カードのうち、瞑想シンボルが定義されているものだけを対象にする
+    let availableKeys = Array.from(gameState.discoveredCards).filter(key => MEDITATION_SYMBOLS[key] !== undefined);
 
     // もし1枚も発見されていない場合は、0 (愚者) をデフォルトとする
     if (availableKeys.length === 0) {
@@ -993,7 +993,7 @@ export function drawMeditationCard() {
     }
 
     const randKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
-    const metadata = MEDITATION_MOTIFS[randKey];
+    const metadata = MEDITATION_SYMBOLS[randKey];
 
     meditationCardZone.innerHTML = "";
 
@@ -1007,24 +1007,24 @@ export function drawMeditationCard() {
         // カードを全画面表示
         focusTarotCard(randKey, true, TAROT_IMAGES[randKey]);
 
-        meditationMotifButtons.innerHTML = "";
-        metadata.motifs.forEach((motif) => {
+        meditationSymbolButtons.innerHTML = "";
+        metadata.symbols.forEach((symbol) => {
             const btn = document.createElement("button");
-            btn.className = "motif-btn";
-            btn.textContent = motif.name;
-            btn.addEventListener("click", () => selectMeditationMotif(motif));
-            meditationMotifButtons.appendChild(btn);
+            btn.className = "symbol-btn";
+            btn.textContent = symbol.name;
+            btn.addEventListener("click", () => selectMeditationSymbol(symbol));
+            meditationSymbolButtons.appendChild(btn);
         });
 
         meditationDialogue.classList.remove("hidden");
-        meditationMotifs.classList.remove("hidden");
+        meditationSymbols.classList.remove("hidden");
         resetMeditationBtn.classList.remove("hidden");
 
-        typeDialogueText(`今日のあなたのカードは『${metadata.title}』です。カードの絵柄から、今あなたの心が最も惹かれるモチーフを選んでください。`, meditationText);
+        typeDialogueText(`今日のあなたのカードは『${metadata.title}』です。カードの絵柄から、今あなたの心が最も惹かれるシンボルを選んでください。`, meditationText);
     }, 500);
 }
 
-export function selectMeditationMotif(motif) {
-    meditationMotifs.classList.add("hidden");
-    typeDialogueText(`【${motif.name}の象徴】<br>${motif.text}`, meditationText);
+export function selectMeditationSymbol(symbol) {
+    meditationSymbols.classList.add("hidden");
+    typeDialogueText(`【${symbol.name}の象徴】<br>${symbol.text}`, meditationText);
 }

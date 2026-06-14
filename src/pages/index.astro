@@ -1,4 +1,4 @@
----
+﻿---
 // @ts-nocheck
 // Astro Component Frontmatter
 import "../styles/style.css";
@@ -101,7 +101,7 @@ function parseStoryBody(body, storyId) {
         }
 
         const choiceBlocks = branchText.split(
-            /(?=\n-\s*(?:選択肢|モチーフ選択):)|^(?=-\s*(?:選択肢|モチーフ選択):)/m,
+            /(?=\n-\s*(?:選択肢|シンボル選択):)|^(?=-\s*(?:選択肢|シンボル選択):)/m,
         );
         choiceBlocks.forEach((block) => {
             const trimmedBlock = block.trim();
@@ -109,10 +109,10 @@ function parseStoryBody(body, storyId) {
 
             const blockLines = trimmedBlock.split("\n");
             const titleLine = blockLines[0];
-            const titleMatch = titleLine.match(/^-\s*(選択肢|モチーフ選択):\s*(.*)$/);
+            const titleMatch = titleLine.match(/^-\s*(選択肢|シンボル選択):\s*(.*)$/);
             if (!titleMatch) return;
 
-            const isMotif = titleMatch[1] === "モチーフ選択";
+            const isSymbol = titleMatch[1] === "シンボル選択";
             const title = titleMatch[2].trim();
             let upright = false;
             let correct = undefined;
@@ -163,7 +163,7 @@ function parseStoryBody(body, storyId) {
                 upright,
                 correct,
                 skipFocus,
-                isMotif,
+                isSymbol,
                 desc,
             });
         });
@@ -473,7 +473,7 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
                             class="chat-interactive-zone"
                             id="chat-interactive-zone"
                         >
-                            <!-- カード選択、モチーフ選択、ボタン等をここに挿入 -->
+                            <!-- カード選択、シンボル選択、ボタン等をここに挿入 -->
                         </div>
                     </div>
                 </div>
@@ -558,7 +558,7 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
                     <p
                         style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;"
                     >
-                    ここはあなたの内省のための空間です。カードを引き、心惹かれるモチーフを見つめてみましょう。
+                    ここはあなたの内省のための空間です。カードを引き、心惹かれるシンボルを見つめてみましょう。
                     </p>
                 </header>
                 <div class="meditation-card-display">
@@ -584,14 +584,14 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
                     </div>
                 </div>
                 <div
-                    id="meditation-motifs"
-                    class="motif-container hidden"
+                    id="meditation-symbols"
+                    class="symbol-container hidden"
                     style="margin-top: 15px;"
                 >
-                    <div class="motif-title">
-                        惹かれるモチーフを選んでください
+                    <div class="symbol-title">
+                        惹かれるシンボルを選んでください
                     </div>
-                    <div id="meditation-motif-buttons" class="motif-buttons">
+                    <div id="meditation-symbol-buttons" class="symbol-buttons">
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
@@ -723,11 +723,11 @@ allStories.forEach((/** @type {{id:string, body:string}} */ story) => {
 
                         <div id="focus-card-desc" class="focus-card-desc"></div>
 
-                        <!-- 注目モチーフのハイライト＆解説 -->
-                        <div id="focus-card-motifs-section" class="focus-card-motifs-section hidden">
-                            <div class="focus-motifs-title">🔍 注目モチーフを観察する</div>
-                            <div id="focus-card-motif-buttons" class="focus-motif-buttons"></div>
-                            <div id="focus-card-motif-explanation" class="focus-card-motif-explanation hidden"></div>
+                        <!-- 注目シンボルのハイライト＆解説 -->
+                        <div id="focus-card-symbols-section" class="focus-card-symbols-section hidden">
+                            <div class="focus-symbols-title">🔍 注目シンボルを観察する</div>
+                            <div id="focus-card-symbol-buttons" class="focus-symbol-buttons"></div>
+                            <div id="focus-card-symbol-explanation" class="focus-card-symbol-explanation hidden"></div>
                         </div>
                     </div>
                     <div class="focus-card-tip">画面をタップして戻る</div>
